@@ -25,8 +25,12 @@ class ImportLogRepository {
   }
 
   async remove(id: string) {
-    const { error } = await supabase.from("import_logs").delete().eq("id", id);
+    const { error, count } = await supabase
+      .from("import_logs")
+      .delete({ count: "exact" })
+      .eq("id", id);
     if (error) throw error;
+    if (!count) throw new Error("Sem permissão para excluir este log ou registro não encontrado.");
   }
 }
 
