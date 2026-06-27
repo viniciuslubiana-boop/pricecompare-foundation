@@ -18,7 +18,7 @@ export function ComparisonFiltersBar({ value, onChange }: Props) {
         <div className="min-w-[280px] flex-1">
           <SearchInput
             value={value.search ?? ""}
-            onChange={(v) => patch({ search: v })}
+            onChange={(e) => patch({ search: e.target.value })}
             placeholder="Buscar marca ou modelo..."
           />
         </div>
