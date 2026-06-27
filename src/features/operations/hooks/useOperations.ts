@@ -59,18 +59,22 @@ export function useOperations() {
       const importErrors = imports.filter((i) => i.status === "failed").length;
       const extractionErrors = extractions.filter((e) => e.status === "failed").length;
 
+      const competitorNameById = new Map(snap.competitors.map((c) => [c.id, c.name]));
+
       const activities: ActivityItem[] = [
         ...imports.slice(0, 5).map((i) => ({
           id: `i-${i.id}`,
           kind: "import" as const,
           title: i.file_name ?? "Importação",
-          status: i.status,
+          status: i.status ?? "unknown",
           at: i.created_at,
         })),
         ...extractions.slice(0, 5).map((e) => ({
           id: `e-${e.id}`,
           kind: "extraction" as const,
-          title: e.competitor_name ?? "Extração",
+          title:
+            (e.competitor_id ? competitorNameById.get(e.competitor_id) : null) ??
+            "Extração",
           status: e.status,
           at: e.created_at,
         })),
