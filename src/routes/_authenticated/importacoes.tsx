@@ -262,6 +262,16 @@ function CentralImportacoesPage() {
           setToDelete(null);
         }}
       />
+
+      <ConfirmDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        title={`Excluir ${selected.size} ${selected.size === 1 ? "registro" : "registros"}?`}
+        description="Os logs selecionados serão removidos. Os veículos importados continuam no estoque."
+        destructive
+        confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir selecionados"}
+        onConfirm={handleBulkDelete}
+      />
     </div>
   );
 }
