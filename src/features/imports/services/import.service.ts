@@ -78,16 +78,18 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
   const preview = buildPreview(args.rows, args.mapping, args.existing);
   const errorLog: Array<{ index: number; errors: string[] }> = [];
   let imported = 0;
-  let failed = 0;
+  let invalid = 0;
+  let duplicateIgnored = 0;
+  let insertError = 0;
 
   for (const item of preview) {
     if (item.status === "invalid") {
-      failed++;
+      invalid++;
       errorLog.push({ index: item.index, errors: item.errors });
       continue;
     }
     if (item.status === "duplicate" && args.duplicatesPolicy === "ignore") {
-      failed++;
+      duplicateIgnored++;
       errorLog.push({
         index: item.index,
         errors: [`Duplicada ignorada: ${item.duplicateReason ?? ""}`],
@@ -97,7 +99,7 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
 
     const parsed = inventoryVehicleSchema.safeParse(item.values);
     if (!parsed.success) {
-      failed++;
+      invalid++;
       errorLog.push({
         index: item.index,
         errors: parsed.error.issues.map((i) => i.message),
@@ -109,16 +111,27 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
       await inventoryService.create(parsed.data, args.userId, args.fileType);
       imported++;
     } catch (e) {
-      failed++;
+      insertError++;
       errorLog.push({
         index: item.index,
-        errors: [(e as Error).message],
+        errors: [`Erro ao salvar no banco: ${(e as Error).message}`],
       });
     }
   }
 
-  const status: ImportRunResult["status"] =
-    imported === 0 ? "failed" : failed === 0 ? "completed" : "partial";
+  const failed = invalid + duplicateIgnored + insertError;
+  const hasRealErrors = invalid > 0 || insertError > 0;
+
+  let status: ImportRunResult["status"];
+  if (imported > 0 && !hasRealErrors && duplicateIgnored === 0) {
+    status = "completed";
+  } else if (imported > 0) {
+    status = "partial";
+  } else if (!hasRealErrors && duplicateIgnored > 0) {
+    status = "no_changes";
+  } else {
+    status = "failed";
+  }
 
   await importLogRepository.create({
     file_name: args.fileName,
@@ -135,6 +148,9 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
     rowsReceived: preview.length,
     rowsImported: imported,
     rowsFailed: failed,
+    rowsInvalid: invalid,
+    rowsDuplicateIgnored: duplicateIgnored,
+    rowsInsertError: insertError,
     status,
     errorLog,
   };
