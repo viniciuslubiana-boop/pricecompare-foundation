@@ -46,18 +46,6 @@ type RowState =
   | { status: "ignored" }
   | { status: "registered"; competitor: Competitor };
 
-function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-
 function LocalizarConcorrentesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -71,7 +59,7 @@ function LocalizarConcorrentesPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [rowStates, setRowStates] = useState<Record<string, RowState>>({});
-  const [searchCenter, setSearchCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchCenter, setSearchCenter] = useState<SearchCenter>(null);
 
   const [sourcesFor, setSourcesFor] = useState<Competitor | null>(null);
 
@@ -88,17 +76,13 @@ function LocalizarConcorrentesPage() {
     setRowStates({});
     setSearchCenter(null);
     try {
-      const { results: r } = await runSearch({
+      const { results: r, center } = await runSearch({
         data: { city: city.trim(), state: state.trim(), radiusKm, keyword: keyword.trim() },
       });
       setResults(r);
-      const valid = r.filter((p) => p.latitude != null && p.longitude != null);
-      if (valid.length > 0) {
-        const avgLat =
-          valid.reduce((s, p) => s + (p.latitude ?? 0), 0) / valid.length;
-        const avgLng =
-          valid.reduce((s, p) => s + (p.longitude ?? 0), 0) / valid.length;
-        setSearchCenter({ lat: avgLat, lng: avgLng });
+      setSearchCenter(center);
+      if (!center) {
+        toast.warning("Não foi possível geolocalizar a cidade informada — distâncias indisponíveis.");
       }
       if (r.length === 0) toast.info("Nenhum estabelecimento encontrado.");
     } catch (e) {
@@ -107,6 +91,7 @@ function LocalizarConcorrentesPage() {
       setLoading(false);
     }
   };
+
 
   const handleRegister = async (place: PlaceResult) => {
     if (!user) {
