@@ -14,6 +14,7 @@ import {
   Radar,
   Wallet,
   Search,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 
