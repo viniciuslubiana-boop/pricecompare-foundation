@@ -200,7 +200,8 @@ function LocalizarConcorrentesPage() {
             <TableBody>
               {results.map((p) => {
                 const st = rowStates[p.placeId] ?? { status: "idle" };
-                const d = distance(p);
+                const d = p.distanceKm;
+
                 return (
                   <TableRow key={p.placeId}>
                     <TableCell className="font-medium">{p.name}</TableCell>
