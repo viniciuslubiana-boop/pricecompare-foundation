@@ -80,3 +80,47 @@ export interface MarketUpdateRunRow {
   details: CompetitorRunDetail[];
   created_at: string;
 }
+
+// =========== Market Changes (Funcionalidade 03) ===========
+
+export type MarketChangeType = "new" | "removed" | "price" | "km";
+
+export interface MarketChangeRow {
+  id: string;
+  run_id: string | null;
+  competitor_id: string | null;
+  competitor_name: string;
+  change_type: MarketChangeType;
+  vehicle_key: string;
+  brand: string | null;
+  model: string | null;
+  year_model: string | null;
+  previous_price: number | null;
+  current_price: number | null;
+  price_diff: number | null;
+  price_diff_pct: number | null;
+  previous_km: number | null;
+  current_km: number | null;
+  km_diff: number | null;
+  summary: string | null;
+  detected_at: string;
+}
+
+export interface MarketChangeInsert {
+  run_id: string | null;
+  competitor_id: string | null;
+  competitor_name: string;
+  change_type: MarketChangeType;
+  vehicle_key: string;
+  brand: string | null;
+  model: string | null;
+  year_model: string | null;
+  previous_price: number | null;
+  current_price: number | null;
+  price_diff: number | null;
+  price_diff_pct: number | null;
+  previous_km: number | null;
+  current_km: number | null;
+  km_diff: number | null;
+  summary: string | null;
+}
