@@ -43,6 +43,8 @@ function CentralImportacoesPage() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [details, setDetails] = useState<ImportLog | null>(null);
   const [toDelete, setToDelete] = useState<ImportLog | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
   const summary = useMemo(() => {
     const rows = logsQ.data ?? [];
