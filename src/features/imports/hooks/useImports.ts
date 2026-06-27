@@ -16,7 +16,10 @@ export function useDeleteImportLog() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => importLogRepository.remove(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
+      qc.setQueryData<Array<{ id: string }> | undefined>(KEY, (old) =>
+        Array.isArray(old) ? old.filter((l) => l.id !== id) : old,
+      );
       toast.success("Log removido");
       qc.invalidateQueries({ queryKey: KEY });
     },
