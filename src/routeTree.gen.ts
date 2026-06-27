@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedMeuEstoqueRouteImport } from './routes/_authenticated/meu-estoque'
+import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedExtrairConcorrenteRouteImport } from './routes/_authenticated/extrair-concorrente'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authenticated/concorrentes'
@@ -50,6 +51,12 @@ const AuthenticatedMeuEstoqueRoute = AuthenticatedMeuEstoqueRouteImport.update({
   path: '/meu-estoque',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedImportacoesRoute =
+  AuthenticatedImportacoesRouteImport.update({
+    id: '/importacoes',
+    path: '/importacoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedExtrairConcorrenteRoute =
   AuthenticatedExtrairConcorrenteRouteImport.update({
     id: '/extrair-concorrente',
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
+  '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
 }
@@ -100,6 +108,7 @@ export interface FileRoutesByTo {
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
+  '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/': typeof AuthenticatedIndexRoute
@@ -114,6 +123,7 @@ export interface FileRoutesById {
   '/_authenticated/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
+  '/_authenticated/importacoes': typeof AuthenticatedImportacoesRoute
   '/_authenticated/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/concorrentes'
     | '/configuracoes'
     | '/extrair-concorrente'
+    | '/importacoes'
     | '/meu-estoque'
     | '/relatorios'
   fileRoutesByTo: FileRoutesByTo
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/concorrentes'
     | '/configuracoes'
     | '/extrair-concorrente'
+    | '/importacoes'
     | '/meu-estoque'
     | '/relatorios'
     | '/'
@@ -153,6 +165,7 @@ export interface FileRouteTypes {
     | '/_authenticated/concorrentes'
     | '/_authenticated/configuracoes'
     | '/_authenticated/extrair-concorrente'
+    | '/_authenticated/importacoes'
     | '/_authenticated/meu-estoque'
     | '/_authenticated/relatorios'
     | '/_authenticated/'
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeuEstoqueRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/importacoes': {
+      id: '/_authenticated/importacoes'
+      path: '/importacoes'
+      fullPath: '/importacoes'
+      preLoaderRoute: typeof AuthenticatedImportacoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/extrair-concorrente': {
       id: '/_authenticated/extrair-concorrente'
       path: '/extrair-concorrente'
@@ -252,6 +272,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConcorrentesRoute: typeof AuthenticatedConcorrentesRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedExtrairConcorrenteRoute: typeof AuthenticatedExtrairConcorrenteRoute
+  AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRoute
   AuthenticatedMeuEstoqueRoute: typeof AuthenticatedMeuEstoqueRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -263,6 +284,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConcorrentesRoute: AuthenticatedConcorrentesRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedExtrairConcorrenteRoute: AuthenticatedExtrairConcorrenteRoute,
+  AuthenticatedImportacoesRoute: AuthenticatedImportacoesRoute,
   AuthenticatedMeuEstoqueRoute: AuthenticatedMeuEstoqueRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
