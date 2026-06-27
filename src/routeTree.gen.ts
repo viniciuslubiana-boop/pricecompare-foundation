@@ -18,6 +18,7 @@ import { Route as AuthenticatedOperacoesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMeuEstoqueRouteImport } from './routes/_authenticated/meu-estoque'
 import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedExtrairConcorrenteRouteImport } from './routes/_authenticated/extrair-concorrente'
+import { Route as AuthenticatedEstrategiaPrecoRouteImport } from './routes/_authenticated/estrategia-preco'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authenticated/concorrentes'
 import { Route as AuthenticatedCompararRouteImport } from './routes/_authenticated/comparar'
@@ -70,6 +71,12 @@ const AuthenticatedExtrairConcorrenteRoute =
     path: '/extrair-concorrente',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEstrategiaPrecoRoute =
+  AuthenticatedEstrategiaPrecoRouteImport.update({
+    id: '/estrategia-preco',
+    path: '/estrategia-preco',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedConfiguracoesRoute =
   AuthenticatedConfiguracoesRouteImport.update({
     id: '/configuracoes',
@@ -109,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
@@ -123,6 +131,7 @@ export interface FileRoutesByTo {
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
@@ -140,6 +149,7 @@ export interface FileRoutesById {
   '/_authenticated/comparar': typeof AuthenticatedCompararRoute
   '/_authenticated/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
   '/_authenticated/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/_authenticated/importacoes': typeof AuthenticatedImportacoesRoute
   '/_authenticated/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/concorrentes'
     | '/configuracoes'
+    | '/estrategia-preco'
     | '/extrair-concorrente'
     | '/importacoes'
     | '/meu-estoque'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/concorrentes'
     | '/configuracoes'
+    | '/estrategia-preco'
     | '/extrair-concorrente'
     | '/importacoes'
     | '/meu-estoque'
@@ -188,6 +200,7 @@ export interface FileRouteTypes {
     | '/_authenticated/comparar'
     | '/_authenticated/concorrentes'
     | '/_authenticated/configuracoes'
+    | '/_authenticated/estrategia-preco'
     | '/_authenticated/extrair-concorrente'
     | '/_authenticated/importacoes'
     | '/_authenticated/meu-estoque'
@@ -267,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedExtrairConcorrenteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/estrategia-preco': {
+      id: '/_authenticated/estrategia-preco'
+      path: '/estrategia-preco'
+      fullPath: '/estrategia-preco'
+      preLoaderRoute: typeof AuthenticatedEstrategiaPrecoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/configuracoes': {
       id: '/_authenticated/configuracoes'
       path: '/configuracoes'
@@ -311,6 +331,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompararRoute: typeof AuthenticatedCompararRoute
   AuthenticatedConcorrentesRoute: typeof AuthenticatedConcorrentesRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedEstrategiaPrecoRoute: typeof AuthenticatedEstrategiaPrecoRoute
   AuthenticatedExtrairConcorrenteRoute: typeof AuthenticatedExtrairConcorrenteRoute
   AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRoute
   AuthenticatedMeuEstoqueRoute: typeof AuthenticatedMeuEstoqueRoute
@@ -325,6 +346,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompararRoute: AuthenticatedCompararRoute,
   AuthenticatedConcorrentesRoute: AuthenticatedConcorrentesRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedEstrategiaPrecoRoute: AuthenticatedEstrategiaPrecoRoute,
   AuthenticatedExtrairConcorrenteRoute: AuthenticatedExtrairConcorrenteRoute,
   AuthenticatedImportacoesRoute: AuthenticatedImportacoesRoute,
   AuthenticatedMeuEstoqueRoute: AuthenticatedMeuEstoqueRoute,
