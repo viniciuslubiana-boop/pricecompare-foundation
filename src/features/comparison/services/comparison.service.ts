@@ -1,6 +1,6 @@
 /**
  * Comparison Service — orquestra Inventory + Competitor data,
- * Matcher, Winner, Market Price e Summary. Único ponto de entrada
+ * Matcher, Winner, Market Intelligence e Summary. Único ponto de entrada
  * para qualquer tela ou rotina que precise comparar preços.
  */
 import { vehicleRepository } from "@/repositories/vehicle.repository";
@@ -11,7 +11,7 @@ import {
 } from "../repositories/comparison.repository";
 import { matchInventoryAgainstCompetitor, statusFromScore } from "../matching/comparison.matcher";
 import { decideWinner, summarize } from "../calculators/comparison.summary";
-import { marketPriceFor } from "../calculators/comparison.market-price";
+import { intelligenceFor, emptyIntelligence } from "../calculators/comparison.market-price";
 import type { ComparisonResult, ComparisonRow, ScoreBreakdown } from "../types/comparison.types";
 
 function emptyScore(): ScoreBreakdown {
@@ -24,14 +24,15 @@ export const comparisonService = {
     const target = all.find((c) => c.id === competitorId);
     if (!target) throw new Error("Concorrente não encontrado.");
 
-    const [mine, compVehicles] = await Promise.all([
+    const [mine, targetVehicles, marketPool] = await Promise.all([
       vehicleRepository.list({}),
       comparisonDataRepository.listCompetitorVehiclesByName(target.name),
+      comparisonDataRepository.listMarketPool(),
     ]);
 
     const { matches, unmatchedMine, opportunities } = matchInventoryAgainstCompetitor(
       mine,
-      compVehicles,
+      targetVehicles,
     );
 
     const rows: ComparisonRow[] = [];
@@ -50,7 +51,7 @@ export const comparisonService = {
         status: m.status,
         winner,
         priceDiff: diff,
-        market: marketPriceFor(m.myVehicle, compVehicles),
+        market: intelligenceFor(m.myVehicle, marketPool),
       });
     }
 
@@ -64,7 +65,7 @@ export const comparisonService = {
         status: "none",
         winner: "unmatched",
         priceDiff: null,
-        market: marketPriceFor(v, compVehicles),
+        market: intelligenceFor(v, marketPool),
       });
     }
 
@@ -78,15 +79,20 @@ export const comparisonService = {
         status: "none",
         winner: "unmatched",
         priceDiff: null,
-        market: { min: null, max: null, avg: null, myPrice: null, diffFromAvg: null },
+        market: emptyIntelligence(null),
       });
     }
+
+    const marketCompetitors = Array.from(
+      new Set(marketPool.map((c) => c.competitor_name).filter(Boolean) as string[]),
+    ).sort();
 
     return {
       rows,
       summary: summarize(rows),
       competitorId,
       competitorName: target.name,
+      marketCompetitors,
     };
   },
 
