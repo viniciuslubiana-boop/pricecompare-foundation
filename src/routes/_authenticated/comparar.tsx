@@ -58,6 +58,14 @@ function CompararPage() {
         }
       />
 
+      <SummaryCard
+        title="Radar de Competitividade"
+        description="Veículos do seu estoque com prioridade Alta ou Média frente a todo o mercado."
+      >
+        <RadarPanel />
+      </SummaryCard>
+
+
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-2">
           <div className="space-y-2">
