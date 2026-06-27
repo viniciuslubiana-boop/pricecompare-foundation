@@ -76,6 +76,8 @@ export const vehicle360Service = {
       brand: myVehicle.brand,
       model: myVehicle.model,
       year_model: myVehicle.year_model,
+      km: myVehicle.km ?? null,
+      price: myVehicle.price ?? null,
     });
     // Modelo no my_vehicle pode ter mais que o token raiz usado nos equivalents;
     // o vehicle_key usa model completo, então recorremos a um filtro mais largo
