@@ -127,7 +127,7 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
     rows_imported: imported,
     rows_failed: failed,
     status,
-    error_log: errorLog.length ? (errorLog as unknown as object) : null,
+    error_log: errorLog.length ? (JSON.parse(JSON.stringify(errorLog)) as never) : null,
     created_by: args.userId,
   });
 
