@@ -29,15 +29,27 @@ export function useRunImport() {
   return useMutation({
     mutationFn: (args: RunImportArgs) => runImport(args),
     onSuccess: (result) => {
-      const map = {
-        completed: () => toast.success(`Importação concluída: ${result.rowsImported} veículos`),
-        partial: () =>
-          toast.warning("Importação parcial", {
-            description: `${result.rowsImported} importadas, ${result.rowsFailed} com falha`,
-          }),
-        failed: () => toast.error("Importação falhou", { description: "Nenhuma linha importada" }),
-      };
-      map[result.status]();
+      const parts: string[] = [];
+      if (result.rowsImported) parts.push(`${result.rowsImported} importadas`);
+      if (result.rowsDuplicateIgnored) parts.push(`${result.rowsDuplicateIgnored} duplicadas ignoradas`);
+      if (result.rowsInvalid) parts.push(`${result.rowsInvalid} inválidas`);
+      if (result.rowsInsertError) parts.push(`${result.rowsInsertError} erros ao salvar`);
+      const description = parts.join(" · ") || "Nenhuma linha processada";
+      const firstError = result.errorLog[0]?.errors?.[0];
+
+      if (result.status === "completed") {
+        toast.success(`Importação concluída: ${result.rowsImported} veículos`, { description });
+      } else if (result.status === "partial") {
+        toast.warning("Importação parcial", { description });
+      } else if (result.status === "no_changes") {
+        toast.info("Nenhuma linha nova importada", {
+          description: `${result.rowsDuplicateIgnored} linha(s) já existiam no estoque e foram ignoradas. Escolha "Importar mesmo assim" para forçar.`,
+        });
+      } else {
+        toast.error("Importação falhou", {
+          description: firstError ? `${description} — Ex.: ${firstError}` : description,
+        });
+      }
       qc.invalidateQueries({ queryKey: KEY });
       qc.invalidateQueries({ queryKey: ["inventory"] });
     },
