@@ -15,6 +15,7 @@ import {
   Trophy,
   Users,
   Sparkles,
+  Wallet,
 } from "lucide-react";
 import {
   useDashboard,
