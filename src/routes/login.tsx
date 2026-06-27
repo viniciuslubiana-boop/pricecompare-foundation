@@ -153,7 +153,3 @@ function LoginPage() {
     </AuthShell>
   );
 }
-      </form>
-    </AuthShell>
-  );
-}
