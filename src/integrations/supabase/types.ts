@@ -229,34 +229,58 @@ export type Database = {
       }
       competitors: {
         Row: {
+          address: string | null
+          city: string | null
           created_at: string
           created_by: string | null
+          google_place_id: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           notes: string | null
+          phone: string | null
+          source_urls: Json
+          state: string | null
           status: string
           updated_at: string
-          url: string
+          url: string | null
         }
         Insert: {
+          address?: string | null
+          city?: string | null
           created_at?: string
           created_by?: string | null
+          google_place_id?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           notes?: string | null
+          phone?: string | null
+          source_urls?: Json
+          state?: string | null
           status?: string
           updated_at?: string
-          url: string
+          url?: string | null
         }
         Update: {
+          address?: string | null
+          city?: string | null
           created_at?: string
           created_by?: string | null
+          google_place_id?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           notes?: string | null
+          phone?: string | null
+          source_urls?: Json
+          state?: string | null
           status?: string
           updated_at?: string
-          url?: string
+          url?: string | null
         }
         Relationships: [
           {
