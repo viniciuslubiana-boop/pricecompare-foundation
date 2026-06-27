@@ -256,3 +256,55 @@ export interface StrategyFilters {
   search?: string;
 }
 
+// ============================================================
+// Visão 360° do Veículo
+// ============================================================
+
+export interface Vehicle360CompetitorEntry {
+  id: string;
+  competitorName: string;
+  competitorId: string | null;
+  competitorUrl: string | null;
+  store: string;
+  city: string | null;
+  brand: string;
+  model: string;
+  yearModel: string;
+  km: number | null;
+  price: number;
+  /** competitor.price - myVehicle.price (positivo = está mais caro que eu) */
+  diffFromMe: number | null;
+  diffPctFromMe: number | null;
+  lastCollectedAt: string;
+  sourceUrl: string | null;
+}
+
+export interface Vehicle360HistoryEntry {
+  id: string;
+  competitorName: string;
+  previousPrice: number | null;
+  currentPrice: number | null;
+  diff: number | null;
+  diffPct: number | null;
+  detectedAt: string;
+  summary: string | null;
+}
+
+export interface Vehicle360Result {
+  myVehicle: MyVehicle;
+  market: MarketIntelligence;
+  competitors: Vehicle360CompetitorEntry[];
+  history: Vehicle360HistoryEntry[];
+}
+
+export type Vehicle360SortKey = "price" | "km" | "date";
+
+export interface Vehicle360Filters {
+  sameYear?: boolean;
+  versionTerm?: string;
+  city?: string;
+  maxKmDistance?: number | null;
+  sort?: Vehicle360SortKey;
+}
+
+
