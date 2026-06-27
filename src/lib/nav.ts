@@ -13,6 +13,7 @@ import {
   Radio,
   Radar,
   Wallet,
+  Search,
   type LucideIcon,
 } from "lucide-react";
 
