@@ -114,3 +114,62 @@ export interface ComparisonFilters {
   competitorName?: string; // restringe linhas ao concorrente específico
   search?: string;
 }
+
+// ============================================================
+// Radar de Competitividade
+// ============================================================
+
+export type CommercialPriority = "high" | "medium" | "low" | "best_price" | "none";
+
+export type RadarActionKind =
+  | "review_today"
+  | "reduce"
+  | "follow_market"
+  | "keep"
+  | "excellent_position"
+  | "insufficient_data";
+
+export interface RadarAction {
+  kind: RadarActionKind;
+  label: string;
+  amount: number | null;
+}
+
+export interface RadarRow {
+  id: string;
+  myVehicle: MyVehicle;
+  market: MarketIntelligence;
+  priority: CommercialPriority;
+  action: RadarAction;
+}
+
+export interface RadarSummary {
+  totalActionable: number;
+  biggestDiffValue: number;
+  biggestDiffLabel: string | null;
+  biggestOpportunityValue: number;
+  biggestOpportunityLabel: string | null;
+  avgCompetitiveness: number;
+  highCount: number;
+  mediumCount: number;
+  bestPriceCount: number;
+}
+
+export interface RadarResult {
+  rows: RadarRow[];
+  /** Linhas elegíveis para o painel (Alta + Média) */
+  actionableRows: RadarRow[];
+  summary: RadarSummary;
+  brands: string[];
+  competitors: string[];
+}
+
+export interface RadarFilters {
+  onlyHigh?: boolean;
+  onlyMedium?: boolean;
+  onlyBestPrice?: boolean;
+  brand?: string;
+  competitorName?: string;
+  search?: string;
+}
+
