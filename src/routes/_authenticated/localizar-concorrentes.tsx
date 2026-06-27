@@ -23,10 +23,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   searchNearbyCompetitors,
   type PlaceResult,
+  type SearchCenter,
 } from "@/features/competitors/services/places.functions";
 import { locatorService } from "@/features/competitors/services/locator.service";
 import { SourcesDialog } from "@/features/competitors/components/SourcesDialog";
 import type { Competitor } from "@/types/database.types";
+
 
 const KEYWORD_SUGGESTIONS = [
   "loja de veículos",
