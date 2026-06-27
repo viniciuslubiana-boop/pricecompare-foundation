@@ -30,6 +30,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Importações", url: "/importacoes", icon: Upload },
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
   { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
+  { title: "Consulta Global", url: "/consulta-mercado", icon: Search },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
   { title: "Estratégia de Preço", url: "/estrategia-preco", icon: Wallet },
   { title: "Alterações do Mercado", url: "/alteracoes-mercado", icon: TrendingUp },
