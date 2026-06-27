@@ -119,6 +119,40 @@ function LoginPage() {
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Entrar
         </Button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">ou</span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={submitting}
+          onClick={async () => {
+            setError(null);
+            const result = await lovable.auth.signInWithOAuth("google", {
+              redirect_uri: window.location.origin,
+            });
+            if (result.error) {
+              setError("Não foi possível entrar com Google. Tente novamente.");
+            }
+          }}
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#EA4335" d="M12 10.2v3.96h5.52c-.24 1.44-1.68 4.2-5.52 4.2-3.36 0-6.06-2.76-6.06-6.18S8.64 6 12 6c1.86 0 3.12.78 3.84 1.5l2.64-2.52C16.86 3.42 14.64 2.4 12 2.4 6.72 2.4 2.4 6.72 2.4 12s4.32 9.6 9.6 9.6c5.52 0 9.18-3.84 9.18-9.3 0-.66-.06-1.14-.18-1.62H12z" />
+          </svg>
+          Entrar com Google
+        </Button>
+      </form>
+    </AuthShell>
+  );
+}
       </form>
     </AuthShell>
   );
