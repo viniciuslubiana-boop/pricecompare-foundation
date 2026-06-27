@@ -109,25 +109,45 @@ export const globalSearchService = {
       : intelligenceFor(target, marketPool);
 
     const myPrice = target.price ?? null;
-    const competitorByName = new Map<string, { id: string; url: string | null }>();
+    const competitorByName = new Map<
+      string,
+      { id: string | null; url: string | null; city: string | null; state: string | null }
+    >();
     for (const c of competitors) {
-      competitorByName.set(c.name, { id: c.id, url: (c as { url?: string | null }).url ?? null });
+      competitorByName.set(c.name, {
+        id: c.id,
+        url: (c as { url?: string | null }).url ?? null,
+        city: (c as { city?: string | null }).city ?? null,
+        state: (c as { state?: string | null }).state ?? null,
+      });
     }
+
+    const hostOf = (u: string | null | undefined): string | null => {
+      if (!u) return null;
+      try {
+        return new URL(u).hostname.replace(/^www\./, "");
+      } catch {
+        return null;
+      }
+    };
 
     const entries: Vehicle360CompetitorEntry[] = eq.map((c) => {
       const name = c.competitor_name ?? "—";
-      const meta = competitorByName.get(name) ?? { id: null, url: null };
+      const meta = competitorByName.get(name) ?? { id: null, url: null, city: null, state: null };
       const price = c.price as number;
       const diff = myPrice != null ? price - myPrice : null;
       const diffPct =
         diff != null && myPrice != null && myPrice > 0 ? round2((diff / myPrice) * 100) : null;
+      const src = hostOf(c.source_url) ?? name;
       return {
         id: c.id,
         competitorName: name,
         competitorId: meta.id,
         competitorUrl: meta.url,
         store: name,
-        city: null,
+        city: meta.city,
+        state: meta.state,
+        source: src,
         brand: c.brand,
         model: c.model,
         yearModel: c.year_model,
