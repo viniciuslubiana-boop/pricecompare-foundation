@@ -34,7 +34,7 @@ export const comparisonService = {
 
     const [mine, compVehicles] = await Promise.all([
       vehicleRepository.list({}),
-      comparisonDataRepository.listCompetitorVehiclesByName(competitor.name),
+      comparisonDataRepository.listCompetitorVehiclesByName(target.name),
     ]);
 
     const { matches, unmatchedMine, opportunities } =
@@ -92,7 +92,7 @@ export const comparisonService = {
       rows,
       summary: summarize(rows),
       competitorId,
-      competitorName: competitor.name,
+      competitorName: target.name,
     };
   },
 
