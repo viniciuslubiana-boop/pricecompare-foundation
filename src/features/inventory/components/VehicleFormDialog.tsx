@@ -45,8 +45,8 @@ const empty: InventoryFormInput = {
 };
 
 export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submitting }: Props) {
-  const form = useForm<InventoryFormInput, unknown, InventoryFormValues>({
-    resolver: zodResolver(inventoryVehicleSchema),
+  const form = useForm<InventoryFormInput>({
+    resolver: zodResolver(inventoryVehicleSchema) as never,
     defaultValues: empty,
   });
 
