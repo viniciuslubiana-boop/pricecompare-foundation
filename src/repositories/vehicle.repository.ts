@@ -5,14 +5,14 @@ import type {
   MyVehicleInsert,
   MyVehicleUpdate,
 } from "@/types/database.types";
-import type { VehicleFilters } from "@/features/vehicles/vehicle.types";
+import type { InventoryFilters } from "@/features/inventory/types/inventory.types";
 
 class VehicleRepository extends BaseRepository<"my_vehicles"> {
   constructor() {
     super("my_vehicles");
   }
 
-  async list(filters: VehicleFilters = {}): Promise<MyVehicle[]> {
+  async list(filters: InventoryFilters = {}): Promise<MyVehicle[]> {
     let query = supabase
       .from("my_vehicles")
       .select("*")
