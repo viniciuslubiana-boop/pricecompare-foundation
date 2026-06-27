@@ -120,10 +120,8 @@ function LocalizarConcorrentesPage() {
     }
   };
 
-  const distance = (p: PlaceResult): number | null => {
-    if (!searchCenter || p.latitude == null || p.longitude == null) return null;
-    return haversineKm(searchCenter.lat, searchCenter.lng, p.latitude, p.longitude);
-  };
+  // distância vem pré-calculada do servidor (centro = geocode da cidade/UF)
+
 
   return (
     <div>
