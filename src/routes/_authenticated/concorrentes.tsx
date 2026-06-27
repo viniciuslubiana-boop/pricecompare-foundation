@@ -196,6 +196,16 @@ function ConcorrentesPage() {
           setToDelete(null);
         }}
       />
+
+      <ConfirmDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        title={`Excluir ${selected.size} ${selected.size === 1 ? "concorrente" : "concorrentes"}?`}
+        description="Esta ação não pode ser desfeita. Os itens selecionados serão removidos permanentemente."
+        destructive
+        confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir selecionados"}
+        onConfirm={handleBulkDelete}
+      />
     </div>
   );
 }
