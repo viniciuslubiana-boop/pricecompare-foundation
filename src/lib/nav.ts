@@ -1,0 +1,28 @@
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  Download,
+  GitCompareArrows,
+  FileBarChart,
+  Settings,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
+
+export type NavItem = {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+};
+
+export const NAV_ITEMS: NavItem[] = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Meu Estoque", url: "/meu-estoque", icon: Package },
+  { title: "Concorrentes", url: "/concorrentes", icon: Users },
+  { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
+  { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
+  { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
+  { title: "Configurações", url: "/configuracoes", icon: Settings },
+  { title: "Administração", url: "/administracao", icon: ShieldCheck },
+];
