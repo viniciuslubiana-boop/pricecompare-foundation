@@ -11,6 +11,7 @@ import {
   Activity,
   TrendingUp,
   Radio,
+  Radar,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
@@ -31,6 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
   { title: "Estratégia de Preço", url: "/estrategia-preco", icon: Wallet },
   { title: "Alterações do Mercado", url: "/alteracoes-mercado", icon: TrendingUp },
+  { title: "Monitor de Mercado", url: "/monitor-mercado", icon: Radar },
   { title: "Central de Movimentações", url: "/movimentacoes-mercado", icon: Radio },
   { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
   { title: "Configurações", url: "/configuracoes", icon: Settings },

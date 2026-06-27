@@ -53,7 +53,25 @@ async function loadByRun(runId: string): Promise<MovementsCenterResult> {
   return { run, blocks };
 }
 
+async function loadByDateRange(sinceISO: string, untilISO?: string): Promise<MovementsCenterResult> {
+  const [changesRaw, runs, myVehiclesRaw, marketPool] = await Promise.all([
+    marketChangesRepository.list({ since: sinceISO, limit: 1000 }),
+    marketUpdateRepository.listRecent(1),
+    vehicleRepository.list({}),
+    comparisonDataRepository.listMarketPool(),
+  ]);
+  const changes = untilISO
+    ? changesRaw.filter((c) => c.detected_at <= untilISO)
+    : changesRaw;
+  const run = runs[0] ?? null;
+  const myVehicles = myVehiclesRaw as unknown as MyVehicle[];
+  const vehiclesMonitored = run?.totals?.vehicles_found ?? marketPool.length;
+  const blocks = buildMovements(changes, myVehicles, marketPool, vehiclesMonitored);
+  return { run, blocks };
+}
+
 export const marketMovementsService = {
   loadByWindowHours,
   loadByRun,
+  loadByDateRange,
 };

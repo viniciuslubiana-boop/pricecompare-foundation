@@ -6,5 +6,5 @@ export { useMarketChanges, useFilteredChanges, marketChangesKeys } from "./hooks
 export { MarketUpdateButton } from "./components/MarketUpdateButton";
 export { MarketUpdateDetailsDialog } from "./components/MarketUpdateDetailsDialog";
 export { marketMovementsService } from "./services/market-movements.service";
-export { useMarketMovements, marketMovementsKeys } from "./hooks/useMarketMovements";
+export { useMarketMovements, useMarketMonitor, marketMovementsKeys } from "./hooks/useMarketMovements";
 export type * from "./types";

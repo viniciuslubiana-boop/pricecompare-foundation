@@ -28,6 +28,10 @@ export interface InventoryImpact {
   diff: number | null;
   diffPct: number | null;
   intelligence: MarketIntelligence;
+  /** Posição no ranking antes da alteração (reusa intelligenceFor sobre pool sintético). */
+  previousRank: number | null;
+  /** Atalho para intelligence.rankPosition. */
+  currentRank: number | null;
 }
 
 export interface MovementsBlocks {
@@ -97,6 +101,24 @@ export function buildMovements(
       diff != null && myPrice && myPrice > 0
         ? Math.round((diff / myPrice) * 10000) / 100
         : null;
+
+    // Rank anterior: recomputa intelligence sobre um pool sintético no qual
+    // o veículo do concorrente alterado carrega o preço anterior.
+    let previousRank: number | null = intel.rankPosition;
+    if (c.change_type === "price" && c.previous_price != null && c.current_price != null) {
+      const cBrand = norm(c.brand);
+      const cModelRoot = firstToken(c.model);
+      const cYear = yearOf(c.year_model);
+      const syntheticPool = marketPool.map((v) => {
+        if (norm(v.brand) !== cBrand) return v;
+        if (firstToken(v.model) !== cModelRoot) return v;
+        if (cYear && yearOf(v.year_model) !== cYear) return v;
+        if (v.price !== c.current_price) return v;
+        return { ...v, price: c.previous_price };
+      });
+      previousRank = intelligenceFor(match, syntheticPool).rankPosition;
+    }
+
     impacts.push({
       change: c,
       myVehicleId: match.id,
@@ -108,6 +130,8 @@ export function buildMovements(
       diff,
       diffPct,
       intelligence: intel,
+      previousRank,
+      currentRank: intel.rankPosition,
     });
   }
 
