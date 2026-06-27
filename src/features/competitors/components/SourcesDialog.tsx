@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,16 +23,15 @@ interface Props {
 }
 
 export function SourcesDialog({ open, onOpenChange, competitor, onSaved }: Props) {
-  const initial = (competitor?.source_urls ?? {}) as CompetitorSourceUrls;
-  const [values, setValues] = useState<CompetitorSourceUrls>(initial);
+  const [values, setValues] = useState<CompetitorSourceUrls>({});
   const [saving, setSaving] = useState(false);
 
-  // re-init when competitor changes
-  if (competitor && competitor.id !== (values as { __cid?: string }).__cid) {
-    const fresh = (competitor.source_urls ?? {}) as CompetitorSourceUrls;
-    setValues({ ...fresh });
-    (values as { __cid?: string }).__cid = competitor.id;
-  }
+  useEffect(() => {
+    if (open && competitor) {
+      setValues((competitor.source_urls ?? {}) as CompetitorSourceUrls);
+    }
+  }, [open, competitor]);
+
 
   const set = (k: keyof CompetitorSourceUrls) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setValues((v) => ({ ...v, [k]: e.target.value }));
