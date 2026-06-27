@@ -109,8 +109,32 @@ export function ComparisonTable({ rows }: Props) {
             const hasMarket = m.competitorCount > 0;
             return (
               <TableRow key={r.id}>
-                <TableCell className="font-medium">{ref?.brand ?? "—"}</TableCell>
-                <TableCell>{ref?.model ?? "—"}</TableCell>
+                <TableCell className="font-medium">
+                  {r.myVehicle ? (
+                    <Link
+                      to="/veiculo/$id"
+                      params={{ id: r.myVehicle.id }}
+                      className="hover:underline text-primary"
+                    >
+                      {r.myVehicle.brand}
+                    </Link>
+                  ) : (
+                    ref?.brand ?? "—"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {r.myVehicle ? (
+                    <Link
+                      to="/veiculo/$id"
+                      params={{ id: r.myVehicle.id }}
+                      className="hover:underline"
+                    >
+                      {r.myVehicle.model}
+                    </Link>
+                  ) : (
+                    ref?.model ?? "—"
+                  )}
+                </TableCell>
                 <TableCell>{ref?.year_model ?? "—"}</TableCell>
                 <TableCell className="tabular-nums">{fmtMoney(r.myVehicle?.price ?? null)}</TableCell>
                 <TableCell className="tabular-nums">{fmtMoney(m.avg)}</TableCell>
