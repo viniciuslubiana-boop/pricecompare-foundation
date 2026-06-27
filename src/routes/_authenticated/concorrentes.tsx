@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Users, Plus } from "lucide-react";
 
-export const Route = createFileRoute("/concorrentes")({
+export const Route = createFileRoute("/_authenticated/concorrentes")({
   head: () => ({ meta: [{ title: "Concorrentes · PriceCompare" }] }),
   component: () => (
     <div>

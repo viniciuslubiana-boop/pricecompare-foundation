@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Download, Play } from "lucide-react";
 
-export const Route = createFileRoute("/extrair-concorrente")({
+export const Route = createFileRoute("/_authenticated/extrair-concorrente")({
   head: () => ({ meta: [{ title: "Extrair Concorrente · PriceCompare" }] }),
   component: () => (
     <div>

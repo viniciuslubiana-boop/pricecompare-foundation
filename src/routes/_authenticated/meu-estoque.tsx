@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Package, Upload } from "lucide-react";
 
-export const Route = createFileRoute("/meu-estoque")({
+export const Route = createFileRoute("/_authenticated/meu-estoque")({
   head: () => ({ meta: [{ title: "Meu Estoque · PriceCompare" }] }),
   component: () => (
     <div>
