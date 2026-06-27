@@ -14,10 +14,10 @@ import { comparisonDataRepository } from "../repositories/comparison.repository"
 import { marketChangesRepository } from "@/features/market-update/repositories/market-changes.repository";
 import { equivalentsFor, intelligenceFor } from "../calculators/comparison.market-price";
 import type {
+  MarketIntelligence,
   MyVehicle,
   Vehicle360CompetitorEntry,
   Vehicle360HistoryEntry,
-  Vehicle360Result,
 } from "../types/comparison.types";
 
 export interface GlobalSearchQuery {
