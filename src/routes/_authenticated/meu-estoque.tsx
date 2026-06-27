@@ -46,6 +46,8 @@ function MeuEstoquePage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Vehicle | null>(null);
   const [toDelete, setToDelete] = useState<Vehicle | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
   const filters = useMemo(() => ({ search, brand }), [search, brand]);
   const vehiclesQ = useInventoryList(filters);
