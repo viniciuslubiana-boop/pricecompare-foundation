@@ -130,62 +130,84 @@ function CentralImportacoesPage() {
           }
         />
       ) : (
-        <div className="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Arquivo</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead className="text-right">Recebidas</TableHead>
-                <TableHead className="text-right">Importadas</TableHead>
-                <TableHead className="text-right">Falhas</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
-                      {r.file_name ?? "—"}
-                    </div>
-                  </TableCell>
-                  <TableCell className="uppercase">{r.file_type ?? "—"}</TableCell>
-                  <TableCell className="text-right">{r.rows_received}</TableCell>
-                  <TableCell className="text-right">{r.rows_imported}</TableCell>
-                  <TableCell className="text-right">{r.rows_failed}</TableCell>
-                  <TableCell>{statusBadge(r.status)}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {new Date(r.created_at).toLocaleString("pt-BR")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDetails(r)}
-                        aria-label="Detalhes"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setToDelete(r)}
-                        aria-label="Excluir"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        <>
+          <BulkActionsBar
+            count={selected.size}
+            onClear={() => setSelected(new Set())}
+            onDelete={() => setBulkConfirmOpen(true)}
+            pending={deleteMut.isPending}
+          />
+          <div className="overflow-x-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40px]">
+                    <Checkbox
+                      checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                      onCheckedChange={toggleAll}
+                      aria-label="Selecionar todos"
+                    />
+                  </TableHead>
+                  <TableHead>Arquivo</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Recebidas</TableHead>
+                  <TableHead className="text-right">Importadas</TableHead>
+                  <TableHead className="text-right">Falhas</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r) => (
+                  <TableRow key={r.id} data-state={selected.has(r.id) ? "selected" : undefined}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.has(r.id)}
+                        onCheckedChange={() => toggleOne(r.id)}
+                        aria-label={`Selecionar ${r.file_name ?? r.id}`}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                        {r.file_name ?? "—"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="uppercase">{r.file_type ?? "—"}</TableCell>
+                    <TableCell className="text-right">{r.rows_received}</TableCell>
+                    <TableCell className="text-right">{r.rows_imported}</TableCell>
+                    <TableCell className="text-right">{r.rows_failed}</TableCell>
+                    <TableCell>{statusBadge(r.status)}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(r.created_at).toLocaleString("pt-BR")}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setDetails(r)}
+                          aria-label="Detalhes"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setToDelete(r)}
+                          aria-label="Excluir"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       <ImportWizard open={wizardOpen} onOpenChange={setWizardOpen} />
