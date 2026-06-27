@@ -28,6 +28,10 @@ export interface InventoryImpact {
   diff: number | null;
   diffPct: number | null;
   intelligence: MarketIntelligence;
+  /** Posição no ranking antes da alteração (reusa intelligenceFor sobre pool sintético). */
+  previousRank: number | null;
+  /** Atalho para intelligence.rankPosition. */
+  currentRank: number | null;
 }
 
 export interface MovementsBlocks {
