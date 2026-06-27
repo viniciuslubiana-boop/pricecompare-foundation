@@ -68,7 +68,8 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
   }, [open, vehicle, form]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    await onSubmit(values);
+    const parsed = inventoryVehicleSchema.parse(values);
+    await onSubmit(parsed);
   });
 
   return (
