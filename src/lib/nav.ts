@@ -30,4 +30,3 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Administração", url: "/administracao", icon: ShieldCheck },
 ];
-

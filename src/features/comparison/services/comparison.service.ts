@@ -9,17 +9,10 @@ import {
   comparisonDataRepository,
   comparisonRepository,
 } from "../repositories/comparison.repository";
-import {
-  matchInventoryAgainstCompetitor,
-  statusFromScore,
-} from "../matching/comparison.matcher";
+import { matchInventoryAgainstCompetitor, statusFromScore } from "../matching/comparison.matcher";
 import { decideWinner, summarize } from "../calculators/comparison.summary";
 import { marketPriceFor } from "../calculators/comparison.market-price";
-import type {
-  ComparisonResult,
-  ComparisonRow,
-  ScoreBreakdown,
-} from "../types/comparison.types";
+import type { ComparisonResult, ComparisonRow, ScoreBreakdown } from "../types/comparison.types";
 
 function emptyScore(): ScoreBreakdown {
   return { brand: 0, model: 0, year: 0, price: 0, km: 0, total: 0 };
@@ -31,14 +24,15 @@ export const comparisonService = {
     const target = all.find((c) => c.id === competitorId);
     if (!target) throw new Error("Concorrente não encontrado.");
 
-
     const [mine, compVehicles] = await Promise.all([
       vehicleRepository.list({}),
       comparisonDataRepository.listCompetitorVehiclesByName(target.name),
     ]);
 
-    const { matches, unmatchedMine, opportunities } =
-      matchInventoryAgainstCompetitor(mine, compVehicles);
+    const { matches, unmatchedMine, opportunities } = matchInventoryAgainstCompetitor(
+      mine,
+      compVehicles,
+    );
 
     const rows: ComparisonRow[] = [];
 
@@ -108,9 +102,7 @@ export const comparisonService = {
         savings: r.winner === "me" ? r.priceDiff : null,
       }));
 
-    const saved = await Promise.all(
-      payloads.map((p) => comparisonRepository.create(p)),
-    );
+    const saved = await Promise.all(payloads.map((p) => comparisonRepository.create(p)));
     return saved.length;
   },
 

@@ -11,7 +11,10 @@ interface Props {
   emptyLabel?: string;
 }
 
-export function OpportunityCard({ items, emptyLabel = "Nenhuma oportunidade identificada" }: Props) {
+export function OpportunityCard({
+  items,
+  emptyLabel = "Nenhuma oportunidade identificada",
+}: Props) {
   if (!items.length) {
     return (
       <EmptyState

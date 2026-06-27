@@ -15,11 +15,7 @@ class ImportLogRepository {
   }
 
   async create(payload: Insert): Promise<Row> {
-    const { data, error } = await supabase
-      .from("import_logs")
-      .insert(payload)
-      .select()
-      .single();
+    const { data, error } = await supabase.from("import_logs").insert(payload).select().single();
     if (error) throw error;
     return data;
   }

@@ -34,7 +34,14 @@ export function RankingBarChart({ entries, label }: { entries: RankingEntry[]; l
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={50} />
+        <XAxis
+          dataKey="name"
+          tick={{ fontSize: 11 }}
+          interval={0}
+          angle={-20}
+          textAnchor="end"
+          height={50}
+        />
         <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
         <Tooltip />
         <Bar dataKey="total" fill="#F97316" radius={[4, 4, 0, 0]} />
@@ -50,7 +57,14 @@ export function PriceDistributionChart({ data }: { data: PriceDistribution }) {
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={data.buckets} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} angle={-15} textAnchor="end" height={60} />
+        <XAxis
+          dataKey="label"
+          tick={{ fontSize: 11 }}
+          interval={0}
+          angle={-15}
+          textAnchor="end"
+          height={60}
+        />
         <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
         <Tooltip />
         <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -82,7 +96,14 @@ export function ComparisonStatusChart({
   return (
     <ResponsiveContainer width="100%" height={260}>
       <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90} paddingAngle={2}>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          innerRadius={50}
+          outerRadius={90}
+          paddingAngle={2}
+        >
           {data.map((d, i) => (
             <Cell key={i} fill={d.color} />
           ))}

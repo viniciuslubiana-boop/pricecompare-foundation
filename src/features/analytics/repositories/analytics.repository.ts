@@ -1,10 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type {
-  Comparison,
-  Competitor,
-  CompetitorVehicle,
-  MyVehicle,
-} from "@/types/database.types";
+import type { Comparison, Competitor, CompetitorVehicle, MyVehicle } from "@/types/database.types";
 
 class AnalyticsRepository {
   async listMyVehicles(): Promise<MyVehicle[]> {

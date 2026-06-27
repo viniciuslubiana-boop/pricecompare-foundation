@@ -1,7 +1,4 @@
-import type {
-  ComparisonFilters,
-  ComparisonRow,
-} from "../types/comparison.types";
+import type { ComparisonFilters, ComparisonRow } from "../types/comparison.types";
 
 export function applyComparisonFilters(
   rows: ComparisonRow[],
@@ -14,8 +11,7 @@ export function applyComparisonFilters(
     if (filters.onlyDifferentials && r.kind !== "differential") return false;
     if (filters.onlyMeCheaper && r.winner !== "me") return false;
     if (filters.onlyCompetitorCheaper && r.winner !== "competitor") return false;
-    if (typeof filters.minScore === "number" && r.score.total < filters.minScore)
-      return false;
+    if (typeof filters.minScore === "number" && r.score.total < filters.minScore) return false;
     if (term) {
       const haystack = [
         r.myVehicle?.brand,

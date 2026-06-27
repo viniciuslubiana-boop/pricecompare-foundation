@@ -28,12 +28,8 @@ export function MetricCard({ label, value, hint, icon, tone = "default", classNa
             <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {label}
             </p>
-            <p className={cn("mt-2 text-3xl font-semibold tabular-nums", TONE[tone])}>
-              {value}
-            </p>
-            {hint ? (
-              <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-            ) : null}
+            <p className={cn("mt-2 text-3xl font-semibold tabular-nums", TONE[tone])}>{value}</p>
+            {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
           </div>
           {icon ? <div className="shrink-0 text-muted-foreground">{icon}</div> : null}
         </div>

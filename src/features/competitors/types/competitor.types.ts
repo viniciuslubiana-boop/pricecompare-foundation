@@ -1,8 +1,4 @@
-import type {
-  Competitor,
-  CompetitorInsert,
-  CompetitorUpdate,
-} from "@/types/database.types";
+import type { Competitor, CompetitorInsert, CompetitorUpdate } from "@/types/database.types";
 
 export type { Competitor, CompetitorInsert, CompetitorUpdate };
 

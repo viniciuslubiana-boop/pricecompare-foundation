@@ -35,7 +35,10 @@ function splitBlocks(text: string): string[] {
     .filter(Boolean);
   // Se quase tudo veio numa linha só, tenta quebrar por "R$"
   if (byDouble.length <= 1 && /R\$/.test(text)) {
-    const parts = text.split(/(?=R\$\s*\d)/).map((b) => b.trim()).filter(Boolean);
+    const parts = text
+      .split(/(?=R\$\s*\d)/)
+      .map((b) => b.trim())
+      .filter(Boolean);
     if (parts.length > 1) return parts;
   }
   return byDouble;
@@ -127,29 +130,27 @@ function parseBlock(block: string): ParsedBlock {
 }
 
 export function parseExtractionInput(input: ExtractionInput): ExtractedVehicle[] {
-  const text =
-    input.inputType === "html" ? htmlToText(input.rawContent) : input.rawContent;
+  const text = input.inputType === "html" ? htmlToText(input.rawContent) : input.rawContent;
   const blocks = splitBlocks(text);
 
-  return blocks
-    .map((block) => parseBlock(block))
-    // descarta blocos sem nenhum sinal (sem marca, preço, ano ou km)
-    .filter(
-      (p) =>
-        p.brand || p.price !== null || p.year_model || (p.km !== null && p.km > 0),
-    )
-    .map<ExtractedVehicle>((p) => ({
-      tempId: uid(),
-      brand: p.brand,
-      model: p.model,
-      year_model: p.year_model,
-      km: p.km,
-      price: p.price,
-      source_url: input.competitorUrl,
-      competitor_name: input.competitorName,
-      confidence: p.confidence,
-      raw_text: p.raw_text,
-      status: "review",
-      errors: [],
-    }));
+  return (
+    blocks
+      .map((block) => parseBlock(block))
+      // descarta blocos sem nenhum sinal (sem marca, preço, ano ou km)
+      .filter((p) => p.brand || p.price !== null || p.year_model || (p.km !== null && p.km > 0))
+      .map<ExtractedVehicle>((p) => ({
+        tempId: uid(),
+        brand: p.brand,
+        model: p.model,
+        year_model: p.year_model,
+        km: p.km,
+        price: p.price,
+        source_url: input.competitorUrl,
+        competitor_name: input.competitorName,
+        confidence: p.confidence,
+        raw_text: p.raw_text,
+        status: "review",
+        errors: [],
+      }))
+  );
 }

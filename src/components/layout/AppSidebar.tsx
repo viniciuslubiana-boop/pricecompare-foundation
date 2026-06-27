@@ -16,8 +16,7 @@ import { Gauge } from "lucide-react";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isActive = (url: string) =>
-    url === "/" ? pathname === "/" : pathname.startsWith(url);
+  const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
   return (
     <Sidebar collapsible="icon">
@@ -27,12 +26,8 @@ export function AppSidebar() {
             <Gauge className="h-4 w-4" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold text-sidebar-foreground">
-              PriceCompare
-            </span>
-            <span className="text-[10px] text-sidebar-foreground/60">
-              Inteligência de preços
-            </span>
+            <span className="text-sm font-semibold text-sidebar-foreground">PriceCompare</span>
+            <span className="text-[10px] text-sidebar-foreground/60">Inteligência de preços</span>
           </div>
         </div>
       </SidebarHeader>
@@ -44,11 +39,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {NAV_ITEMS.map((item) => (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    tooltip={item.title}
-                  >
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
                     <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

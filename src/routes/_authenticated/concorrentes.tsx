@@ -24,10 +24,7 @@ import {
   useSetCompetitorStatus,
   useDeleteCompetitor,
 } from "@/features/competitors/hooks/useCompetitors";
-import type {
-  Competitor,
-  CompetitorStatus,
-} from "@/features/competitors/types/competitor.types";
+import type { Competitor, CompetitorStatus } from "@/features/competitors/types/competitor.types";
 
 type StatusFilter = "all" | CompetitorStatus;
 
@@ -103,11 +100,7 @@ function ConcorrentesPage() {
       ) : isEmpty ? (
         <EmptyState
           icon={Users}
-          title={
-            filtersActive
-              ? "Nenhum concorrente encontrado"
-              : "Nenhum concorrente cadastrado."
-          }
+          title={filtersActive ? "Nenhum concorrente encontrado" : "Nenhum concorrente cadastrado."}
           description={
             filtersActive
               ? "Ajuste os filtros para encontrar o que procura."
@@ -155,9 +148,7 @@ function ConcorrentesPage() {
         onOpenChange={(o) => !o && setToDelete(null)}
         title="Excluir concorrente?"
         description={
-          toDelete
-            ? `O concorrente "${toDelete.name}" será removido permanentemente.`
-            : undefined
+          toDelete ? `O concorrente "${toDelete.name}" será removido permanentemente.` : undefined
         }
         confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir"}
         destructive

@@ -29,7 +29,8 @@ export function useRunImport() {
   return useMutation({
     mutationFn: (args: RunImportArgs) => runImport(args),
     onSuccess: (result) => {
-      const { rowsReceived, rowsImported, rowsDuplicateIgnored, rowsInvalid, rowsInsertError } = result;
+      const { rowsReceived, rowsImported, rowsDuplicateIgnored, rowsInvalid, rowsInsertError } =
+        result;
       const rowsWithError = rowsInvalid + rowsInsertError;
       const report =
         `Lidas: ${rowsReceived} · Importadas: ${rowsImported} · ` +
@@ -52,7 +53,9 @@ export function useRunImport() {
           { description: report },
         );
       } else {
-        toast.error("Importação falhou. Nenhuma linha pôde ser processada.", { description: report });
+        toast.error("Importação falhou. Nenhuma linha pôde ser processada.", {
+          description: report,
+        });
       }
       qc.invalidateQueries({ queryKey: KEY });
       qc.invalidateQueries({ queryKey: ["inventory"] });

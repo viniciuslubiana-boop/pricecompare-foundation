@@ -23,10 +23,7 @@ export class BaseRepository<T extends TableName> {
   }
 
   async getById(id: string) {
-    const { data, error } = await (this.client() as any)
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    const { data, error } = await (this.client() as any).select("*").eq("id", id).maybeSingle();
     if (error) throw error;
     return data;
   }

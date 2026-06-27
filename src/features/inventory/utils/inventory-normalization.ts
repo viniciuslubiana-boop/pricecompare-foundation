@@ -57,9 +57,7 @@ export function normalizePrice(input: string | number | null | undefined): numbe
   const cleaned = String(input).replace(/[^\d,.-]/g, "");
   // Formato brasileiro: ponto = milhar, vírgula = decimal
   const hasComma = cleaned.includes(",");
-  const normalized = hasComma
-    ? cleaned.replace(/\./g, "").replace(",", ".")
-    : cleaned;
+  const normalized = hasComma ? cleaned.replace(/\./g, "").replace(",", ".") : cleaned;
   const n = Number(normalized);
   if (!Number.isFinite(n)) return 0;
   return Math.max(0, n);

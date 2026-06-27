@@ -9,10 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Pencil, Power, PowerOff, Trash2, ExternalLink } from "lucide-react";
 import { CompetitorStatusBadge } from "./CompetitorStatusBadge";
-import type {
-  Competitor,
-  CompetitorStatus,
-} from "../types/competitor.types";
+import type { Competitor, CompetitorStatus } from "../types/competitor.types";
 
 interface Props {
   rows: Competitor[];
@@ -55,9 +52,7 @@ export function CompetitorTable({ rows, onEdit, onToggleStatus, onDelete }: Prop
                   <CompetitorStatusBadge status={status} />
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {c.updated_at
-                    ? new Date(c.updated_at).toLocaleString("pt-BR")
-                    : "—"}
+                  {c.updated_at ? new Date(c.updated_at).toLocaleString("pt-BR") : "—"}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">

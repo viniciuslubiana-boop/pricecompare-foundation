@@ -8,8 +8,7 @@ export function computePriceStats(values: Array<number | null | undefined>): Pri
   const sorted = [...nums].sort((a, b) => a - b);
   const sum = sorted.reduce((acc, n) => acc + n, 0);
   const mid = Math.floor(sorted.length / 2);
-  const median =
-    sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+  const median = sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
   return {
     count: sorted.length,
     min: sorted[0],

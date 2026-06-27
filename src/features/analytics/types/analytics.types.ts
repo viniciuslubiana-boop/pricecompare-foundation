@@ -1,9 +1,4 @@
-import type {
-  MyVehicle,
-  CompetitorVehicle,
-  Comparison,
-  Competitor,
-} from "@/types/database.types";
+import type { MyVehicle, CompetitorVehicle, Comparison, Competitor } from "@/types/database.types";
 
 export type { MyVehicle, CompetitorVehicle, Comparison, Competitor };
 
@@ -85,8 +80,4 @@ export interface ExecutiveSummary {
   avgPriceCompetitor: number | null;
 }
 
-export type RankingDimension =
-  | "brand-mine"
-  | "brand-competitor"
-  | "competitor"
-  | "source";
+export type RankingDimension = "brand-mine" | "brand-competitor" | "competitor" | "source";

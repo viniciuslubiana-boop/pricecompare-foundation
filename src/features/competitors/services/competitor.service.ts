@@ -20,9 +20,7 @@ export const competitorService = {
     if (values.status === "active") {
       const dup = await competitorRepository.findActiveByUrl(values.url);
       if (dup) {
-        throw new Error(
-          `Já existe um concorrente ativo com esta URL: ${dup.name}.`,
-        );
+        throw new Error(`Já existe um concorrente ativo com esta URL: ${dup.name}.`);
       }
     }
     const payload: CompetitorInsert = {
@@ -39,9 +37,7 @@ export const competitorService = {
     if (values.status === "active") {
       const dup = await competitorRepository.findActiveByUrl(values.url, id);
       if (dup) {
-        throw new Error(
-          `Já existe outro concorrente ativo com esta URL: ${dup.name}.`,
-        );
+        throw new Error(`Já existe outro concorrente ativo com esta URL: ${dup.name}.`);
       }
     }
     const payload: CompetitorUpdate = {

@@ -22,8 +22,7 @@ export function deriveCompetitiveness(
   const denom = cmp.meCheaper + cmp.competitorCheaper + cmp.ties;
   if (!denom) return { percent: null, level: "unknown" };
   const percent = ((cmp.meCheaper + cmp.ties * 0.5) / denom) * 100;
-  const level: CompetitivenessLevel =
-    percent >= 65 ? "high" : percent >= 40 ? "medium" : "low";
+  const level: CompetitivenessLevel = percent >= 65 ? "high" : percent >= 40 ? "medium" : "low";
   return { percent, level };
 }
 
@@ -69,10 +68,7 @@ export function buildInsights(args: {
     });
   }
 
-  if (
-    market.avgPriceMine !== null &&
-    market.avgPriceCompetitor !== null
-  ) {
+  if (market.avgPriceMine !== null && market.avgPriceCompetitor !== null) {
     if (market.avgPriceMine > market.avgPriceCompetitor) {
       out.push({
         id: "avg-above",

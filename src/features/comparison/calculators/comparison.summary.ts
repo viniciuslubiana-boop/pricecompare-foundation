@@ -1,11 +1,7 @@
 /**
  * Winner Engine + Summary calculations.
  */
-import type {
-  ComparisonRow,
-  ComparisonSummary,
-  WinnerKind,
-} from "../types/comparison.types";
+import type { ComparisonRow, ComparisonSummary, WinnerKind } from "../types/comparison.types";
 
 const TIE_TOLERANCE = 0.02; // 2%
 

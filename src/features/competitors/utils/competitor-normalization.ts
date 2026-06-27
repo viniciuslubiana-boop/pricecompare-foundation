@@ -10,9 +10,7 @@ export function normalizeCompetitorName(input: string | null | undefined): strin
   return collapseSpaces(String(input));
 }
 
-export function normalizeCompetitorNotes(
-  input: string | null | undefined,
-): string | null {
+export function normalizeCompetitorNotes(input: string | null | undefined): string | null {
   if (!input) return null;
   const v = collapseSpaces(String(input));
   return v.length ? v : null;

@@ -268,9 +268,7 @@ function OperationsPage() {
                       <Badge
                         variant="secondary"
                         className={
-                          failed
-                            ? "bg-red-500/15 text-red-600"
-                            : "bg-muted text-muted-foreground"
+                          failed ? "bg-red-500/15 text-red-600" : "bg-muted text-muted-foreground"
                         }
                       >
                         {failed ? (

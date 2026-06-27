@@ -23,9 +23,7 @@ export function ComparisonFiltersBar({ value, onChange }: Props) {
           />
         </div>
         <div className="flex min-w-[220px] items-center gap-3">
-          <Label className="whitespace-nowrap text-xs">
-            Score mínimo: {value.minScore ?? 0}%
-          </Label>
+          <Label className="whitespace-nowrap text-xs">Score mínimo: {value.minScore ?? 0}%</Label>
           <Slider
             value={[value.minScore ?? 0]}
             min={0}
@@ -40,9 +38,7 @@ export function ComparisonFiltersBar({ value, onChange }: Props) {
         <Toggle
           label="Matches ≥ 80%"
           checked={(value.minScore ?? 0) >= 80 && !!value.onlyMatches}
-          onCheckedChange={(c) =>
-            patch({ onlyMatches: c, minScore: c ? 80 : value.minScore })
-          }
+          onCheckedChange={(c) => patch({ onlyMatches: c, minScore: c ? 80 : value.minScore })}
         />
         <Toggle
           label="Oportunidades"

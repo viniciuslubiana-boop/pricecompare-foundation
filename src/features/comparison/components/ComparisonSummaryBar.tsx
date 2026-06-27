@@ -1,8 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import type { ComparisonSummary } from "../types/comparison.types";
 
-const fmtMoney = (v: number) =>
-  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const fmtMoney = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 interface Props {
   summary: ComparisonSummary;
@@ -27,9 +26,7 @@ export function ComparisonSummaryBar({ summary }: Props) {
         <Card key={i.label}>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">{i.label}</p>
-            <p className={`mt-1 text-2xl font-semibold tabular-nums ${i.tone}`}>
-              {i.value}
-            </p>
+            <p className={`mt-1 text-2xl font-semibold tabular-nums ${i.tone}`}>{i.value}</p>
           </CardContent>
         </Card>
       ))}

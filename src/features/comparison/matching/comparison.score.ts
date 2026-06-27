@@ -2,14 +2,9 @@
  * Comparison Score — calcula a compatibilidade entre dois veículos.
  * Pesos: marca 40, modelo 30, ano 15, preço 10, km 5.
  */
-import type {
-  CompetitorVehicle,
-  MyVehicle,
-  ScoreBreakdown,
-} from "../types/comparison.types";
+import type { CompetitorVehicle, MyVehicle, ScoreBreakdown } from "../types/comparison.types";
 
-const norm = (s: string | null | undefined) =>
-  (s ?? "").toString().trim().toLowerCase();
+const norm = (s: string | null | undefined) => (s ?? "").toString().trim().toLowerCase();
 
 function tokenOverlap(a: string, b: string): number {
   const ta = new Set(norm(a).split(/\s+/).filter(Boolean));
@@ -63,10 +58,7 @@ function kmScore(a: number | null, b: number | null): number {
   return 0;
 }
 
-export function computeScore(
-  me: MyVehicle,
-  comp: CompetitorVehicle,
-): ScoreBreakdown {
+export function computeScore(me: MyVehicle, comp: CompetitorVehicle): ScoreBreakdown {
   const brand = brandScore(me.brand, comp.brand);
   const model = modelScore(me.model, comp.model);
   const year = yearScore(me.year_model, comp.year_model);

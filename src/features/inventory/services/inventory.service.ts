@@ -1,9 +1,5 @@
 import { vehicleRepository } from "@/repositories/vehicle.repository";
-import type {
-  InventoryFilters,
-  VehicleInsert,
-  VehicleUpdate,
-} from "../types/inventory.types";
+import type { InventoryFilters, VehicleInsert, VehicleUpdate } from "../types/inventory.types";
 import type { InventoryFormValues } from "../schemas/inventory.schema";
 
 /**

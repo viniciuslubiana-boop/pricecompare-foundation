@@ -45,10 +45,7 @@ function CompararPage() {
         title="Comparar"
         description="Compare seu estoque com o de um concorrente. Cálculos centralizados no Comparison Engine."
         actions={
-          <Button
-            onClick={() => run(competitorId)}
-            disabled={!competitorId || isRunning}
-          >
+          <Button onClick={() => run(competitorId)} disabled={!competitorId || isRunning}>
             {isRunning ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -66,9 +63,7 @@ function CompararPage() {
             <Select value={competitorId} onValueChange={setCompetitorId}>
               <SelectTrigger>
                 <SelectValue
-                  placeholder={
-                    isLoading ? "Carregando..." : "Selecione um concorrente"
-                  }
+                  placeholder={isLoading ? "Carregando..." : "Selecione um concorrente"}
                 />
               </SelectTrigger>
               <SelectContent>
