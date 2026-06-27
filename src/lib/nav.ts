@@ -34,6 +34,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Localizar Concorrentes", url: "/localizar-concorrentes", icon: MapPin },
   { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
   { title: "Consulta Global", url: "/consulta-mercado", icon: Search },
+  { title: "Central de Consulta", url: "/central-consulta", icon: Search },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
   { title: "Estratégia de Preço", url: "/estrategia-preco", icon: Wallet },
   { title: "Alterações do Mercado", url: "/alteracoes-mercado", icon: TrendingUp },
