@@ -11,6 +11,7 @@ import {
   Activity,
   TrendingUp,
   Radio,
+  Radar,
   Wallet,
   type LucideIcon,
 } from "lucide-react";

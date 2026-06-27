@@ -16,6 +16,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedOperacoesRouteImport } from './routes/_authenticated/operacoes'
 import { Route as AuthenticatedMovimentacoesMercadoRouteImport } from './routes/_authenticated/movimentacoes-mercado'
+import { Route as AuthenticatedMonitorMercadoRouteImport } from './routes/_authenticated/monitor-mercado'
 import { Route as AuthenticatedMeuEstoqueRouteImport } from './routes/_authenticated/meu-estoque'
 import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedExtrairConcorrenteRouteImport } from './routes/_authenticated/extrair-concorrente'
@@ -60,6 +61,12 @@ const AuthenticatedMovimentacoesMercadoRoute =
   AuthenticatedMovimentacoesMercadoRouteImport.update({
     id: '/movimentacoes-mercado',
     path: '/movimentacoes-mercado',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMonitorMercadoRoute =
+  AuthenticatedMonitorMercadoRouteImport.update({
+    id: '/monitor-mercado',
+    path: '/monitor-mercado',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMeuEstoqueRoute = AuthenticatedMeuEstoqueRouteImport.update({
@@ -133,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -150,6 +158,7 @@ export interface FileRoutesByTo {
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -170,6 +179,7 @@ export interface FileRoutesById {
   '/_authenticated/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/_authenticated/importacoes': typeof AuthenticatedImportacoesRoute
   '/_authenticated/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/_authenticated/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/_authenticated/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/_authenticated/operacoes': typeof AuthenticatedOperacoesRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/extrair-concorrente'
     | '/importacoes'
     | '/meu-estoque'
+    | '/monitor-mercado'
     | '/movimentacoes-mercado'
     | '/operacoes'
     | '/relatorios'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/extrair-concorrente'
     | '/importacoes'
     | '/meu-estoque'
+    | '/monitor-mercado'
     | '/movimentacoes-mercado'
     | '/operacoes'
     | '/relatorios'
@@ -227,6 +239,7 @@ export interface FileRouteTypes {
     | '/_authenticated/extrair-concorrente'
     | '/_authenticated/importacoes'
     | '/_authenticated/meu-estoque'
+    | '/_authenticated/monitor-mercado'
     | '/_authenticated/movimentacoes-mercado'
     | '/_authenticated/operacoes'
     | '/_authenticated/relatorios'
@@ -289,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/movimentacoes-mercado'
       fullPath: '/movimentacoes-mercado'
       preLoaderRoute: typeof AuthenticatedMovimentacoesMercadoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/monitor-mercado': {
+      id: '/_authenticated/monitor-mercado'
+      path: '/monitor-mercado'
+      fullPath: '/monitor-mercado'
+      preLoaderRoute: typeof AuthenticatedMonitorMercadoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/meu-estoque': {
@@ -374,6 +394,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExtrairConcorrenteRoute: typeof AuthenticatedExtrairConcorrenteRoute
   AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRoute
   AuthenticatedMeuEstoqueRoute: typeof AuthenticatedMeuEstoqueRoute
+  AuthenticatedMonitorMercadoRoute: typeof AuthenticatedMonitorMercadoRoute
   AuthenticatedMovimentacoesMercadoRoute: typeof AuthenticatedMovimentacoesMercadoRoute
   AuthenticatedOperacoesRoute: typeof AuthenticatedOperacoesRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
@@ -391,6 +412,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExtrairConcorrenteRoute: AuthenticatedExtrairConcorrenteRoute,
   AuthenticatedImportacoesRoute: AuthenticatedImportacoesRoute,
   AuthenticatedMeuEstoqueRoute: AuthenticatedMeuEstoqueRoute,
+  AuthenticatedMonitorMercadoRoute: AuthenticatedMonitorMercadoRoute,
   AuthenticatedMovimentacoesMercadoRoute:
     AuthenticatedMovimentacoesMercadoRoute,
   AuthenticatedOperacoesRoute: AuthenticatedOperacoesRoute,
