@@ -29,6 +29,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Meu Estoque", url: "/meu-estoque", icon: Package },
   { title: "Importações", url: "/importacoes", icon: Upload },
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
+  { title: "Localizar Concorrentes", url: "/localizar-concorrentes", icon: MapPin },
   { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
   { title: "Consulta Global", url: "/consulta-mercado", icon: Search },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
