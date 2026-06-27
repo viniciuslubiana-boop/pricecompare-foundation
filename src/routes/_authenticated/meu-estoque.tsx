@@ -31,24 +31,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  useMyVehicles,
-  useVehicleBrands,
+  useInventoryList,
+  useInventoryBrands,
   useCreateVehicle,
   useUpdateVehicle,
   useDeleteVehicle,
-} from "@/hooks/useMyVehicles";
-import { VehicleFormDialog } from "@/features/vehicles/VehicleFormDialog";
-import type { Vehicle } from "@/features/vehicles/vehicle.types";
+} from "@/features/inventory/hooks/useInventory";
+import { VehicleFormDialog } from "@/features/inventory/components/VehicleFormDialog";
+import type { Vehicle } from "@/features/inventory/types/inventory.types";
+import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
 
 const ALL = "__all__";
-
-const currency = (v: number | null | undefined) =>
-  v == null
-    ? "—"
-    : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v));
-
-const km = (v: number | null | undefined) =>
-  v == null ? "—" : new Intl.NumberFormat("pt-BR").format(v) + " km";
 
 function MeuEstoquePage() {
   const [search, setSearch] = useState("");
