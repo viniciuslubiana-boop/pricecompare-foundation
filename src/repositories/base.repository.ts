@@ -15,19 +15,24 @@ export class BaseRepository<T extends TableName> {
   }
 
   async listAll() {
-    const { data, error } = await this.client().select("*").order("created_at", { ascending: false });
+    const { data, error } = await this.client()
+      .select("*")
+      .order("created_at", { ascending: false });
     if (error) throw error;
     return data ?? [];
   }
 
   async getById(id: string) {
-    const { data, error } = await this.client().select("*").eq("id", id).maybeSingle();
+    const { data, error } = await (this.client() as any)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
     if (error) throw error;
     return data;
   }
 
   async remove(id: string) {
-    const { error } = await this.client().delete().eq("id", id);
+    const { error } = await (this.client() as any).delete().eq("id", id);
     if (error) throw error;
   }
 }
