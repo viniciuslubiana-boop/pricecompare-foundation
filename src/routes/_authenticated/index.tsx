@@ -26,6 +26,7 @@ import {
   PriceDistributionChart,
   ComparisonStatusChart,
 } from "@/features/dashboard";
+import { MarketUpdateButton } from "@/features/market-update";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -94,11 +95,14 @@ function DashboardPage() {
         title="Dashboard Executivo"
         description="Visão consolidada do mercado, do estoque e da concorrência."
         actions={
-          <Button asChild>
-            <Link to="/comparar">
-              <Plus className="h-4 w-4" /> Nova comparação
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <MarketUpdateButton />
+            <Button asChild variant="outline">
+              <Link to="/comparar">
+                <Plus className="h-4 w-4" /> Nova comparação
+              </Link>
+            </Button>
+          </div>
         }
       />
 
