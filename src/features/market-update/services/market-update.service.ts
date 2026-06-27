@@ -74,6 +74,10 @@ async function processCompetitor(
   });
 
   try {
+    if (!competitor.url) {
+      throw new Error("Concorrente sem site cadastrado. Configure uma fonte de estoque antes de atualizar.");
+    }
+
     // ETAPA 1.5 — snapshot lógico ANTES de inserir novos veículos
     const previousSnapshot = await marketChangesRepository
       .fetchSnapshot(competitor.name)

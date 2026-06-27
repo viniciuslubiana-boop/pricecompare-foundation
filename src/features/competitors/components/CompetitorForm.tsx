@@ -62,7 +62,7 @@ export function CompetitorForm({ open, onOpenChange, competitor, onSubmit, submi
         competitor
           ? {
               name: competitor.name,
-              url: competitor.url,
+              url: competitor.url ?? "",
               notes: competitor.notes ?? "",
               status: (competitor.status as "active" | "inactive") ?? "active",
             }

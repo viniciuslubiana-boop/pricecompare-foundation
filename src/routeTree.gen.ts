@@ -18,6 +18,7 @@ import { Route as AuthenticatedOperacoesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMovimentacoesMercadoRouteImport } from './routes/_authenticated/movimentacoes-mercado'
 import { Route as AuthenticatedMonitorMercadoRouteImport } from './routes/_authenticated/monitor-mercado'
 import { Route as AuthenticatedMeuEstoqueRouteImport } from './routes/_authenticated/meu-estoque'
+import { Route as AuthenticatedLocalizarConcorrentesRouteImport } from './routes/_authenticated/localizar-concorrentes'
 import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedExtrairConcorrenteRouteImport } from './routes/_authenticated/extrair-concorrente'
 import { Route as AuthenticatedEstrategiaPrecoRouteImport } from './routes/_authenticated/estrategia-preco'
@@ -75,6 +76,12 @@ const AuthenticatedMeuEstoqueRoute = AuthenticatedMeuEstoqueRouteImport.update({
   path: '/meu-estoque',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLocalizarConcorrentesRoute =
+  AuthenticatedLocalizarConcorrentesRouteImport.update({
+    id: '/localizar-concorrentes',
+    path: '/localizar-concorrentes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedImportacoesRoute =
   AuthenticatedImportacoesRouteImport.update({
     id: '/importacoes',
@@ -147,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
+  '/localizar-concorrentes': typeof AuthenticatedLocalizarConcorrentesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
@@ -166,6 +174,7 @@ export interface FileRoutesByTo {
   '/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
+  '/localizar-concorrentes': typeof AuthenticatedLocalizarConcorrentesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
@@ -188,6 +197,7 @@ export interface FileRoutesById {
   '/_authenticated/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
   '/_authenticated/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/_authenticated/importacoes': typeof AuthenticatedImportacoesRoute
+  '/_authenticated/localizar-concorrentes': typeof AuthenticatedLocalizarConcorrentesRoute
   '/_authenticated/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/_authenticated/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/_authenticated/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/estrategia-preco'
     | '/extrair-concorrente'
     | '/importacoes'
+    | '/localizar-concorrentes'
     | '/meu-estoque'
     | '/monitor-mercado'
     | '/movimentacoes-mercado'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/estrategia-preco'
     | '/extrair-concorrente'
     | '/importacoes'
+    | '/localizar-concorrentes'
     | '/meu-estoque'
     | '/monitor-mercado'
     | '/movimentacoes-mercado'
@@ -251,6 +263,7 @@ export interface FileRouteTypes {
     | '/_authenticated/estrategia-preco'
     | '/_authenticated/extrair-concorrente'
     | '/_authenticated/importacoes'
+    | '/_authenticated/localizar-concorrentes'
     | '/_authenticated/meu-estoque'
     | '/_authenticated/monitor-mercado'
     | '/_authenticated/movimentacoes-mercado'
@@ -329,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/meu-estoque'
       fullPath: '/meu-estoque'
       preLoaderRoute: typeof AuthenticatedMeuEstoqueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/localizar-concorrentes': {
+      id: '/_authenticated/localizar-concorrentes'
+      path: '/localizar-concorrentes'
+      fullPath: '/localizar-concorrentes'
+      preLoaderRoute: typeof AuthenticatedLocalizarConcorrentesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/importacoes': {
@@ -414,6 +434,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstrategiaPrecoRoute: typeof AuthenticatedEstrategiaPrecoRoute
   AuthenticatedExtrairConcorrenteRoute: typeof AuthenticatedExtrairConcorrenteRoute
   AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRoute
+  AuthenticatedLocalizarConcorrentesRoute: typeof AuthenticatedLocalizarConcorrentesRoute
   AuthenticatedMeuEstoqueRoute: typeof AuthenticatedMeuEstoqueRoute
   AuthenticatedMonitorMercadoRoute: typeof AuthenticatedMonitorMercadoRoute
   AuthenticatedMovimentacoesMercadoRoute: typeof AuthenticatedMovimentacoesMercadoRoute
@@ -433,6 +454,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstrategiaPrecoRoute: AuthenticatedEstrategiaPrecoRoute,
   AuthenticatedExtrairConcorrenteRoute: AuthenticatedExtrairConcorrenteRoute,
   AuthenticatedImportacoesRoute: AuthenticatedImportacoesRoute,
+  AuthenticatedLocalizarConcorrentesRoute:
+    AuthenticatedLocalizarConcorrentesRoute,
   AuthenticatedMeuEstoqueRoute: AuthenticatedMeuEstoqueRoute,
   AuthenticatedMonitorMercadoRoute: AuthenticatedMonitorMercadoRoute,
   AuthenticatedMovimentacoesMercadoRoute:
@@ -454,13 +477,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

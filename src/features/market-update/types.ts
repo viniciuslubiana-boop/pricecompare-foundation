@@ -8,7 +8,7 @@ export type MarketUpdateStatus = "running" | "completed" | "partial" | "failed";
 export interface CompetitorRunDetail {
   competitorId: string;
   competitorName: string;
-  competitorUrl: string;
+  competitorUrl: string | null;
   status: "completed" | "failed" | "skipped";
   startedAt: string;
   finishedAt: string;

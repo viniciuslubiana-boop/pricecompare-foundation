@@ -1,0 +1,15 @@
+
+ALTER TABLE public.competitors
+  ALTER COLUMN url DROP NOT NULL,
+  ADD COLUMN IF NOT EXISTS address TEXT,
+  ADD COLUMN IF NOT EXISTS city TEXT,
+  ADD COLUMN IF NOT EXISTS state TEXT,
+  ADD COLUMN IF NOT EXISTS phone TEXT,
+  ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS google_place_id TEXT,
+  ADD COLUMN IF NOT EXISTS source_urls JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+CREATE UNIQUE INDEX IF NOT EXISTS competitors_google_place_id_uidx
+  ON public.competitors (google_place_id)
+  WHERE google_place_id IS NOT NULL;
