@@ -66,7 +66,11 @@ export function useDeleteCompetitor() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => competitorService.remove(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
+      qc.setQueriesData<Array<{ id: string }> | undefined>(
+        { queryKey: [...KEY, "list"] },
+        (old) => (Array.isArray(old) ? old.filter((c) => c.id !== id) : old),
+      );
       toast.success("Concorrente excluído");
       qc.invalidateQueries({ queryKey: KEY });
     },
