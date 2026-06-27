@@ -167,8 +167,8 @@ function MeuEstoquePage() {
                   <TableCell className="font-medium">{v.brand}</TableCell>
                   <TableCell>{v.model}</TableCell>
                   <TableCell>{v.year_model}</TableCell>
-                  <TableCell className="text-right">{km(v.km)}</TableCell>
-                  <TableCell className="text-right">{currency(v.price as unknown as number)}</TableCell>
+                  <TableCell className="text-right">{formatKm(v.km)}</TableCell>
+                  <TableCell className="text-right">{formatBRL(v.price as unknown as number)}</TableCell>
                   <TableCell>{v.supplier_name ?? "—"}</TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="capitalize">
