@@ -375,6 +375,77 @@ export type Database = {
           },
         ]
       }
+      market_changes: {
+        Row: {
+          brand: string | null
+          change_type: string
+          competitor_id: string | null
+          competitor_name: string
+          current_km: number | null
+          current_price: number | null
+          detected_at: string
+          id: string
+          km_diff: number | null
+          model: string | null
+          previous_km: number | null
+          previous_price: number | null
+          price_diff: number | null
+          price_diff_pct: number | null
+          run_id: string | null
+          summary: string | null
+          vehicle_key: string
+          year_model: string | null
+        }
+        Insert: {
+          brand?: string | null
+          change_type: string
+          competitor_id?: string | null
+          competitor_name: string
+          current_km?: number | null
+          current_price?: number | null
+          detected_at?: string
+          id?: string
+          km_diff?: number | null
+          model?: string | null
+          previous_km?: number | null
+          previous_price?: number | null
+          price_diff?: number | null
+          price_diff_pct?: number | null
+          run_id?: string | null
+          summary?: string | null
+          vehicle_key: string
+          year_model?: string | null
+        }
+        Update: {
+          brand?: string | null
+          change_type?: string
+          competitor_id?: string | null
+          competitor_name?: string
+          current_km?: number | null
+          current_price?: number | null
+          detected_at?: string
+          id?: string
+          km_diff?: number | null
+          model?: string | null
+          previous_km?: number | null
+          previous_price?: number | null
+          price_diff?: number | null
+          price_diff_pct?: number | null
+          run_id?: string | null
+          summary?: string | null
+          vehicle_key?: string
+          year_model?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_changes_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "market_update_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_update_runs: {
         Row: {
           created_at: string
