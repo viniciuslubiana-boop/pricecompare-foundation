@@ -76,8 +76,14 @@ export function useDeleteVehicle() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => inventoryService.remove(id),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
+      // 1) Remoção imediata do item em todas as listas em cache
+      qc.setQueriesData<Array<{ id: string }> | undefined>(
+        { queryKey: [...KEY, "list"] },
+        (old) => (Array.isArray(old) ? old.filter((v) => v.id !== id) : old),
+      );
       toast.success("Veículo excluído");
+      // 2) Refetch para garantir consistência com o servidor
       qc.invalidateQueries({ queryKey: KEY });
     },
     onError: (err: Error) => {
