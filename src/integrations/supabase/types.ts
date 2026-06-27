@@ -14,26 +14,443 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_logs: {
+        Row: {
+          cost_estimate: number | null
+          created_at: string
+          created_by: string | null
+          error_message: string | null
+          id: string
+          input_summary: string | null
+          operation: string
+          output_summary: string | null
+          status: string | null
+          tokens_used: number | null
+        }
+        Insert: {
+          cost_estimate?: number | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          input_summary?: string | null
+          operation: string
+          output_summary?: string | null
+          status?: string | null
+          tokens_used?: number | null
+        }
+        Update: {
+          cost_estimate?: number | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          input_summary?: string | null
+          operation?: string
+          output_summary?: string | null
+          status?: string | null
+          tokens_used?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_logs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          module: string
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          module: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          module?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comparisons: {
+        Row: {
+          compatibility_score: number | null
+          competitor_vehicle_id: string | null
+          created_at: string
+          id: string
+          my_vehicle_id: string | null
+          savings: number | null
+          winner: string | null
+        }
+        Insert: {
+          compatibility_score?: number | null
+          competitor_vehicle_id?: string | null
+          created_at?: string
+          id?: string
+          my_vehicle_id?: string | null
+          savings?: number | null
+          winner?: string | null
+        }
+        Update: {
+          compatibility_score?: number | null
+          competitor_vehicle_id?: string | null
+          created_at?: string
+          id?: string
+          my_vehicle_id?: string | null
+          savings?: number | null
+          winner?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comparisons_competitor_vehicle_id_fkey"
+            columns: ["competitor_vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "competitor_vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comparisons_my_vehicle_id_fkey"
+            columns: ["my_vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "my_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_vehicles: {
+        Row: {
+          brand: string
+          competitor_name: string | null
+          confidence: Json | null
+          created_at: string
+          extraction_id: string | null
+          id: string
+          km: number | null
+          model: string
+          price: number | null
+          source_url: string | null
+          updated_at: string
+          year_model: string
+        }
+        Insert: {
+          brand: string
+          competitor_name?: string | null
+          confidence?: Json | null
+          created_at?: string
+          extraction_id?: string | null
+          id?: string
+          km?: number | null
+          model: string
+          price?: number | null
+          source_url?: string | null
+          updated_at?: string
+          year_model: string
+        }
+        Update: {
+          brand?: string
+          competitor_name?: string | null
+          confidence?: Json | null
+          created_at?: string
+          extraction_id?: string | null
+          id?: string
+          km?: number | null
+          model?: string
+          price?: number | null
+          source_url?: string | null
+          updated_at?: string
+          year_model?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_vehicles_extraction_id_fkey"
+            columns: ["extraction_id"]
+            isOneToOne: false
+            referencedRelation: "extraction_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitors: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notes: string | null
+          status: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitors_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      extraction_logs: {
+        Row: {
+          checkpoint_page: number
+          competitor_id: string | null
+          created_at: string
+          error_log: Json | null
+          finished_at: string | null
+          id: string
+          pages_processed: number
+          started_by: string | null
+          status: string
+          total_pages: number
+          url: string
+          vehicles_found: number
+        }
+        Insert: {
+          checkpoint_page?: number
+          competitor_id?: string | null
+          created_at?: string
+          error_log?: Json | null
+          finished_at?: string | null
+          id?: string
+          pages_processed?: number
+          started_by?: string | null
+          status?: string
+          total_pages?: number
+          url: string
+          vehicles_found?: number
+        }
+        Update: {
+          checkpoint_page?: number
+          competitor_id?: string | null
+          created_at?: string
+          error_log?: Json | null
+          finished_at?: string | null
+          id?: string
+          pages_processed?: number
+          started_by?: string | null
+          status?: string
+          total_pages?: number
+          url?: string
+          vehicles_found?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extraction_logs_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "extraction_logs_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_logs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          error_log: Json | null
+          file_name: string | null
+          file_type: string | null
+          id: string
+          rows_failed: number
+          rows_imported: number
+          rows_received: number
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          error_log?: Json | null
+          file_name?: string | null
+          file_type?: string | null
+          id?: string
+          rows_failed?: number
+          rows_imported?: number
+          rows_received?: number
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          error_log?: Json | null
+          file_name?: string | null
+          file_type?: string | null
+          id?: string
+          rows_failed?: number
+          rows_imported?: number
+          rows_received?: number
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_logs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      my_vehicles: {
+        Row: {
+          brand: string
+          created_at: string
+          created_by: string | null
+          id: string
+          km: number | null
+          model: string
+          price: number | null
+          source: string
+          supplier_name: string | null
+          updated_at: string
+          year_model: string
+        }
+        Insert: {
+          brand: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          km?: number | null
+          model: string
+          price?: number | null
+          source?: string
+          supplier_name?: string | null
+          updated_at?: string
+          year_model: string
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          km?: number | null
+          model?: string
+          price?: number | null
+          source?: string
+          supplier_name?: string | null
+          updated_at?: string
+          year_model?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "my_vehicles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          status: string
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          status?: string
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -61,7 +478,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      view_dashboard_summary: {
+        Row: {
+          running_extractions: number | null
+          total_comparisons: number | null
+          total_competitor_vehicles: number | null
+          total_competitors: number | null
+          total_my_vehicles: number | null
+        }
+        Relationships: []
+      }
+      view_price_distribution: {
+        Row: {
+          avg_price: number | null
+          brand: string | null
+          max_price: number | null
+          min_price: number | null
+          model: string | null
+          qty: number | null
+          year_model: string | null
+        }
+        Relationships: []
+      }
+      view_recent_comparisons: {
+        Row: {
+          compatibility_score: number | null
+          competitor_brand: string | null
+          competitor_model: string | null
+          competitor_name: string | null
+          competitor_price: number | null
+          created_at: string | null
+          id: string | null
+          my_brand: string | null
+          my_model: string | null
+          my_price: number | null
+          savings: number | null
+          winner: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -71,6 +526,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "gerente"
