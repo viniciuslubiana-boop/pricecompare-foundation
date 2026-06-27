@@ -375,6 +375,50 @@ export type Database = {
           },
         ]
       }
+      market_update_runs: {
+        Row: {
+          created_at: string
+          details: Json
+          duration_ms: number | null
+          finished_at: string | null
+          id: string
+          started_at: string
+          status: string
+          totals: Json
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          duration_ms?: number | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          totals?: Json
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          duration_ms?: number | null
+          finished_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          totals?: Json
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_update_runs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       my_vehicles: {
         Row: {
           brand: string
