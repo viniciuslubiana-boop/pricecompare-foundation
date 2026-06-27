@@ -9,6 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedMeuEstoqueRouteImport } from './routes/_authenticated/meu-estoque'
@@ -18,52 +21,69 @@ import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authent
 import { Route as AuthenticatedCompararRouteImport } from './routes/_authenticated/comparar'
 import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated/administracao'
 
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/_authenticated/',
-  path: '/',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
-  id: '/_authenticated/relatorios',
+  id: '/relatorios',
   path: '/relatorios',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMeuEstoqueRoute = AuthenticatedMeuEstoqueRouteImport.update({
-  id: '/_authenticated/meu-estoque',
+  id: '/meu-estoque',
   path: '/meu-estoque',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedExtrairConcorrenteRoute =
   AuthenticatedExtrairConcorrenteRouteImport.update({
-    id: '/_authenticated/extrair-concorrente',
+    id: '/extrair-concorrente',
     path: '/extrair-concorrente',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedConfiguracoesRoute =
   AuthenticatedConfiguracoesRouteImport.update({
-    id: '/_authenticated/configuracoes',
+    id: '/configuracoes',
     path: '/configuracoes',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedConcorrentesRoute =
   AuthenticatedConcorrentesRouteImport.update({
-    id: '/_authenticated/concorrentes',
+    id: '/concorrentes',
     path: '/concorrentes',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCompararRoute = AuthenticatedCompararRouteImport.update({
-  id: '/_authenticated/comparar',
+  id: '/comparar',
   path: '/comparar',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdministracaoRoute =
   AuthenticatedAdministracaoRouteImport.update({
-    id: '/_authenticated/administracao',
+    id: '/administracao',
     path: '/administracao',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthenticatedIndexRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
@@ -71,9 +91,10 @@ export interface FileRoutesByFullPath {
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
-  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
@@ -85,6 +106,9 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
   '/_authenticated/administracao': typeof AuthenticatedAdministracaoRoute
   '/_authenticated/comparar': typeof AuthenticatedCompararRoute
   '/_authenticated/concorrentes': typeof AuthenticatedConcorrentesRoute
@@ -97,6 +121,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
+    | '/forgot-password'
+    | '/login'
     | '/administracao'
     | '/comparar'
     | '/concorrentes'
@@ -104,9 +131,10 @@ export interface FileRouteTypes {
     | '/extrair-concorrente'
     | '/meu-estoque'
     | '/relatorios'
-    | '/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/forgot-password'
+    | '/login'
     | '/administracao'
     | '/comparar'
     | '/concorrentes'
@@ -117,6 +145,9 @@ export interface FileRouteTypes {
     | '/'
   id:
     | '__root__'
+    | '/_authenticated'
+    | '/forgot-password'
+    | '/login'
     | '/_authenticated/administracao'
     | '/_authenticated/comparar'
     | '/_authenticated/concorrentes'
@@ -128,6 +159,94 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LoginRoute: typeof LoginRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-estoque': {
+      id: '/_authenticated/meu-estoque'
+      path: '/meu-estoque'
+      fullPath: '/meu-estoque'
+      preLoaderRoute: typeof AuthenticatedMeuEstoqueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/extrair-concorrente': {
+      id: '/_authenticated/extrair-concorrente'
+      path: '/extrair-concorrente'
+      fullPath: '/extrair-concorrente'
+      preLoaderRoute: typeof AuthenticatedExtrairConcorrenteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/concorrentes': {
+      id: '/_authenticated/concorrentes'
+      path: '/concorrentes'
+      fullPath: '/concorrentes'
+      preLoaderRoute: typeof AuthenticatedConcorrentesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comparar': {
+      id: '/_authenticated/comparar'
+      path: '/comparar'
+      fullPath: '/comparar'
+      preLoaderRoute: typeof AuthenticatedCompararRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/administracao': {
+      id: '/_authenticated/administracao'
+      path: '/administracao'
+      fullPath: '/administracao'
+      preLoaderRoute: typeof AuthenticatedAdministracaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+  }
+}
+
+interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdministracaoRoute: typeof AuthenticatedAdministracaoRoute
   AuthenticatedCompararRoute: typeof AuthenticatedCompararRoute
   AuthenticatedConcorrentesRoute: typeof AuthenticatedConcorrentesRoute
@@ -138,68 +257,7 @@ export interface RootRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/relatorios': {
-      id: '/_authenticated/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/meu-estoque': {
-      id: '/_authenticated/meu-estoque'
-      path: '/meu-estoque'
-      fullPath: '/meu-estoque'
-      preLoaderRoute: typeof AuthenticatedMeuEstoqueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/extrair-concorrente': {
-      id: '/_authenticated/extrair-concorrente'
-      path: '/extrair-concorrente'
-      fullPath: '/extrair-concorrente'
-      preLoaderRoute: typeof AuthenticatedExtrairConcorrenteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/configuracoes': {
-      id: '/_authenticated/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/concorrentes': {
-      id: '/_authenticated/concorrentes'
-      path: '/concorrentes'
-      fullPath: '/concorrentes'
-      preLoaderRoute: typeof AuthenticatedConcorrentesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/comparar': {
-      id: '/_authenticated/comparar'
-      path: '/comparar'
-      fullPath: '/comparar'
-      preLoaderRoute: typeof AuthenticatedCompararRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/administracao': {
-      id: '/_authenticated/administracao'
-      path: '/administracao'
-      fullPath: '/administracao'
-      preLoaderRoute: typeof AuthenticatedAdministracaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
-}
-
-const rootRouteChildren: RootRouteChildren = {
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdministracaoRoute: AuthenticatedAdministracaoRoute,
   AuthenticatedCompararRoute: AuthenticatedCompararRoute,
   AuthenticatedConcorrentesRoute: AuthenticatedConcorrentesRoute,
@@ -208,6 +266,15 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedMeuEstoqueRoute: AuthenticatedMeuEstoqueRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
