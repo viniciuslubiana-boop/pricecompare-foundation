@@ -133,13 +133,16 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
     status = "failed";
   }
 
+  const dbStatus: "completed" | "partial" | "failed" =
+    status === "no_changes" ? "failed" : status;
+
   await importLogRepository.create({
     file_name: args.fileName,
     file_type: args.fileType,
     rows_received: preview.length,
     rows_imported: imported,
     rows_failed: failed,
-    status,
+    status: dbStatus,
     error_log: errorLog.length ? (JSON.parse(JSON.stringify(errorLog)) as never) : null,
     created_by: args.userId,
   });
