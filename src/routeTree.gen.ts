@@ -27,6 +27,7 @@ import { Route as AuthenticatedConsultaMercadoRouteImport } from './routes/_auth
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authenticated/concorrentes'
 import { Route as AuthenticatedCompararRouteImport } from './routes/_authenticated/comparar'
+import { Route as AuthenticatedCentralConsultaRouteImport } from './routes/_authenticated/central-consulta'
 import { Route as AuthenticatedAlteracoesMercadoRouteImport } from './routes/_authenticated/alteracoes-mercado'
 import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated/administracao'
 import { Route as AuthenticatedVeiculoIdRouteImport } from './routes/_authenticated/veiculo.$id'
@@ -130,6 +131,12 @@ const AuthenticatedCompararRoute = AuthenticatedCompararRouteImport.update({
   path: '/comparar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCentralConsultaRoute =
+  AuthenticatedCentralConsultaRouteImport.update({
+    id: '/central-consulta',
+    path: '/central-consulta',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAlteracoesMercadoRoute =
   AuthenticatedAlteracoesMercadoRouteImport.update({
     id: '/alteracoes-mercado',
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
   '/alteracoes-mercado': typeof AuthenticatedAlteracoesMercadoRoute
+  '/central-consulta': typeof AuthenticatedCentralConsultaRoute
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
   '/alteracoes-mercado': typeof AuthenticatedAlteracoesMercadoRoute
+  '/central-consulta': typeof AuthenticatedCentralConsultaRoute
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -199,6 +208,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/administracao': typeof AuthenticatedAdministracaoRoute
   '/_authenticated/alteracoes-mercado': typeof AuthenticatedAlteracoesMercadoRoute
+  '/_authenticated/central-consulta': typeof AuthenticatedCentralConsultaRoute
   '/_authenticated/comparar': typeof AuthenticatedCompararRoute
   '/_authenticated/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/administracao'
     | '/alteracoes-mercado'
+    | '/central-consulta'
     | '/comparar'
     | '/concorrentes'
     | '/configuracoes'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/administracao'
     | '/alteracoes-mercado'
+    | '/central-consulta'
     | '/comparar'
     | '/concorrentes'
     | '/configuracoes'
@@ -268,6 +280,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/administracao'
     | '/_authenticated/alteracoes-mercado'
+    | '/_authenticated/central-consulta'
     | '/_authenticated/comparar'
     | '/_authenticated/concorrentes'
     | '/_authenticated/configuracoes'
@@ -420,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompararRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/central-consulta': {
+      id: '/_authenticated/central-consulta'
+      path: '/central-consulta'
+      fullPath: '/central-consulta'
+      preLoaderRoute: typeof AuthenticatedCentralConsultaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/alteracoes-mercado': {
       id: '/_authenticated/alteracoes-mercado'
       path: '/alteracoes-mercado'
@@ -447,6 +467,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdministracaoRoute: typeof AuthenticatedAdministracaoRoute
   AuthenticatedAlteracoesMercadoRoute: typeof AuthenticatedAlteracoesMercadoRoute
+  AuthenticatedCentralConsultaRoute: typeof AuthenticatedCentralConsultaRoute
   AuthenticatedCompararRoute: typeof AuthenticatedCompararRoute
   AuthenticatedConcorrentesRoute: typeof AuthenticatedConcorrentesRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
@@ -468,6 +489,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdministracaoRoute: AuthenticatedAdministracaoRoute,
   AuthenticatedAlteracoesMercadoRoute: AuthenticatedAlteracoesMercadoRoute,
+  AuthenticatedCentralConsultaRoute: AuthenticatedCentralConsultaRoute,
   AuthenticatedCompararRoute: AuthenticatedCompararRoute,
   AuthenticatedConcorrentesRoute: AuthenticatedConcorrentesRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
