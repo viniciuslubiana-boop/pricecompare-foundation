@@ -25,10 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ImportWizard } from "@/features/imports/components/ImportWizard";
-import {
-  useImportLogs,
-  useDeleteImportLog,
-} from "@/features/imports/hooks/useImports";
+import { useImportLogs, useDeleteImportLog } from "@/features/imports/hooks/useImports";
 import type { ImportLog } from "@/repositories/import.repository";
 
 function statusBadge(status: string | null) {
@@ -136,10 +133,20 @@ function CentralImportacoesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => setDetails(r)} aria-label="Detalhes">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => setDetails(r)}
+                        aria-label="Detalhes"
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => setToDelete(r)} aria-label="Excluir">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => setToDelete(r)}
+                        aria-label="Excluir"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -162,14 +169,27 @@ function CentralImportacoesPage() {
           {details && (
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-3 gap-3">
-                <Card className="p-3"><p className="text-xs text-muted-foreground">Recebidas</p><p className="text-lg font-semibold">{details.rows_received}</p></Card>
-                <Card className="p-3"><p className="text-xs text-muted-foreground">Importadas</p><p className="text-lg font-semibold">{details.rows_imported}</p></Card>
-                <Card className="p-3"><p className="text-xs text-muted-foreground">Falhas</p><p className="text-lg font-semibold">{details.rows_failed}</p></Card>
+                <Card className="p-3">
+                  <p className="text-xs text-muted-foreground">Recebidas</p>
+                  <p className="text-lg font-semibold">{details.rows_received}</p>
+                </Card>
+                <Card className="p-3">
+                  <p className="text-xs text-muted-foreground">Importadas</p>
+                  <p className="text-lg font-semibold">{details.rows_imported}</p>
+                </Card>
+                <Card className="p-3">
+                  <p className="text-xs text-muted-foreground">Falhas</p>
+                  <p className="text-lg font-semibold">{details.rows_failed}</p>
+                </Card>
               </div>
               <div>
-                <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">Log de erros</p>
+                <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
+                  Log de erros
+                </p>
                 <pre className="max-h-[300px] overflow-auto rounded-md bg-muted p-3 text-xs">
-                  {details.error_log ? JSON.stringify(details.error_log, null, 2) : "Sem erros registrados."}
+                  {details.error_log
+                    ? JSON.stringify(details.error_log, null, 2)
+                    : "Sem erros registrados."}
                 </pre>
               </div>
             </div>

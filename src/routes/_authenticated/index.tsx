@@ -42,8 +42,7 @@ const fmtMoney = (v: number | null | undefined) =>
     ? "—"
     : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
-const fmtPercent = (v: number | null) =>
-  v === null ? "—" : `${v.toFixed(0)}%`;
+const fmtPercent = (v: number | null) => (v === null ? "—" : `${v.toFixed(0)}%`);
 
 function CompetitivenessTone(level: "high" | "medium" | "low" | "unknown") {
   if (level === "high") return { tone: "success" as const, label: "Alta" };
@@ -85,7 +84,8 @@ function DashboardPage() {
     );
   }
 
-  const { summary, comparison, market, distribution, competitiveness, insights, competitors } = data;
+  const { summary, comparison, market, distribution, competitiveness, insights, competitors } =
+    data;
   const ctone = CompetitivenessTone(competitiveness.level);
 
   return (
@@ -122,9 +122,7 @@ function DashboardPage() {
           label="Concorrente mais barato"
           value={summary.opportunities}
           hint={
-            market.avgPriceDiff !== null
-              ? `Δ médio ${fmtMoney(market.avgPriceDiff)}`
-              : undefined
+            market.avgPriceDiff !== null ? `Δ médio ${fmtMoney(market.avgPriceDiff)}` : undefined
           }
           tone="danger"
           icon={<TrendingUp className="h-5 w-5" />}
@@ -195,12 +193,7 @@ function DashboardPage() {
           {insights.length ? (
             <div className="grid gap-2 sm:grid-cols-2">
               {insights.map((i) => (
-                <InsightCard
-                  key={i.id}
-                  tone={i.tone}
-                  title={i.title}
-                  description={i.description}
-                />
+                <InsightCard key={i.id} tone={i.tone} title={i.title} description={i.description} />
               ))}
             </div>
           ) : (
@@ -214,7 +207,10 @@ function DashboardPage() {
       {/* Gráficos */}
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <SummaryCard title="Distribuição por Marca" description="Top marcas no seu estoque">
-          <RankingBarChart entries={data.inventory.byBrand.slice(0, 7)} label="Sem marcas cadastradas" />
+          <RankingBarChart
+            entries={data.inventory.byBrand.slice(0, 7)}
+            label="Sem marcas cadastradas"
+          />
         </SummaryCard>
         <SummaryCard title="Distribuição por Concorrente" description="Volume por loja monitorada">
           <RankingBarChart

@@ -25,14 +25,8 @@ export function useDashboard() {
         snap.competitorVehicles,
       );
       const comparison = comparisonStatisticsService.compute(snap.comparisons);
-      const market = marketStatisticsService.compute(
-        snap.myVehicles,
-        snap.competitorVehicles,
-      );
-      const distribution = computePriceDistribution(
-        snap.myVehicles,
-        snap.competitorVehicles,
-      );
+      const market = marketStatisticsService.compute(snap.myVehicles, snap.competitorVehicles);
+      const distribution = computePriceDistribution(snap.myVehicles, snap.competitorVehicles);
       const competitiveness = deriveCompetitiveness(comparison);
       const summary = {
         totalMyVehicles: inventory.total,

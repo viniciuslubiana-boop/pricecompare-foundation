@@ -3,14 +3,9 @@
  * min, max, média de preço e diferença em relação aos veículos
  * equivalentes (mesma marca + ano + token raiz do modelo) no pool.
  */
-import type {
-  CompetitorVehicle,
-  MarketPriceInfo,
-  MyVehicle,
-} from "../types/comparison.types";
+import type { CompetitorVehicle, MarketPriceInfo, MyVehicle } from "../types/comparison.types";
 
-const norm = (s: string | null | undefined) =>
-  (s ?? "").toString().trim().toLowerCase();
+const norm = (s: string | null | undefined) => (s ?? "").toString().trim().toLowerCase();
 
 function firstToken(model: string): string {
   return norm(model).split(/\s+/)[0] ?? "";
@@ -22,10 +17,7 @@ function sameYear(a: string | null, b: string | null): boolean {
   return !!ya && !!yb && ya === yb;
 }
 
-export function marketPriceFor(
-  me: MyVehicle,
-  pool: CompetitorVehicle[],
-): MarketPriceInfo {
+export function marketPriceFor(me: MyVehicle, pool: CompetitorVehicle[]): MarketPriceInfo {
   const meBrand = norm(me.brand);
   const meModelRoot = firstToken(me.model);
   const equivalents = pool.filter(

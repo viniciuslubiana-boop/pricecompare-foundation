@@ -22,8 +22,8 @@ export function AuthShell({ title, subtitle, children }: AuthShellProps) {
             Inteligência de mercado para revendas e concessionárias.
           </h2>
           <p className="text-sm text-sidebar-foreground/70">
-            Compare seu estoque com o de concorrentes em tempo real e tome
-            decisões de preço com mais segurança.
+            Compare seu estoque com o de concorrentes em tempo real e tome decisões de preço com
+            mais segurança.
           </p>
         </div>
         <div className="text-xs text-sidebar-foreground/50">
@@ -41,9 +41,7 @@ export function AuthShell({ title, subtitle, children }: AuthShellProps) {
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-            {subtitle ? (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
-            ) : null}
+            {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
           </div>
           {children}
         </div>

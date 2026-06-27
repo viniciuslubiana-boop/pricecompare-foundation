@@ -12,12 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Loader2, Play, Save } from "lucide-react";
 import { useCompetitorsList } from "@/features/competitors/hooks/useCompetitors";
 import { useExtraction } from "@/features/extraction/hooks/useExtraction";
@@ -29,30 +24,22 @@ export const Route = createFileRoute("/_authenticated/extrair-concorrente")({
 });
 
 function ExtrairConcorrentePage() {
-  const { data: competitors = [], isLoading: loadingCompetitors } =
-    useCompetitorsList({ status: "active" });
+  const { data: competitors = [], isLoading: loadingCompetitors } = useCompetitorsList({
+    status: "active",
+  });
   const [competitorId, setCompetitorId] = useState<string>("");
   const [inputType, setInputType] = useState<"text" | "html">("text");
   const [rawContent, setRawContent] = useState("");
 
-  const {
-    preview,
-    runPreview,
-    isProcessing,
-    updateRow,
-    removeRow,
-    reset,
-    confirm,
-    isConfirming,
-  } = useExtraction();
+  const { preview, runPreview, isProcessing, updateRow, removeRow, reset, confirm, isConfirming } =
+    useExtraction();
 
   const selected = useMemo(
     () => competitors.find((c) => c.id === competitorId) ?? null,
     [competitors, competitorId],
   );
 
-  const canProcess =
-    !!competitorId && rawContent.trim().length >= 10 && !isProcessing;
+  const canProcess = !!competitorId && rawContent.trim().length >= 10 && !isProcessing;
   const validCount = preview?.totals.valid ?? 0;
 
   function handleProcess() {
@@ -109,9 +96,7 @@ function ExtrairConcorrentePage() {
                 <SelectTrigger>
                   <SelectValue
                     placeholder={
-                      loadingCompetitors
-                        ? "Carregando..."
-                        : "Selecione um concorrente ativo"
+                      loadingCompetitors ? "Carregando..." : "Selecione um concorrente ativo"
                     }
                   />
                 </SelectTrigger>
@@ -126,10 +111,7 @@ function ExtrairConcorrentePage() {
             </div>
             <div className="space-y-2">
               <Label>Tipo de conteúdo</Label>
-              <Select
-                value={inputType}
-                onValueChange={(v) => setInputType(v as "text" | "html")}
-              >
+              <Select value={inputType} onValueChange={(v) => setInputType(v as "text" | "html")}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -150,8 +132,8 @@ function ExtrairConcorrentePage() {
               className="font-mono text-xs"
             />
             <p className="text-xs text-muted-foreground">
-              O Extraction Engine identifica blocos contendo marca, modelo,
-              ano, KM e preço. Nenhum acesso externo é feito.
+              O Extraction Engine identifica blocos contendo marca, modelo, ano, KM e preço. Nenhum
+              acesso externo é feito.
             </p>
           </div>
         </CardContent>
@@ -161,17 +143,14 @@ function ExtrairConcorrentePage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">
-              Preview ({preview.totals.total}) — válidos: {preview.totals.valid} ·
-              revisar: {preview.totals.review} · inválidos: {preview.totals.invalid}
+              Preview ({preview.totals.total}) — válidos: {preview.totals.valid} · revisar:{" "}
+              {preview.totals.review} · inválidos: {preview.totals.invalid}
             </CardTitle>
             <div className="flex gap-2">
               <Button variant="outline" onClick={handleReset} disabled={isConfirming}>
                 Limpar
               </Button>
-              <Button
-                onClick={handleConfirm}
-                disabled={isConfirming || validCount === 0}
-              >
+              <Button onClick={handleConfirm} disabled={isConfirming || validCount === 0}>
                 {isConfirming ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (

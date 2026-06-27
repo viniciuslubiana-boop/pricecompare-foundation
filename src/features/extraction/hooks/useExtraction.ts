@@ -14,8 +14,7 @@ export function useExtraction() {
   const [preview, setPreview] = useState<ExtractionPreviewResult | null>(null);
 
   const previewMutation = useMutation({
-    mutationFn: async (input: ExtractionInput) =>
-      extractionService.preview(input),
+    mutationFn: async (input: ExtractionInput) => extractionService.preview(input),
     onSuccess: (data) => {
       setPreview(data);
       if (data.totals.total === 0) {

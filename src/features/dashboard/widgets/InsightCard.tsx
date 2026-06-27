@@ -23,9 +23,7 @@ export function InsightCard({ tone = "info", icon, title, description }: Props) 
       {icon ? <div className="mt-0.5 shrink-0">{icon}</div> : null}
       <div className="min-w-0">
         <p className="text-sm font-medium leading-tight">{title}</p>
-        {description ? (
-          <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-        ) : null}
+        {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
       </div>
     </div>
   );

@@ -24,12 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   useInventoryList,
   useInventoryBrands,
@@ -160,7 +155,9 @@ function MeuEstoquePage() {
                   <TableCell>{v.model}</TableCell>
                   <TableCell>{v.year_model}</TableCell>
                   <TableCell className="text-right">{formatKm(v.km)}</TableCell>
-                  <TableCell className="text-right">{formatBRL(v.price as unknown as number)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatBRL(v.price as unknown as number)}
+                  </TableCell>
                   <TableCell>{v.supplier_name ?? "—"}</TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="capitalize">

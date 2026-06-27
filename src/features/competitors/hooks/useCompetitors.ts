@@ -1,10 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { competitorService } from "../services/competitor.service";
-import type {
-  CompetitorFilters,
-  CompetitorStatus,
-} from "../types/competitor.types";
+import type { CompetitorFilters, CompetitorStatus } from "../types/competitor.types";
 import type { CompetitorFormValues } from "../schemas/competitor.schema";
 import { useAuth } from "@/hooks/useAuth";
 

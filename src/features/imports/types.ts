@@ -1,10 +1,4 @@
-export type SystemField =
-  | "brand"
-  | "model"
-  | "year_model"
-  | "km"
-  | "price"
-  | "supplier_name";
+export type SystemField = "brand" | "model" | "year_model" | "km" | "price" | "supplier_name";
 
 export const SYSTEM_FIELDS: { key: SystemField; label: string; required: boolean }[] = [
   { key: "brand", label: "Marca", required: true },

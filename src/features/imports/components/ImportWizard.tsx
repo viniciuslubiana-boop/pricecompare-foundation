@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { UploadCloud, FileSpreadsheet, Loader2, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import {
+  UploadCloud,
+  FileSpreadsheet,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -31,7 +38,13 @@ import { Label } from "@/components/ui/label";
 import { parseFile } from "../utils/file-parser";
 import { autoMapColumns, mappingIsComplete } from "../utils/column-mapper";
 import { buildPreview } from "../services/import.service";
-import { SYSTEM_FIELDS, type ColumnMapping, type ParsedFile, type PreviewRow, type SystemField } from "../types";
+import {
+  SYSTEM_FIELDS,
+  type ColumnMapping,
+  type ParsedFile,
+  type PreviewRow,
+  type SystemField,
+} from "../types";
 import { useRunImport } from "../hooks/useImports";
 import { useInventoryList } from "@/features/inventory/hooks/useInventory";
 import { useAuth } from "@/hooks/useAuth";
@@ -124,7 +137,8 @@ export function ImportWizard({ open, onOpenChange }: Props) {
           <DialogTitle>Nova importação</DialogTitle>
           <DialogDescription>
             {step === "upload" && "Selecione um arquivo CSV ou XLSX (até 10 MB)."}
-            {step === "mapping" && "Confirme o mapeamento entre colunas do arquivo e campos do sistema."}
+            {step === "mapping" &&
+              "Confirme o mapeamento entre colunas do arquivo e campos do sistema."}
             {step === "preview" && "Revise os dados antes de importar."}
             {step === "done" && "Resultado da importação."}
           </DialogDescription>
@@ -154,7 +168,9 @@ export function ImportWizard({ open, onOpenChange }: Props) {
             )}
             <div>
               <p className="font-medium">Arraste o arquivo aqui</p>
-              <p className="text-sm text-muted-foreground">ou clique para selecionar (.csv, .xlsx)</p>
+              <p className="text-sm text-muted-foreground">
+                ou clique para selecionar (.csv, .xlsx)
+              </p>
             </div>
             <input
               type="file"
@@ -272,8 +288,12 @@ export function ImportWizard({ open, onOpenChange }: Props) {
                       <TableCell>{r.values.brand}</TableCell>
                       <TableCell>{r.values.model}</TableCell>
                       <TableCell>{r.values.year_model}</TableCell>
-                      <TableCell className="text-right">{formatKm(Number(r.values.km) || 0)}</TableCell>
-                      <TableCell className="text-right">{formatBRL(Number(r.values.price) || 0)}</TableCell>
+                      <TableCell className="text-right">
+                        {formatKm(Number(r.values.km) || 0)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatBRL(Number(r.values.price) || 0)}
+                      </TableCell>
                       <TableCell className="max-w-[260px] truncate text-xs text-muted-foreground">
                         {r.duplicateReason ?? r.errors.join("; ")}
                       </TableCell>
@@ -309,7 +329,10 @@ export function ImportWizard({ open, onOpenChange }: Props) {
               <Button variant="ghost" onClick={() => setStep("mapping")}>
                 Voltar
               </Button>
-              <Button onClick={handleConfirm} disabled={runMut.isPending || counts.valid + counts.duplicate === 0}>
+              <Button
+                onClick={handleConfirm}
+                disabled={runMut.isPending || counts.valid + counts.duplicate === 0}
+              >
                 {runMut.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Confirmar importação
               </Button>

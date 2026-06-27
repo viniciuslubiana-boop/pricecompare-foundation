@@ -1,9 +1,5 @@
 import type { Vehicle } from "../types/inventory.types";
-import {
-  normalizeBrand,
-  normalizeModel,
-  normalizeYearModel,
-} from "./inventory-normalization";
+import { normalizeBrand, normalizeModel, normalizeYearModel } from "./inventory-normalization";
 
 const KM_TOLERANCE = 5_000; // km
 const PRICE_TOLERANCE_RATIO = 0.05; // 5%

@@ -8,16 +8,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type {
-  ComparisonRow,
-  ResultKind,
-  WinnerKind,
-} from "../types/comparison.types";
+import type { ComparisonRow, ResultKind, WinnerKind } from "../types/comparison.types";
 
 const fmtMoney = (v: number | null | undefined) =>
-  v == null
-    ? "—"
-    : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  v == null ? "—" : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 const KIND_LABEL: Record<ResultKind, string> = {
   match: "Match",
@@ -91,18 +85,12 @@ export function ComparisonTable({ rows }: Props) {
                   {r.kind === "match" ? `${r.score.total}%` : "—"}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={cn("font-medium", WINNER_TONE[r.winner])}
-                  >
+                  <Badge variant="outline" className={cn("font-medium", WINNER_TONE[r.winner])}>
                     {WINNER_LABEL[r.winner]}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={cn("font-medium", KIND_TONE[r.kind])}
-                  >
+                  <Badge variant="outline" className={cn("font-medium", KIND_TONE[r.kind])}>
                     {KIND_LABEL[r.kind]}
                   </Badge>
                 </TableCell>

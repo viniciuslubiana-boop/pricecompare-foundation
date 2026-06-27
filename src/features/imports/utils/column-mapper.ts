@@ -34,9 +34,6 @@ export function autoMapColumns(columns: string[]): ColumnMapping {
   return mapping;
 }
 
-export function mappingIsComplete(
-  mapping: ColumnMapping,
-  required: SystemField[],
-): boolean {
+export function mappingIsComplete(mapping: ColumnMapping, required: SystemField[]): boolean {
   return required.every((f) => !!mapping[f]);
 }

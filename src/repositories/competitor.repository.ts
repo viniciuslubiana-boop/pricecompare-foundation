@@ -1,10 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BaseRepository } from "./base.repository";
-import type {
-  Competitor,
-  CompetitorInsert,
-  CompetitorUpdate,
-} from "@/types/database.types";
+import type { Competitor, CompetitorInsert, CompetitorUpdate } from "@/types/database.types";
 import type { CompetitorFilters } from "@/features/competitors/types/competitor.types";
 
 class CompetitorRepository extends BaseRepository<"competitors"> {
@@ -13,10 +9,7 @@ class CompetitorRepository extends BaseRepository<"competitors"> {
   }
 
   async list(filters: CompetitorFilters = {}): Promise<Competitor[]> {
-    let query = supabase
-      .from("competitors")
-      .select("*")
-      .order("created_at", { ascending: false });
+    let query = supabase.from("competitors").select("*").order("created_at", { ascending: false });
 
     if (filters.status && filters.status !== "all") {
       query = query.eq("status", filters.status);
@@ -32,12 +25,7 @@ class CompetitorRepository extends BaseRepository<"competitors"> {
   }
 
   async findActiveByUrl(url: string, excludeId?: string): Promise<Competitor | null> {
-    let q = supabase
-      .from("competitors")
-      .select("*")
-      .eq("status", "active")
-      .eq("url", url)
-      .limit(1);
+    let q = supabase.from("competitors").select("*").eq("status", "active").eq("url", url).limit(1);
     if (excludeId) q = q.neq("id", excludeId);
     const { data, error } = await q;
     if (error) throw error;
@@ -45,11 +33,7 @@ class CompetitorRepository extends BaseRepository<"competitors"> {
   }
 
   async create(payload: CompetitorInsert): Promise<Competitor> {
-    const { data, error } = await supabase
-      .from("competitors")
-      .insert(payload)
-      .select()
-      .single();
+    const { data, error } = await supabase.from("competitors").insert(payload).select().single();
     if (error) throw error;
     return data as Competitor;
   }

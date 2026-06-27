@@ -25,13 +25,12 @@ interface AnalyticsSnapshot {
 }
 
 async function loadSnapshot(): Promise<AnalyticsSnapshot> {
-  const [myVehicles, competitorVehicles, competitors, comparisons] =
-    await Promise.all([
-      analyticsRepository.listMyVehicles(),
-      analyticsRepository.listCompetitorVehicles(),
-      analyticsRepository.listCompetitors(),
-      analyticsRepository.listComparisons(),
-    ]);
+  const [myVehicles, competitorVehicles, competitors, comparisons] = await Promise.all([
+    analyticsRepository.listMyVehicles(),
+    analyticsRepository.listCompetitorVehicles(),
+    analyticsRepository.listCompetitors(),
+    analyticsRepository.listComparisons(),
+  ]);
   return { myVehicles, competitorVehicles, competitors, comparisons };
 }
 
@@ -41,15 +40,9 @@ export const analyticsService = {
   async getExecutiveSummary(): Promise<ExecutiveSummary> {
     const snap = await loadSnapshot();
     const inv = inventoryStatisticsService.compute(snap.myVehicles);
-    const comp = competitorStatisticsService.compute(
-      snap.competitors,
-      snap.competitorVehicles,
-    );
+    const comp = competitorStatisticsService.compute(snap.competitors, snap.competitorVehicles);
     const cmp = comparisonStatisticsService.compute(snap.comparisons);
-    const market = marketStatisticsService.compute(
-      snap.myVehicles,
-      snap.competitorVehicles,
-    );
+    const market = marketStatisticsService.compute(snap.myVehicles, snap.competitorVehicles);
     return {
       totalMyVehicles: inv.total,
       totalCompetitorVehicles: comp.totalVehicles,

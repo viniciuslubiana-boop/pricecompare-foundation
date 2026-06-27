@@ -15,8 +15,7 @@ export function detectFileType(file: File): "csv" | "xlsx" | null {
 export async function parseFile(file: File): Promise<ParsedFile> {
   const type = detectFileType(file);
   if (!type) throw new Error("Formato não suportado. Use .csv ou .xlsx");
-  if (file.size > MAX_FILE_SIZE)
-    throw new Error("Arquivo muito grande. Máximo 10 MB.");
+  if (file.size > MAX_FILE_SIZE) throw new Error("Arquivo muito grande. Máximo 10 MB.");
 
   if (type === "csv") return parseCSV(file);
   return parseXLSX(file);

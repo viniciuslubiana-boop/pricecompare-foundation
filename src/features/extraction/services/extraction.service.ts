@@ -8,19 +8,13 @@
 import { extractionRepository } from "@/repositories/extraction.repository";
 import { competitorVehicleRepository } from "../repositories/competitor-vehicle.repository";
 import { parseExtractionInput } from "../parsers/extraction.parser";
-import {
-  applyValidation,
-  averageConfidence,
-} from "../validators/extraction.validator";
+import { applyValidation, averageConfidence } from "../validators/extraction.validator";
 import type {
   ExtractedVehicle,
   ExtractionInput,
   ExtractionPreviewResult,
 } from "../types/extraction.types";
-import type {
-  CompetitorVehicleInsert,
-  ExtractionLogInsert,
-} from "@/types/database.types";
+import type { CompetitorVehicleInsert, ExtractionLogInsert } from "@/types/database.types";
 
 function summarize(rows: ExtractedVehicle[]) {
   return {

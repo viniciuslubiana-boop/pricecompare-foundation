@@ -3,22 +3,9 @@ import { inventoryVehicleSchema } from "@/features/inventory/schemas/inventory.s
 import { findDuplicates } from "@/features/inventory/utils/inventory-duplicates";
 import { importLogRepository } from "@/repositories/import.repository";
 import type { Vehicle } from "@/features/inventory/types/inventory.types";
-import type {
-  ColumnMapping,
-  ImportRunResult,
-  PreviewRow,
-  RawRow,
-  SystemField,
-} from "../types";
+import type { ColumnMapping, ImportRunResult, PreviewRow, RawRow, SystemField } from "../types";
 
-const FIELD_KEYS: SystemField[] = [
-  "brand",
-  "model",
-  "year_model",
-  "km",
-  "price",
-  "supplier_name",
-];
+const FIELD_KEYS: SystemField[] = ["brand", "model", "year_model", "km", "price", "supplier_name"];
 
 function pick(row: RawRow, mapping: ColumnMapping, field: SystemField): string {
   const col = mapping[field];

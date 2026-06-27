@@ -39,12 +39,7 @@ export const inventoryVehicleSchema = z.object({
   price: z
     .union([z.string(), z.number()])
     .transform((v) => normalizePrice(v))
-    .pipe(
-      z
-        .number()
-        .min(0, "Valor não pode ser negativo")
-        .max(99_999_999, "Valor muito alto"),
-    ),
+    .pipe(z.number().min(0, "Valor não pode ser negativo").max(99_999_999, "Valor muito alto")),
   supplier_name: z
     .string()
     .optional()

@@ -72,9 +72,7 @@ export function useOperations() {
         ...extractions.slice(0, 5).map((e) => ({
           id: `e-${e.id}`,
           kind: "extraction" as const,
-          title:
-            (e.competitor_id ? competitorNameById.get(e.competitor_id) : null) ??
-            "Extração",
+          title: (e.competitor_id ? competitorNameById.get(e.competitor_id) : null) ?? "Extração",
           status: e.status,
           at: e.created_at,
         })),
@@ -89,9 +87,7 @@ export function useOperations() {
         .sort((a, b) => (a.at > b.at ? -1 : 1))
         .slice(0, 10);
 
-      const opportunities = snap.comparisons.filter(
-        (c) => c.winner === "competitor",
-      ).length;
+      const opportunities = snap.comparisons.filter((c) => c.winner === "competitor").length;
 
       return {
         totals: {

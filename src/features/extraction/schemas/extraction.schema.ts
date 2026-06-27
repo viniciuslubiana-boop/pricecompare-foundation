@@ -16,10 +16,7 @@ export type ExtractedVehicleSchema = z.infer<typeof extractedVehicleSchema>;
 /** Schema de entrada da extração (texto/HTML colado). */
 export const extractionInputSchema = z.object({
   competitorId: z.string().uuid("Selecione um concorrente"),
-  rawContent: z
-    .string()
-    .trim()
-    .min(10, "Cole pelo menos um trecho de texto ou HTML"),
+  rawContent: z.string().trim().min(10, "Cole pelo menos um trecho de texto ou HTML"),
   inputType: z.enum(["text", "html"]).default("text"),
 });
 

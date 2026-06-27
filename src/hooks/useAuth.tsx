@@ -37,10 +37,7 @@ function mapUser(u: User | null | undefined): AuthUser | null {
 }
 
 async function fetchRoles(userId: string): Promise<AppRole[]> {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId);
+  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) {
     console.error("Erro ao carregar papéis", error);
     return [];

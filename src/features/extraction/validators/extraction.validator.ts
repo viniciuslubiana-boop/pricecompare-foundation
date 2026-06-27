@@ -3,10 +3,7 @@
  * Define o status final de cada linha (valid / review / invalid)
  * a partir dos campos extraídos e da confiança.
  */
-import type {
-  ExtractedRowStatus,
-  ExtractedVehicle,
-} from "../types/extraction.types";
+import type { ExtractedRowStatus, ExtractedVehicle } from "../types/extraction.types";
 
 export interface ValidationOutcome {
   status: ExtractedRowStatus;

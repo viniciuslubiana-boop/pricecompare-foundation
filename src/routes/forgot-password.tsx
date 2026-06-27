@@ -50,8 +50,8 @@ function ForgotPasswordPage() {
           <Alert>
             <MailCheck className="h-4 w-4" />
             <AlertDescription>
-              Enviamos um link de recuperação para <strong>{email}</strong>.
-              Verifique sua caixa de entrada.
+              Enviamos um link de recuperação para <strong>{email}</strong>. Verifique sua caixa de
+              entrada.
             </AlertDescription>
           </Alert>
           <Button asChild variant="outline" className="w-full">

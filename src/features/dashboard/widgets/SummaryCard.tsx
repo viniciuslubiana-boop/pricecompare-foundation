@@ -16,9 +16,7 @@ export function SummaryCard({ title, description, action, children, className }:
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
         <div className="min-w-0">
           <CardTitle className="text-base">{title}</CardTitle>
-          {description ? (
-            <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-          ) : null}
+          {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </CardHeader>

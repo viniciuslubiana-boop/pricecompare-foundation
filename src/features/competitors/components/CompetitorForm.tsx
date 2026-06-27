@@ -50,13 +50,7 @@ const empty: CompetitorFormInput = {
   status: "active",
 };
 
-export function CompetitorForm({
-  open,
-  onOpenChange,
-  competitor,
-  onSubmit,
-  submitting,
-}: Props) {
+export function CompetitorForm({ open, onOpenChange, competitor, onSubmit, submitting }: Props) {
   const form = useForm<CompetitorFormInput>({
     resolver: zodResolver(competitorSchema) as never,
     defaultValues: empty,
@@ -85,9 +79,7 @@ export function CompetitorForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {competitor ? "Editar concorrente" : "Cadastrar concorrente"}
-          </DialogTitle>
+          <DialogTitle>{competitor ? "Editar concorrente" : "Cadastrar concorrente"}</DialogTitle>
           <DialogDescription>
             Informe o nome e a URL do site que deseja monitorar. Campos com * são obrigatórios.
           </DialogDescription>
