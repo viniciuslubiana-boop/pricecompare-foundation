@@ -66,6 +66,14 @@ function CompararPage() {
         <RadarPanel />
       </SummaryCard>
 
+      <SummaryCard
+        title="Estratégia de Preço"
+        description="Recomendação comercial por veículo com cenários simulados de redução."
+      >
+        <StrategyPanel />
+      </SummaryCard>
+
+
 
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-2">
