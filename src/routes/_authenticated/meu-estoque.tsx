@@ -163,61 +163,83 @@ function MeuEstoquePage() {
           description="Ajuste os filtros ou limpe a busca para ver outros resultados."
         />
       ) : (
-        <div className="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Marca</TableHead>
-                <TableHead>Modelo</TableHead>
-                <TableHead>Ano/Modelo</TableHead>
-                <TableHead className="text-right">KM</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-                <TableHead>Fornecedor</TableHead>
-                <TableHead>Origem</TableHead>
-                <TableHead className="w-[100px] text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((v) => (
-                <TableRow key={v.id}>
-                  <TableCell className="font-medium">{v.brand}</TableCell>
-                  <TableCell>{v.model}</TableCell>
-                  <TableCell>{v.year_model}</TableCell>
-                  <TableCell className="text-right">{formatKm(v.km)}</TableCell>
-                  <TableCell className="text-right">
-                    {formatBRL(v.price as unknown as number)}
-                  </TableCell>
-                  <TableCell>{v.supplier_name ?? "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="capitalize">
-                      {v.source ?? "manual"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => openEdit(v)}
-                        aria-label="Editar"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setToDelete(v)}
-                        aria-label="Excluir"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        <>
+          <BulkActionsBar
+            count={selected.size}
+            onClear={() => setSelected(new Set())}
+            onDelete={() => setBulkConfirmOpen(true)}
+            pending={deleteMut.isPending}
+          />
+          <div className="overflow-x-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40px]">
+                    <Checkbox
+                      checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                      onCheckedChange={toggleAll}
+                      aria-label="Selecionar todos"
+                    />
+                  </TableHead>
+                  <TableHead>Marca</TableHead>
+                  <TableHead>Modelo</TableHead>
+                  <TableHead>Ano/Modelo</TableHead>
+                  <TableHead className="text-right">KM</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead>Fornecedor</TableHead>
+                  <TableHead>Origem</TableHead>
+                  <TableHead className="w-[100px] text-right">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {rows.map((v) => (
+                  <TableRow key={v.id} data-state={selected.has(v.id) ? "selected" : undefined}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.has(v.id)}
+                        onCheckedChange={() => toggleOne(v.id)}
+                        aria-label={`Selecionar ${v.brand} ${v.model}`}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">{v.brand}</TableCell>
+                    <TableCell>{v.model}</TableCell>
+                    <TableCell>{v.year_model}</TableCell>
+                    <TableCell className="text-right">{formatKm(v.km)}</TableCell>
+                    <TableCell className="text-right">
+                      {formatBRL(v.price as unknown as number)}
+                    </TableCell>
+                    <TableCell>{v.supplier_name ?? "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="capitalize">
+                        {v.source ?? "manual"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => openEdit(v)}
+                          aria-label="Editar"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setToDelete(v)}
+                          aria-label="Excluir"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       <VehicleFormDialog
