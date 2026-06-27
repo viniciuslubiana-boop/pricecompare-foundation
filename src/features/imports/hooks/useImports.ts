@@ -29,26 +29,30 @@ export function useRunImport() {
   return useMutation({
     mutationFn: (args: RunImportArgs) => runImport(args),
     onSuccess: (result) => {
-      const parts: string[] = [];
-      if (result.rowsImported) parts.push(`${result.rowsImported} importadas`);
-      if (result.rowsDuplicateIgnored) parts.push(`${result.rowsDuplicateIgnored} duplicadas ignoradas`);
-      if (result.rowsInvalid) parts.push(`${result.rowsInvalid} inválidas`);
-      if (result.rowsInsertError) parts.push(`${result.rowsInsertError} erros ao salvar`);
-      const description = parts.join(" · ") || "Nenhuma linha processada";
-      const firstError = result.errorLog[0]?.errors?.[0];
+      const { rowsReceived, rowsImported, rowsDuplicateIgnored, rowsInvalid, rowsInsertError } = result;
+      const rowsWithError = rowsInvalid + rowsInsertError;
+      const report =
+        `Lidas: ${rowsReceived} · Importadas: ${rowsImported} · ` +
+        `Duplicadas ignoradas: ${rowsDuplicateIgnored} · Com erro: ${rowsWithError} · Status: ${result.status}`;
 
-      if (result.status === "completed") {
-        toast.success(`Importação concluída: ${result.rowsImported} veículos`, { description });
+      if (result.status === "no_changes") {
+        toast.info("Nenhuma linha nova importada. Todos os veículos já existiam no estoque.", {
+          description: report,
+        });
+      } else if (result.status === "completed" && rowsDuplicateIgnored === 0) {
+        toast.success("Importação concluída com sucesso.", { description: report });
+      } else if (result.status === "completed") {
+        toast.success(
+          `Importação concluída. ${rowsImported} linhas importadas e ${rowsDuplicateIgnored} duplicadas ignoradas.`,
+          { description: report },
+        );
       } else if (result.status === "partial") {
-        toast.warning("Importação parcial", { description });
-      } else if (result.status === "no_changes") {
-        toast.info("Nenhuma linha nova importada", {
-          description: `${result.rowsDuplicateIgnored} linha(s) já existiam no estoque e foram ignoradas. Escolha "Importar mesmo assim" para forçar.`,
-        });
+        toast.warning(
+          `Importação parcial. ${rowsImported} linhas importadas e ${rowsWithError} linhas com erro.`,
+          { description: report },
+        );
       } else {
-        toast.error("Importação falhou", {
-          description: firstError ? `${description} — Ex.: ${firstError}` : description,
-        });
+        toast.error("Importação falhou. Nenhuma linha pôde ser processada.", { description: report });
       }
       qc.invalidateQueries({ queryKey: KEY });
       qc.invalidateQueries({ queryKey: ["inventory"] });
