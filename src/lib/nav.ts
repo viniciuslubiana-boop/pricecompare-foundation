@@ -15,6 +15,7 @@ import {
   Wallet,
   Search,
   MapPin,
+  History,
   type LucideIcon,
 } from "lucide-react";
 
