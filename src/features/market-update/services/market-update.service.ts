@@ -12,9 +12,12 @@
 import { competitorRepository } from "@/repositories/competitor.repository";
 import { extractionService } from "@/features/extraction/services/extraction.service";
 import { comparisonService } from "@/features/comparison/services/comparison.service";
+import { detectChanges } from "@/features/comparison/calculators/change-detection";
 import { marketUpdateRepository } from "../repositories/market-update.repository";
+import { marketChangesRepository } from "../repositories/market-changes.repository";
 import type {
   CompetitorRunDetail,
+  MarketChangeInsert,
   MarketUpdateProgress,
   MarketUpdateResult,
   MarketUpdateStatus,
