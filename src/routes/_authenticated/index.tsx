@@ -249,6 +249,19 @@ function DashboardPage() {
         </SummaryCard>
       </div>
 
+      {/* Estratégia de Preço */}
+      <div className="mt-6">
+        <SummaryCard
+          title="Estratégia de Preço"
+          description="Recomendação comercial e cenários simulados por veículo. Apenas itens com recomendação."
+          action={<Wallet className="h-4 w-4 text-primary" />}
+        >
+          <StrategyPanel compact />
+        </SummaryCard>
+      </div>
+
+
+
 
       {/* Ranking + Oportunidades */}
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
