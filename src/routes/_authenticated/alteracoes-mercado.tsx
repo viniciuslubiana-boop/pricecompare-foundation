@@ -210,7 +210,7 @@ function MarketChangesPage() {
               ))}
             </div>
           ) : isError ? (
-            <ErrorState message="Falha ao carregar alterações." onRetry={() => refetch()} />
+            <ErrorState description="Falha ao carregar alterações." onRetry={() => { void refetch(); }} />
           ) : !filtered.length ? (
             <EmptyState
               title="Nenhuma alteração encontrada"
