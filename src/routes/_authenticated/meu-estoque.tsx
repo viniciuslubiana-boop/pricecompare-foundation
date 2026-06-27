@@ -1,32 +1,257 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Package, Plus, Upload, Pencil, Trash2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
+import { ErrorState } from "@/components/ErrorState";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
-import { Package, Upload } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  useMyVehicles,
+  useVehicleBrands,
+  useCreateVehicle,
+  useUpdateVehicle,
+  useDeleteVehicle,
+} from "@/hooks/useMyVehicles";
+import { VehicleFormDialog } from "@/features/vehicles/VehicleFormDialog";
+import type { Vehicle } from "@/features/vehicles/vehicle.types";
 
-export const Route = createFileRoute("/_authenticated/meu-estoque")({
-  head: () => ({ meta: [{ title: "Meu Estoque · PriceCompare" }] }),
-  component: () => (
+const ALL = "__all__";
+
+const currency = (v: number | null | undefined) =>
+  v == null
+    ? "—"
+    : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v));
+
+const km = (v: number | null | undefined) =>
+  v == null ? "—" : new Intl.NumberFormat("pt-BR").format(v) + " km";
+
+function MeuEstoquePage() {
+  const [search, setSearch] = useState("");
+  const [brand, setBrand] = useState<string>(ALL);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Vehicle | null>(null);
+  const [toDelete, setToDelete] = useState<Vehicle | null>(null);
+
+  const filters = useMemo(() => ({ search, brand }), [search, brand]);
+  const vehiclesQ = useMyVehicles(filters);
+  const brandsQ = useVehicleBrands();
+  const createMut = useCreateVehicle();
+  const updateMut = useUpdateVehicle();
+  const deleteMut = useDeleteVehicle();
+
+  const openCreate = () => {
+    setEditing(null);
+    setFormOpen(true);
+  };
+  const openEdit = (v: Vehicle) => {
+    setEditing(v);
+    setFormOpen(true);
+  };
+
+  const rows = vehiclesQ.data ?? [];
+  const isEmpty = !vehiclesQ.isLoading && !vehiclesQ.isError && rows.length === 0;
+  const filtersActive = !!search || brand !== ALL;
+
+  return (
     <div>
       <PageHeader
         title="Meu Estoque"
-        description="Gerencie os veículos disponíveis na sua concessionária."
+        description="Cadastre, edite e acompanhe os veículos da sua concessionária."
         actions={
-          <Button>
-            <Upload className="h-4 w-4" /> Importar estoque
-          </Button>
+          <>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0}>
+                    <Button variant="outline" disabled>
+                      <Upload className="h-4 w-4" /> Importar arquivo
+                      <Badge variant="secondary" className="ml-2">Em breve</Badge>
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>Disponível em uma próxima atualização</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4" /> Adicionar veículo
+            </Button>
+          </>
         }
       />
-      <EmptyState
-        icon={Package}
-        title="Nenhum veículo cadastrado"
-        description="Importe seu estoque por planilha ou cadastre manualmente para iniciar."
-        action={
-          <Button>
-            <Upload className="h-4 w-4" /> Importar agora
-          </Button>
-        }
+
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <SearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por marca ou modelo..."
+        />
+        <Select value={brand} onValueChange={setBrand}>
+          <SelectTrigger className="w-full sm:w-56">
+            <SelectValue placeholder="Filtrar por marca" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>Todas as marcas</SelectItem>
+            {(brandsQ.data ?? []).map((b) => (
+              <SelectItem key={b} value={b}>
+                {b}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {vehiclesQ.isError ? (
+        <ErrorState
+          title="Não foi possível carregar o estoque"
+          description={(vehiclesQ.error as Error)?.message}
+          onRetry={() => vehiclesQ.refetch()}
+        />
+      ) : vehiclesQ.isLoading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      ) : isEmpty && !filtersActive ? (
+        <EmptyState
+          icon={Package}
+          title="Seu estoque ainda está vazio."
+          description="Cadastre veículos manualmente ou importe uma planilha para começar."
+          action={
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4" /> Adicionar veículo
+            </Button>
+          }
+        />
+      ) : isEmpty ? (
+        <EmptyState
+          title="Nenhum veículo encontrado."
+          description="Ajuste os filtros ou limpe a busca para ver outros resultados."
+        />
+      ) : (
+        <div className="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Marca</TableHead>
+                <TableHead>Modelo</TableHead>
+                <TableHead>Ano/Modelo</TableHead>
+                <TableHead className="text-right">KM</TableHead>
+                <TableHead className="text-right">Valor</TableHead>
+                <TableHead>Fornecedor</TableHead>
+                <TableHead>Origem</TableHead>
+                <TableHead className="w-[100px] text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((v) => (
+                <TableRow key={v.id}>
+                  <TableCell className="font-medium">{v.brand}</TableCell>
+                  <TableCell>{v.model}</TableCell>
+                  <TableCell>{v.year_model}</TableCell>
+                  <TableCell className="text-right">{km(v.km)}</TableCell>
+                  <TableCell className="text-right">{currency(v.price as unknown as number)}</TableCell>
+                  <TableCell>{v.supplier_name ?? "—"}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="capitalize">
+                      {v.source ?? "manual"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => openEdit(v)}
+                        aria-label="Editar"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => setToDelete(v)}
+                        aria-label="Excluir"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      <VehicleFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        vehicle={editing}
+        submitting={createMut.isPending || updateMut.isPending}
+        onSubmit={async (values) => {
+          if (editing) {
+            await updateMut.mutateAsync({ id: editing.id, values });
+          } else {
+            await createMut.mutateAsync(values);
+          }
+          setFormOpen(false);
+        }}
       />
+
+      <ConfirmDialog
+        open={!!toDelete}
+        onOpenChange={(o) => !o && setToDelete(null)}
+        title="Excluir veículo?"
+        description={
+          toDelete
+            ? `O veículo ${toDelete.brand} ${toDelete.model} (${toDelete.year_model}) será removido permanentemente.`
+            : undefined
+        }
+        confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir"}
+        destructive
+        onConfirm={async () => {
+          if (!toDelete) return;
+          await deleteMut.mutateAsync(toDelete.id);
+          setToDelete(null);
+        }}
+      />
+
+      {deleteMut.isPending ? (
+        <div className="sr-only">
+          <Loader2 className="animate-spin" />
+        </div>
+      ) : null}
     </div>
-  ),
+  );
+}
+
+export const Route = createFileRoute("/_authenticated/meu-estoque")({
+  head: () => ({ meta: [{ title: "Meu Estoque · PriceCompare" }] }),
+  component: MeuEstoquePage,
 });
