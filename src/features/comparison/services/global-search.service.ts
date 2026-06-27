@@ -27,10 +27,13 @@ export interface GlobalSearchQuery {
   year?: string;
 }
 
-export type GlobalSearchResult = Vehicle360Result & {
+export interface GlobalSearchResult {
   myVehicle: MyVehicle | null;
+  market: MarketIntelligence;
+  competitors: Vehicle360CompetitorEntry[];
+  history: Vehicle360HistoryEntry[];
   query: GlobalSearchQuery;
-};
+}
 
 const norm = (s: string | null | undefined) => (s ?? "").toString().trim().toLowerCase();
 const firstToken = (s: string) => norm(s).split(/\s+/)[0] ?? "";
