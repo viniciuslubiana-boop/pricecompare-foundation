@@ -43,6 +43,7 @@ async function fetchCompetitorContent(url: string, signal?: AbortSignal): Promis
 async function processCompetitor(
   competitor: Competitor,
   userId: string,
+  runId: string | null,
   emit: (patch: Partial<MarketUpdateProgress>) => void,
   signal?: AbortSignal,
 ): Promise<CompetitorRunDetail> {
