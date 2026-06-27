@@ -9,17 +9,23 @@ interface Props {
 
 export function ComparisonSummaryBar({ summary }: Props) {
   const items = [
-    { label: "Matches", value: summary.totalMatches, tone: "text-foreground" },
-    { label: "Você mais barato", value: summary.meCheaper, tone: "text-success" },
+    { label: "Total comparado", value: String(summary.totalCompared), tone: "text-foreground" },
+    { label: "Melhor preço", value: String(summary.bestPriceCount), tone: "text-success" },
+    { label: "Acima do mercado", value: String(summary.aboveMarketCount), tone: "text-destructive" },
     {
-      label: "Concorrente mais barato",
-      value: summary.competitorCheaper,
-      tone: "text-destructive",
+      label: "Competitividade média",
+      value: `${summary.avgCompetitiveness}%`,
+      tone:
+        summary.avgCompetitiveness >= 80
+          ? "text-success"
+          : summary.avgCompetitiveness >= 60
+            ? "text-warning"
+            : "text-destructive",
     },
-    { label: "Empates", value: summary.ties, tone: "text-muted-foreground" },
-    { label: "Oportunidades", value: summary.opportunities, tone: "text-primary" },
-    { label: "Diferenciais", value: summary.differentials, tone: "text-foreground" },
+    { label: "Oportunidades", value: String(summary.opportunities), tone: "text-primary" },
+    { label: "Diferenciais", value: String(summary.differentials), tone: "text-foreground" },
   ];
+
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
       {items.map((i) => (
@@ -31,12 +37,15 @@ export function ComparisonSummaryBar({ summary }: Props) {
         </Card>
       ))}
       <Card className="col-span-2 md:col-span-3 lg:col-span-6">
-        <CardContent className="flex items-center justify-between p-4">
-          <p className="text-sm text-muted-foreground">
-            Soma das diferenças onde você está mais barato
-          </p>
-          <p className="text-xl font-semibold tabular-nums text-success">
-            {fmtMoney(summary.totalSavings)}
+        <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
+          <div>
+            <p className="text-sm text-muted-foreground">Maior oportunidade de redução</p>
+            <p className="text-sm font-medium">
+              {summary.biggestOpportunityLabel ?? "Nenhuma redução sugerida"}
+            </p>
+          </div>
+          <p className="text-xl font-semibold tabular-nums text-warning">
+            {fmtMoney(summary.biggestOpportunityValue)}
           </p>
         </CardContent>
       </Card>

@@ -25,6 +25,15 @@ export function summarize(rows: ComparisonRow[]): ComparisonSummary {
   let totalSavings = 0;
   let totalMatches = 0;
 
+  // Intelligence aggregates — calculados sobre linhas com myVehicle (estoque)
+  let totalCompared = 0;
+  let bestPriceCount = 0;
+  let aboveMarketCount = 0;
+  let competitivenessSum = 0;
+  let competitivenessCount = 0;
+  let biggestOpportunityValue = 0;
+  let biggestOpportunityLabel: string | null = null;
+
   for (const r of rows) {
     if (r.kind === "opportunity") opportunities++;
     else if (r.kind === "differential") differentials++;
@@ -39,7 +48,24 @@ export function summarize(rows: ComparisonRow[]): ComparisonSummary {
         ties++;
       }
     }
+
+    // intelligence — qualquer linha do estoque conta
+    if (r.myVehicle) {
+      totalCompared++;
+      const m = r.market;
+      if (m.status === "best_price") bestPriceCount++;
+      if (m.status === "above_market" || m.status === "far_above_market") aboveMarketCount++;
+      if (m.competitorCount > 0) {
+        competitivenessSum += m.competitiveness;
+        competitivenessCount++;
+      }
+      if (m.action.kind === "reduce" && m.action.amount && m.action.amount > biggestOpportunityValue) {
+        biggestOpportunityValue = m.action.amount;
+        biggestOpportunityLabel = `${r.myVehicle.brand} ${r.myVehicle.model}`;
+      }
+    }
   }
+
   return {
     totalMatches,
     meCheaper,
@@ -48,5 +74,12 @@ export function summarize(rows: ComparisonRow[]): ComparisonSummary {
     opportunities,
     differentials,
     totalSavings: Math.round(totalSavings * 100) / 100,
+    totalCompared,
+    bestPriceCount,
+    aboveMarketCount,
+    avgCompetitiveness:
+      competitivenessCount > 0 ? Math.round(competitivenessSum / competitivenessCount) : 0,
+    biggestOpportunityValue: Math.round(biggestOpportunityValue * 100) / 100,
+    biggestOpportunityLabel,
   };
 }

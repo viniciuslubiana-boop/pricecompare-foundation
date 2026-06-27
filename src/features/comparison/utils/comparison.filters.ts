@@ -12,6 +12,19 @@ export function applyComparisonFilters(
     if (filters.onlyMeCheaper && r.winner !== "me") return false;
     if (filters.onlyCompetitorCheaper && r.winner !== "competitor") return false;
     if (typeof filters.minScore === "number" && r.score.total < filters.minScore) return false;
+
+    // Intelligence filters
+    if (filters.onlyAboveMarket) {
+      if (r.market.status !== "above_market" && r.market.status !== "far_above_market")
+        return false;
+    }
+    if (filters.onlyBestPrice && r.market.status !== "best_price") return false;
+    if (filters.onlyLowCompetitiveness) {
+      if (r.market.competitorCount === 0 || r.market.competitiveness >= 80) return false;
+    }
+    if (filters.competitorName) {
+      if ((r.competitorVehicle?.competitor_name ?? "") !== filters.competitorName) return false;
+    }
     if (term) {
       const haystack = [
         r.myVehicle?.brand,

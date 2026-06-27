@@ -13,6 +13,16 @@ class ComparisonDataRepository {
     if (error) throw error;
     return (data ?? []) as CompetitorVehicle[];
   }
+
+  /** Pool de mercado: todos os veículos de concorrentes (todos os nomes). */
+  async listMarketPool(): Promise<CompetitorVehicle[]> {
+    const { data, error } = await supabase
+      .from("competitor_vehicles")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as CompetitorVehicle[];
+  }
 }
 
 export const comparisonDataRepository = new ComparisonDataRepository();
