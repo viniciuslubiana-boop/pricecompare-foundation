@@ -69,6 +69,31 @@ function MeuEstoquePage() {
   const isEmpty = !vehiclesQ.isLoading && !vehiclesQ.isError && rows.length === 0;
   const filtersActive = !!search || brand !== ALL;
 
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
+  const someChecked = rows.some((r) => selected.has(r.id));
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allChecked) rows.forEach((r) => next.delete(r.id));
+      else rows.forEach((r) => next.add(r.id));
+      return next;
+    });
+  };
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    await Promise.allSettled(ids.map((id) => deleteMut.mutateAsync(id)));
+    setSelected(new Set());
+    setBulkConfirmOpen(false);
+  };
+
   return (
     <div>
       <PageHeader
