@@ -51,8 +51,8 @@ function MeuEstoquePage() {
   const [toDelete, setToDelete] = useState<Vehicle | null>(null);
 
   const filters = useMemo(() => ({ search, brand }), [search, brand]);
-  const vehiclesQ = useMyVehicles(filters);
-  const brandsQ = useVehicleBrands();
+  const vehiclesQ = useInventoryList(filters);
+  const brandsQ = useInventoryBrands();
   const createMut = useCreateVehicle();
   const updateMut = useUpdateVehicle();
   const deleteMut = useDeleteVehicle();
