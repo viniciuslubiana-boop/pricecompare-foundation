@@ -9,8 +9,50 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as MeuEstoqueRouteImport } from './routes/meu-estoque'
+import { Route as ExtrairConcorrenteRouteImport } from './routes/extrair-concorrente'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ConcorrentesRouteImport } from './routes/concorrentes'
+import { Route as CompararRouteImport } from './routes/comparar'
+import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeuEstoqueRoute = MeuEstoqueRouteImport.update({
+  id: '/meu-estoque',
+  path: '/meu-estoque',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExtrairConcorrenteRoute = ExtrairConcorrenteRouteImport.update({
+  id: '/extrair-concorrente',
+  path: '/extrair-concorrente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConcorrentesRoute = ConcorrentesRouteImport.update({
+  id: '/concorrentes',
+  path: '/concorrentes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompararRoute = CompararRouteImport.update({
+  id: '/comparar',
+  path: '/comparar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdministracaoRoute = AdministracaoRouteImport.update({
+  id: '/administracao',
+  path: '/administracao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +61,130 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/administracao': typeof AdministracaoRoute
+  '/comparar': typeof CompararRoute
+  '/concorrentes': typeof ConcorrentesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/extrair-concorrente': typeof ExtrairConcorrenteRoute
+  '/meu-estoque': typeof MeuEstoqueRoute
+  '/relatorios': typeof RelatoriosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/administracao': typeof AdministracaoRoute
+  '/comparar': typeof CompararRoute
+  '/concorrentes': typeof ConcorrentesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/extrair-concorrente': typeof ExtrairConcorrenteRoute
+  '/meu-estoque': typeof MeuEstoqueRoute
+  '/relatorios': typeof RelatoriosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/administracao': typeof AdministracaoRoute
+  '/comparar': typeof CompararRoute
+  '/concorrentes': typeof ConcorrentesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/extrair-concorrente': typeof ExtrairConcorrenteRoute
+  '/meu-estoque': typeof MeuEstoqueRoute
+  '/relatorios': typeof RelatoriosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/administracao'
+    | '/comparar'
+    | '/concorrentes'
+    | '/configuracoes'
+    | '/extrair-concorrente'
+    | '/meu-estoque'
+    | '/relatorios'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/administracao'
+    | '/comparar'
+    | '/concorrentes'
+    | '/configuracoes'
+    | '/extrair-concorrente'
+    | '/meu-estoque'
+    | '/relatorios'
+  id:
+    | '__root__'
+    | '/'
+    | '/administracao'
+    | '/comparar'
+    | '/concorrentes'
+    | '/configuracoes'
+    | '/extrair-concorrente'
+    | '/meu-estoque'
+    | '/relatorios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdministracaoRoute: typeof AdministracaoRoute
+  CompararRoute: typeof CompararRoute
+  ConcorrentesRoute: typeof ConcorrentesRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  ExtrairConcorrenteRoute: typeof ExtrairConcorrenteRoute
+  MeuEstoqueRoute: typeof MeuEstoqueRoute
+  RelatoriosRoute: typeof RelatoriosRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meu-estoque': {
+      id: '/meu-estoque'
+      path: '/meu-estoque'
+      fullPath: '/meu-estoque'
+      preLoaderRoute: typeof MeuEstoqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/extrair-concorrente': {
+      id: '/extrair-concorrente'
+      path: '/extrair-concorrente'
+      fullPath: '/extrair-concorrente'
+      preLoaderRoute: typeof ExtrairConcorrenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/concorrentes': {
+      id: '/concorrentes'
+      path: '/concorrentes'
+      fullPath: '/concorrentes'
+      preLoaderRoute: typeof ConcorrentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comparar': {
+      id: '/comparar'
+      path: '/comparar'
+      fullPath: '/comparar'
+      preLoaderRoute: typeof CompararRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/administracao': {
+      id: '/administracao'
+      path: '/administracao'
+      fullPath: '/administracao'
+      preLoaderRoute: typeof AdministracaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +197,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdministracaoRoute: AdministracaoRoute,
+  CompararRoute: CompararRoute,
+  ConcorrentesRoute: ConcorrentesRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  ExtrairConcorrenteRoute: ExtrairConcorrenteRoute,
+  MeuEstoqueRoute: MeuEstoqueRoute,
+  RelatoriosRoute: RelatoriosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
