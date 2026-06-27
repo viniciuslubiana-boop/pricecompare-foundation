@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Package,
+  Upload,
   Users,
   Download,
   GitCompareArrows,
@@ -19,6 +20,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Meu Estoque", url: "/meu-estoque", icon: Package },
+  { title: "Importações", url: "/importacoes", icon: Upload },
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
   { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },

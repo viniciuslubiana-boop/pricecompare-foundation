@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Package, Plus, Upload, Pencil, Trash2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -77,19 +77,11 @@ function MeuEstoquePage() {
         description="Cadastre, edite e acompanhe os veículos da sua concessionária."
         actions={
           <>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span tabIndex={0}>
-                    <Button variant="outline" disabled>
-                      <Upload className="h-4 w-4" /> Importar arquivo
-                      <Badge variant="secondary" className="ml-2">Em breve</Badge>
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>Disponível em uma próxima atualização</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Button asChild variant="outline">
+              <Link to="/importacoes">
+                <Upload className="h-4 w-4" /> Importar arquivo
+              </Link>
+            </Button>
             <Button onClick={openCreate}>
               <Plus className="h-4 w-4" /> Adicionar veículo
             </Button>
