@@ -23,10 +23,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   searchNearbyCompetitors,
   type PlaceResult,
+  type SearchCenter,
 } from "@/features/competitors/services/places.functions";
 import { locatorService } from "@/features/competitors/services/locator.service";
 import { SourcesDialog } from "@/features/competitors/components/SourcesDialog";
 import type { Competitor } from "@/types/database.types";
+
 
 const KEYWORD_SUGGESTIONS = [
   "loja de veículos",
@@ -44,18 +46,6 @@ type RowState =
   | { status: "ignored" }
   | { status: "registered"; competitor: Competitor };
 
-function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-
 function LocalizarConcorrentesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -69,7 +59,7 @@ function LocalizarConcorrentesPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [rowStates, setRowStates] = useState<Record<string, RowState>>({});
-  const [searchCenter, setSearchCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchCenter, setSearchCenter] = useState<SearchCenter>(null);
 
   const [sourcesFor, setSourcesFor] = useState<Competitor | null>(null);
 
@@ -86,17 +76,13 @@ function LocalizarConcorrentesPage() {
     setRowStates({});
     setSearchCenter(null);
     try {
-      const { results: r } = await runSearch({
+      const { results: r, center } = await runSearch({
         data: { city: city.trim(), state: state.trim(), radiusKm, keyword: keyword.trim() },
       });
       setResults(r);
-      const valid = r.filter((p) => p.latitude != null && p.longitude != null);
-      if (valid.length > 0) {
-        const avgLat =
-          valid.reduce((s, p) => s + (p.latitude ?? 0), 0) / valid.length;
-        const avgLng =
-          valid.reduce((s, p) => s + (p.longitude ?? 0), 0) / valid.length;
-        setSearchCenter({ lat: avgLat, lng: avgLng });
+      setSearchCenter(center);
+      if (!center) {
+        toast.warning("Não foi possível geolocalizar a cidade informada — distâncias indisponíveis.");
       }
       if (r.length === 0) toast.info("Nenhum estabelecimento encontrado.");
     } catch (e) {
@@ -105,6 +91,7 @@ function LocalizarConcorrentesPage() {
       setLoading(false);
     }
   };
+
 
   const handleRegister = async (place: PlaceResult) => {
     if (!user) {
@@ -133,10 +120,8 @@ function LocalizarConcorrentesPage() {
     }
   };
 
-  const distance = (p: PlaceResult): number | null => {
-    if (!searchCenter || p.latitude == null || p.longitude == null) return null;
-    return haversineKm(searchCenter.lat, searchCenter.lng, p.latitude, p.longitude);
-  };
+  // distância vem pré-calculada do servidor (centro = geocode da cidade/UF)
+
 
   return (
     <div>
@@ -190,6 +175,20 @@ function LocalizarConcorrentesPage() {
         </div>
       </Card>
 
+      {searchCenter ? (
+        <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          <span>
+            Centro da busca:{" "}
+            <span className="text-foreground">
+              {searchCenter.formattedAddress ??
+                `${searchCenter.latitude.toFixed(4)}, ${searchCenter.longitude.toFixed(4)}`}
+            </span>
+          </span>
+        </div>
+      ) : null}
+
+
       {results.length === 0 && !loading ? (
         <EmptyState
           icon={MapPin}
@@ -215,7 +214,8 @@ function LocalizarConcorrentesPage() {
             <TableBody>
               {results.map((p) => {
                 const st = rowStates[p.placeId] ?? { status: "idle" };
-                const d = distance(p);
+                const d = p.distanceKm;
+
                 return (
                   <TableRow key={p.placeId}>
                     <TableCell className="font-medium">{p.name}</TableCell>
