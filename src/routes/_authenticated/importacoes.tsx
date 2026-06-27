@@ -5,9 +5,11 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { BulkActionsBar } from "@/components/BulkActionsBar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -41,6 +43,8 @@ function CentralImportacoesPage() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [details, setDetails] = useState<ImportLog | null>(null);
   const [toDelete, setToDelete] = useState<ImportLog | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
   const summary = useMemo(() => {
     const rows = logsQ.data ?? [];
@@ -53,6 +57,32 @@ function CentralImportacoesPage() {
   }, [logsQ.data]);
 
   const rows = logsQ.data ?? [];
+
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
+  const someChecked = rows.some((r) => selected.has(r.id));
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allChecked) rows.forEach((r) => next.delete(r.id));
+      else rows.forEach((r) => next.add(r.id));
+      return next;
+    });
+  };
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    await Promise.allSettled(ids.map((id) => deleteMut.mutateAsync(id)));
+    setSelected(new Set());
+    setBulkConfirmOpen(false);
+  };
+
 
   return (
     <div>
@@ -100,62 +130,84 @@ function CentralImportacoesPage() {
           }
         />
       ) : (
-        <div className="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Arquivo</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead className="text-right">Recebidas</TableHead>
-                <TableHead className="text-right">Importadas</TableHead>
-                <TableHead className="text-right">Falhas</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
-                      {r.file_name ?? "—"}
-                    </div>
-                  </TableCell>
-                  <TableCell className="uppercase">{r.file_type ?? "—"}</TableCell>
-                  <TableCell className="text-right">{r.rows_received}</TableCell>
-                  <TableCell className="text-right">{r.rows_imported}</TableCell>
-                  <TableCell className="text-right">{r.rows_failed}</TableCell>
-                  <TableCell>{statusBadge(r.status)}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {new Date(r.created_at).toLocaleString("pt-BR")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setDetails(r)}
-                        aria-label="Detalhes"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setToDelete(r)}
-                        aria-label="Excluir"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+        <>
+          <BulkActionsBar
+            count={selected.size}
+            onClear={() => setSelected(new Set())}
+            onDelete={() => setBulkConfirmOpen(true)}
+            pending={deleteMut.isPending}
+          />
+          <div className="overflow-x-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40px]">
+                    <Checkbox
+                      checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                      onCheckedChange={toggleAll}
+                      aria-label="Selecionar todos"
+                    />
+                  </TableHead>
+                  <TableHead>Arquivo</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Recebidas</TableHead>
+                  <TableHead className="text-right">Importadas</TableHead>
+                  <TableHead className="text-right">Falhas</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Data</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {rows.map((r) => (
+                  <TableRow key={r.id} data-state={selected.has(r.id) ? "selected" : undefined}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.has(r.id)}
+                        onCheckedChange={() => toggleOne(r.id)}
+                        aria-label={`Selecionar ${r.file_name ?? r.id}`}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                        {r.file_name ?? "—"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="uppercase">{r.file_type ?? "—"}</TableCell>
+                    <TableCell className="text-right">{r.rows_received}</TableCell>
+                    <TableCell className="text-right">{r.rows_imported}</TableCell>
+                    <TableCell className="text-right">{r.rows_failed}</TableCell>
+                    <TableCell>{statusBadge(r.status)}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(r.created_at).toLocaleString("pt-BR")}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setDetails(r)}
+                          aria-label="Detalhes"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setToDelete(r)}
+                          aria-label="Excluir"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       <ImportWizard open={wizardOpen} onOpenChange={setWizardOpen} />
@@ -209,6 +261,16 @@ function CentralImportacoesPage() {
           await deleteMut.mutateAsync(toDelete.id);
           setToDelete(null);
         }}
+      />
+
+      <ConfirmDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        title={`Excluir ${selected.size} ${selected.size === 1 ? "registro" : "registros"}?`}
+        description="Os logs selecionados serão removidos. Os veículos importados continuam no estoque."
+        destructive
+        confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir selecionados"}
+        onConfirm={handleBulkDelete}
       />
     </div>
   );

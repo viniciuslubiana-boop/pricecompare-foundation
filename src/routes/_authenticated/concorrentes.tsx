@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { SearchInput } from "@/components/SearchInput";
+import { BulkActionsBar } from "@/components/BulkActionsBar";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -34,6 +35,8 @@ function ConcorrentesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Competitor | null>(null);
   const [toDelete, setToDelete] = useState<Competitor | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
   const filters = useMemo(() => ({ search, status }), [search, status]);
   const listQ = useCompetitorsList(filters);
@@ -53,6 +56,30 @@ function ConcorrentesPage() {
   const openEdit = (c: Competitor) => {
     setEditing(c);
     setFormOpen(true);
+  };
+
+  const allChecked = rows.length > 0 && rows.every((r) => selected.has(r.id));
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allChecked) rows.forEach((r) => next.delete(r.id));
+      else rows.forEach((r) => next.add(r.id));
+      return next;
+    });
+  };
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    await Promise.allSettled(ids.map((id) => deleteMut.mutateAsync(id)));
+    setSelected(new Set());
+    setBulkConfirmOpen(false);
   };
 
   return (
@@ -115,17 +142,28 @@ function ConcorrentesPage() {
           }
         />
       ) : (
-        <CompetitorTable
-          rows={rows}
-          onEdit={openEdit}
-          onToggleStatus={(c) =>
-            statusMut.mutate({
-              id: c.id,
-              status: (c.status as CompetitorStatus) === "active" ? "inactive" : "active",
-            })
-          }
-          onDelete={(c) => setToDelete(c)}
-        />
+        <>
+          <BulkActionsBar
+            count={selected.size}
+            onClear={() => setSelected(new Set())}
+            onDelete={() => setBulkConfirmOpen(true)}
+            pending={deleteMut.isPending}
+          />
+          <CompetitorTable
+            rows={rows}
+            onEdit={openEdit}
+            onToggleStatus={(c) =>
+              statusMut.mutate({
+                id: c.id,
+                status: (c.status as CompetitorStatus) === "active" ? "inactive" : "active",
+              })
+            }
+            onDelete={(c) => setToDelete(c)}
+            selected={selected}
+            onToggleOne={toggleOne}
+            onToggleAll={toggleAll}
+          />
+        </>
       )}
 
       <CompetitorForm
@@ -157,6 +195,16 @@ function ConcorrentesPage() {
           await deleteMut.mutateAsync(toDelete.id);
           setToDelete(null);
         }}
+      />
+
+      <ConfirmDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        title={`Excluir ${selected.size} ${selected.size === 1 ? "concorrente" : "concorrentes"}?`}
+        description="Esta ação não pode ser desfeita. Os itens selecionados serão removidos permanentemente."
+        destructive
+        confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir selecionados"}
+        onConfirm={handleBulkDelete}
       />
     </div>
   );
