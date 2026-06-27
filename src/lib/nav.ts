@@ -9,6 +9,7 @@ import {
   Settings,
   ShieldCheck,
   Activity,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,6 +27,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
   { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
+  { title: "Alterações do Mercado", url: "/alteracoes-mercado", icon: TrendingUp },
   { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Administração", url: "/administracao", icon: ShieldCheck },
