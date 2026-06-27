@@ -267,6 +267,9 @@ export interface Vehicle360CompetitorEntry {
   competitorUrl: string | null;
   store: string;
   city: string | null;
+  state?: string | null;
+  /** Rótulo da fonte do anúncio (hostname do source_url ou nome do concorrente). */
+  source?: string | null;
   brand: string;
   model: string;
   yearModel: string;
