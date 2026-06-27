@@ -22,7 +22,15 @@ export type PlaceResult = {
   latitude: number | null;
   longitude: number | null;
   googleMapsUrl: string;
+  distanceKm: number | null;
 };
+
+export type SearchCenter = {
+  latitude: number;
+  longitude: number;
+  formattedAddress: string | null;
+} | null;
+
 
 type PlacesApiResponse = {
   places?: Array<{
