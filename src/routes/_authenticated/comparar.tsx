@@ -5,6 +5,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { SummaryCard } from "@/features/dashboard/widgets/SummaryCard";
+import { RadarPanel } from "@/features/comparison/components/RadarPanel";
 import {
   Select,
   SelectContent,
@@ -55,6 +57,14 @@ function CompararPage() {
           </Button>
         }
       />
+
+      <SummaryCard
+        title="Radar de Competitividade"
+        description="Veículos do seu estoque com prioridade Alta ou Média frente a todo o mercado."
+      >
+        <RadarPanel />
+      </SummaryCard>
+
 
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-2">

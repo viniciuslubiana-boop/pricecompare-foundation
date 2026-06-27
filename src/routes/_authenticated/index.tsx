@@ -8,6 +8,7 @@ import {
   GitCompareArrows,
   Package,
   Plus,
+  Radar,
   Target,
   TrendingDown,
   TrendingUp,
@@ -27,6 +28,7 @@ import {
   ComparisonStatusChart,
 } from "@/features/dashboard";
 import { MarketUpdateButton } from "@/features/market-update";
+import { RadarPanel } from "@/features/comparison/components/RadarPanel";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -234,6 +236,18 @@ function DashboardPage() {
           />
         </SummaryCard>
       </div>
+
+      {/* Radar de Competitividade */}
+      <div className="mt-6">
+        <SummaryCard
+          title="Radar de Competitividade"
+          description="Veículos do seu estoque que exigem ação. Apenas prioridades Alta e Média."
+          action={<Radar className="h-4 w-4 text-destructive" />}
+        >
+          <RadarPanel compact />
+        </SummaryCard>
+      </div>
+
 
       {/* Ranking + Oportunidades */}
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
