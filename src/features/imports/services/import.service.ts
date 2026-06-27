@@ -89,11 +89,8 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
       continue;
     }
     if (item.status === "duplicate" && args.duplicatesPolicy === "ignore") {
+      // Duplicidade é aviso, não erro — não vai para error_log.
       duplicateIgnored++;
-      errorLog.push({
-        index: item.index,
-        errors: [`Duplicada ignorada: ${item.duplicateReason ?? ""}`],
-      });
       continue;
     }
 
@@ -119,22 +116,28 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
     }
   }
 
-  const failed = invalid + duplicateIgnored + insertError;
-  const hasRealErrors = invalid > 0 || insertError > 0;
+  const realErrors = invalid + insertError;
+  // rows_failed conta apenas erros reais (duplicidades não contam como falha).
+  const failed = realErrors;
+  const hasRealErrors = realErrors > 0;
 
   let status: ImportRunResult["status"];
-  if (imported > 0 && !hasRealErrors && duplicateIgnored === 0) {
-    status = "completed";
-  } else if (imported > 0) {
-    status = "partial";
-  } else if (!hasRealErrors && duplicateIgnored > 0) {
+  if (imported === 0 && !hasRealErrors && duplicateIgnored > 0) {
+    // Arquivo lido OK, apenas duplicatas ignoradas → não é falha.
     status = "no_changes";
-  } else {
+  } else if (imported === 0) {
     status = "failed";
+  } else if (hasRealErrors) {
+    status = "partial";
+  } else {
+    // Importou tudo que podia (com ou sem duplicatas ignoradas).
+    status = "completed";
   }
 
+  // Mapeamento para o CHECK constraint de import_logs.status.
+  // Duplicidade nunca vira "failed" no log.
   const dbStatus: "completed" | "partial" | "failed" =
-    status === "no_changes" ? "failed" : status;
+    status === "no_changes" ? "completed" : status;
 
   await importLogRepository.create({
     file_name: args.fileName,
