@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, UserPlus } from "lucide-react";
 
-export const Route = createFileRoute("/administracao")({
+export const Route = createFileRoute("/_authenticated/administracao")({
   head: () => ({ meta: [{ title: "Administração · PriceCompare" }] }),
   component: () => (
     <div>

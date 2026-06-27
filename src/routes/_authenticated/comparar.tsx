@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { GitCompareArrows, Plus } from "lucide-react";
 
-export const Route = createFileRoute("/comparar")({
+export const Route = createFileRoute("/_authenticated/comparar")({
   head: () => ({ meta: [{ title: "Comparar · PriceCompare" }] }),
   component: () => (
     <div>

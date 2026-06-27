@@ -9,91 +9,94 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RelatoriosRouteImport } from './routes/relatorios'
-import { Route as MeuEstoqueRouteImport } from './routes/meu-estoque'
-import { Route as ExtrairConcorrenteRouteImport } from './routes/extrair-concorrente'
-import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
-import { Route as ConcorrentesRouteImport } from './routes/concorrentes'
-import { Route as CompararRouteImport } from './routes/comparar'
-import { Route as AdministracaoRouteImport } from './routes/administracao'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedMeuEstoqueRouteImport } from './routes/_authenticated/meu-estoque'
+import { Route as AuthenticatedExtrairConcorrenteRouteImport } from './routes/_authenticated/extrair-concorrente'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authenticated/concorrentes'
+import { Route as AuthenticatedCompararRouteImport } from './routes/_authenticated/comparar'
+import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated/administracao'
 
-const RelatoriosRoute = RelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MeuEstoqueRoute = MeuEstoqueRouteImport.update({
-  id: '/meu-estoque',
-  path: '/meu-estoque',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExtrairConcorrenteRoute = ExtrairConcorrenteRouteImport.update({
-  id: '/extrair-concorrente',
-  path: '/extrair-concorrente',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConcorrentesRoute = ConcorrentesRouteImport.update({
-  id: '/concorrentes',
-  path: '/concorrentes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CompararRoute = CompararRouteImport.update({
-  id: '/comparar',
-  path: '/comparar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdministracaoRoute = AdministracaoRouteImport.update({
-  id: '/administracao',
-  path: '/administracao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/_authenticated/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMeuEstoqueRoute = AuthenticatedMeuEstoqueRouteImport.update({
+  id: '/_authenticated/meu-estoque',
+  path: '/meu-estoque',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedExtrairConcorrenteRoute =
+  AuthenticatedExtrairConcorrenteRouteImport.update({
+    id: '/_authenticated/extrair-concorrente',
+    path: '/extrair-concorrente',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/_authenticated/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedConcorrentesRoute =
+  AuthenticatedConcorrentesRouteImport.update({
+    id: '/_authenticated/concorrentes',
+    path: '/concorrentes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedCompararRoute = AuthenticatedCompararRouteImport.update({
+  id: '/_authenticated/comparar',
+  path: '/comparar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdministracaoRoute =
+  AuthenticatedAdministracaoRouteImport.update({
+    id: '/_authenticated/administracao',
+    path: '/administracao',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/administracao': typeof AdministracaoRoute
-  '/comparar': typeof CompararRoute
-  '/concorrentes': typeof ConcorrentesRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/extrair-concorrente': typeof ExtrairConcorrenteRoute
-  '/meu-estoque': typeof MeuEstoqueRoute
-  '/relatorios': typeof RelatoriosRoute
+  '/administracao': typeof AuthenticatedAdministracaoRoute
+  '/comparar': typeof AuthenticatedCompararRoute
+  '/concorrentes': typeof AuthenticatedConcorrentesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
+  '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/administracao': typeof AdministracaoRoute
-  '/comparar': typeof CompararRoute
-  '/concorrentes': typeof ConcorrentesRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/extrair-concorrente': typeof ExtrairConcorrenteRoute
-  '/meu-estoque': typeof MeuEstoqueRoute
-  '/relatorios': typeof RelatoriosRoute
+  '/administracao': typeof AuthenticatedAdministracaoRoute
+  '/comparar': typeof AuthenticatedCompararRoute
+  '/concorrentes': typeof AuthenticatedConcorrentesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
+  '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/administracao': typeof AdministracaoRoute
-  '/comparar': typeof CompararRoute
-  '/concorrentes': typeof ConcorrentesRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/extrair-concorrente': typeof ExtrairConcorrenteRoute
-  '/meu-estoque': typeof MeuEstoqueRoute
-  '/relatorios': typeof RelatoriosRoute
+  '/_authenticated/administracao': typeof AuthenticatedAdministracaoRoute
+  '/_authenticated/comparar': typeof AuthenticatedCompararRoute
+  '/_authenticated/concorrentes': typeof AuthenticatedConcorrentesRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
+  '/_authenticated/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/administracao'
     | '/comparar'
     | '/concorrentes'
@@ -101,9 +104,9 @@ export interface FileRouteTypes {
     | '/extrair-concorrente'
     | '/meu-estoque'
     | '/relatorios'
+    | '/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/administracao'
     | '/comparar'
     | '/concorrentes'
@@ -111,99 +114,100 @@ export interface FileRouteTypes {
     | '/extrair-concorrente'
     | '/meu-estoque'
     | '/relatorios'
+    | '/'
   id:
     | '__root__'
-    | '/'
-    | '/administracao'
-    | '/comparar'
-    | '/concorrentes'
-    | '/configuracoes'
-    | '/extrair-concorrente'
-    | '/meu-estoque'
-    | '/relatorios'
+    | '/_authenticated/administracao'
+    | '/_authenticated/comparar'
+    | '/_authenticated/concorrentes'
+    | '/_authenticated/configuracoes'
+    | '/_authenticated/extrair-concorrente'
+    | '/_authenticated/meu-estoque'
+    | '/_authenticated/relatorios'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AdministracaoRoute: typeof AdministracaoRoute
-  CompararRoute: typeof CompararRoute
-  ConcorrentesRoute: typeof ConcorrentesRoute
-  ConfiguracoesRoute: typeof ConfiguracoesRoute
-  ExtrairConcorrenteRoute: typeof ExtrairConcorrenteRoute
-  MeuEstoqueRoute: typeof MeuEstoqueRoute
-  RelatoriosRoute: typeof RelatoriosRoute
+  AuthenticatedAdministracaoRoute: typeof AuthenticatedAdministracaoRoute
+  AuthenticatedCompararRoute: typeof AuthenticatedCompararRoute
+  AuthenticatedConcorrentesRoute: typeof AuthenticatedConcorrentesRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedExtrairConcorrenteRoute: typeof AuthenticatedExtrairConcorrenteRoute
+  AuthenticatedMeuEstoqueRoute: typeof AuthenticatedMeuEstoqueRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/relatorios': {
-      id: '/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof RelatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/meu-estoque': {
-      id: '/meu-estoque'
-      path: '/meu-estoque'
-      fullPath: '/meu-estoque'
-      preLoaderRoute: typeof MeuEstoqueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/extrair-concorrente': {
-      id: '/extrair-concorrente'
-      path: '/extrair-concorrente'
-      fullPath: '/extrair-concorrente'
-      preLoaderRoute: typeof ExtrairConcorrenteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/configuracoes': {
-      id: '/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof ConfiguracoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/concorrentes': {
-      id: '/concorrentes'
-      path: '/concorrentes'
-      fullPath: '/concorrentes'
-      preLoaderRoute: typeof ConcorrentesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/comparar': {
-      id: '/comparar'
-      path: '/comparar'
-      fullPath: '/comparar'
-      preLoaderRoute: typeof CompararRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/administracao': {
-      id: '/administracao'
-      path: '/administracao'
-      fullPath: '/administracao'
-      preLoaderRoute: typeof AdministracaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/meu-estoque': {
+      id: '/_authenticated/meu-estoque'
+      path: '/meu-estoque'
+      fullPath: '/meu-estoque'
+      preLoaderRoute: typeof AuthenticatedMeuEstoqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/extrair-concorrente': {
+      id: '/_authenticated/extrair-concorrente'
+      path: '/extrair-concorrente'
+      fullPath: '/extrair-concorrente'
+      preLoaderRoute: typeof AuthenticatedExtrairConcorrenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/concorrentes': {
+      id: '/_authenticated/concorrentes'
+      path: '/concorrentes'
+      fullPath: '/concorrentes'
+      preLoaderRoute: typeof AuthenticatedConcorrentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/comparar': {
+      id: '/_authenticated/comparar'
+      path: '/comparar'
+      fullPath: '/comparar'
+      preLoaderRoute: typeof AuthenticatedCompararRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/administracao': {
+      id: '/_authenticated/administracao'
+      path: '/administracao'
+      fullPath: '/administracao'
+      preLoaderRoute: typeof AuthenticatedAdministracaoRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AdministracaoRoute: AdministracaoRoute,
-  CompararRoute: CompararRoute,
-  ConcorrentesRoute: ConcorrentesRoute,
-  ConfiguracoesRoute: ConfiguracoesRoute,
-  ExtrairConcorrenteRoute: ExtrairConcorrenteRoute,
-  MeuEstoqueRoute: MeuEstoqueRoute,
-  RelatoriosRoute: RelatoriosRoute,
+  AuthenticatedAdministracaoRoute: AuthenticatedAdministracaoRoute,
+  AuthenticatedCompararRoute: AuthenticatedCompararRoute,
+  AuthenticatedConcorrentesRoute: AuthenticatedConcorrentesRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedExtrairConcorrenteRoute: AuthenticatedExtrairConcorrenteRoute,
+  AuthenticatedMeuEstoqueRoute: AuthenticatedMeuEstoqueRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
