@@ -175,6 +175,20 @@ function LocalizarConcorrentesPage() {
         </div>
       </Card>
 
+      {searchCenter ? (
+        <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          <span>
+            Centro da busca:{" "}
+            <span className="text-foreground">
+              {searchCenter.formattedAddress ??
+                `${searchCenter.latitude.toFixed(4)}, ${searchCenter.longitude.toFixed(4)}`}
+            </span>
+          </span>
+        </div>
+      ) : null}
+
+
       {results.length === 0 && !loading ? (
         <EmptyState
           icon={MapPin}
