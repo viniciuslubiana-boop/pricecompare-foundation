@@ -29,6 +29,7 @@ import {
 } from "@/features/dashboard";
 import { MarketUpdateButton } from "@/features/market-update";
 import { RadarPanel } from "@/features/comparison/components/RadarPanel";
+import { StrategyPanel } from "@/features/comparison/components/StrategyPanel";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
