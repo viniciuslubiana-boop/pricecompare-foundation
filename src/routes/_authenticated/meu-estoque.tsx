@@ -275,6 +275,16 @@ function MeuEstoquePage() {
         }}
       />
 
+      <ConfirmDialog
+        open={bulkConfirmOpen}
+        onOpenChange={setBulkConfirmOpen}
+        title={`Excluir ${selected.size} ${selected.size === 1 ? "veículo" : "veículos"}?`}
+        description="Esta ação não pode ser desfeita. Os itens selecionados serão removidos permanentemente."
+        destructive
+        confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir selecionados"}
+        onConfirm={handleBulkDelete}
+      />
+
       {deleteMut.isPending ? (
         <div className="sr-only">
           <Loader2 className="animate-spin" />
