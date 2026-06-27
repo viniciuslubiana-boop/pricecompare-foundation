@@ -8,6 +8,7 @@ import {
   FileBarChart,
   Settings,
   ShieldCheck,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Centro de Operações", url: "/operacoes", icon: Activity },
   { title: "Meu Estoque", url: "/meu-estoque", icon: Package },
   { title: "Importações", url: "/importacoes", icon: Upload },
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
@@ -28,3 +30,4 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Administração", url: "/administracao", icon: ShieldCheck },
 ];
+

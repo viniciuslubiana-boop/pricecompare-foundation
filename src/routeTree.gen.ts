@@ -14,6 +14,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedOperacoesRouteImport } from './routes/_authenticated/operacoes'
 import { Route as AuthenticatedMeuEstoqueRouteImport } from './routes/_authenticated/meu-estoque'
 import { Route as AuthenticatedImportacoesRouteImport } from './routes/_authenticated/importacoes'
 import { Route as AuthenticatedExtrairConcorrenteRouteImport } from './routes/_authenticated/extrair-concorrente'
@@ -44,6 +45,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOperacoesRoute = AuthenticatedOperacoesRouteImport.update({
+  id: '/operacoes',
+  path: '/operacoes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMeuEstoqueRoute = AuthenticatedMeuEstoqueRouteImport.update({
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
 }
 export interface FileRoutesByTo {
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/importacoes': typeof AuthenticatedImportacoesRoute
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/': typeof AuthenticatedIndexRoute
 }
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/_authenticated/extrair-concorrente': typeof AuthenticatedExtrairConcorrenteRoute
   '/_authenticated/importacoes': typeof AuthenticatedImportacoesRoute
   '/_authenticated/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
+  '/_authenticated/operacoes': typeof AuthenticatedOperacoesRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/extrair-concorrente'
     | '/importacoes'
     | '/meu-estoque'
+    | '/operacoes'
     | '/relatorios'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/extrair-concorrente'
     | '/importacoes'
     | '/meu-estoque'
+    | '/operacoes'
     | '/relatorios'
     | '/'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/_authenticated/extrair-concorrente'
     | '/_authenticated/importacoes'
     | '/_authenticated/meu-estoque'
+    | '/_authenticated/operacoes'
     | '/_authenticated/relatorios'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
@@ -212,6 +224,13 @@ declare module '@tanstack/react-router' {
       path: '/relatorios'
       fullPath: '/relatorios'
       preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/operacoes': {
+      id: '/_authenticated/operacoes'
+      path: '/operacoes'
+      fullPath: '/operacoes'
+      preLoaderRoute: typeof AuthenticatedOperacoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/meu-estoque': {
@@ -274,6 +293,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExtrairConcorrenteRoute: typeof AuthenticatedExtrairConcorrenteRoute
   AuthenticatedImportacoesRoute: typeof AuthenticatedImportacoesRoute
   AuthenticatedMeuEstoqueRoute: typeof AuthenticatedMeuEstoqueRoute
+  AuthenticatedOperacoesRoute: typeof AuthenticatedOperacoesRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
@@ -286,6 +306,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExtrairConcorrenteRoute: AuthenticatedExtrairConcorrenteRoute,
   AuthenticatedImportacoesRoute: AuthenticatedImportacoesRoute,
   AuthenticatedMeuEstoqueRoute: AuthenticatedMeuEstoqueRoute,
+  AuthenticatedOperacoesRoute: AuthenticatedOperacoesRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
