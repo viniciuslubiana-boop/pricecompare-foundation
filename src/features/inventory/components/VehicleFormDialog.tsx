@@ -68,8 +68,8 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
   }, [open, vehicle, form]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const parsed = inventoryVehicleSchema.parse(values);
-    await onSubmit(parsed);
+    // values já passaram pelo zodResolver — são InventoryFormValues
+    await onSubmit(values as unknown as InventoryFormValues);
   });
 
   return (
