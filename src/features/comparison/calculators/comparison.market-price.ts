@@ -167,3 +167,8 @@ export function emptyIntelligence(myPrice: number | null = null): MarketIntellig
 
 /** Compat: nome antigo usado pelo service. */
 export const marketPriceFor = intelligenceFor;
+
+/** Retorna os preços dos veículos equivalentes no pool informado. */
+export function equivalentPricesFor(me: MyVehicle, pool: CompetitorVehicle[]): number[] {
+  return equivalents(me, pool).map((c) => c.price as number);
+}
