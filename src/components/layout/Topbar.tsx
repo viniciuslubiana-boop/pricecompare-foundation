@@ -1,9 +1,9 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "./ThemeToggle";
+import { UserMenu } from "./UserMenu";
 import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function Topbar() {
   return (
@@ -15,11 +15,7 @@ export function Topbar() {
         <Bell className="h-4 w-4" />
       </Button>
       <ThemeToggle />
-      <Avatar className="h-8 w-8">
-        <AvatarFallback className="bg-accent text-accent-foreground text-xs font-semibold">
-          PC
-        </AvatarFallback>
-      </Avatar>
+      <UserMenu />
     </header>
   );
 }
