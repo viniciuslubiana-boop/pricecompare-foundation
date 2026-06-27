@@ -38,15 +38,19 @@ export function CompetitorTable({ rows, onEdit, onToggleStatus, onDelete }: Prop
               <TableRow key={c.id}>
                 <TableCell className="font-medium">{c.name}</TableCell>
                 <TableCell>
-                  <a
-                    href={c.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:underline"
-                  >
-                    <span className="max-w-[280px] truncate">{c.url}</span>
-                    <ExternalLink className="h-3 w-3 shrink-0" />
-                  </a>
+                  {c.url ? (
+                    <a
+                      href={c.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline"
+                    >
+                      <span className="max-w-[280px] truncate">{c.url}</span>
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground italic">Sem site identificado</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <CompetitorStatusBadge status={status} />
