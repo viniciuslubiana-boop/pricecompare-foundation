@@ -81,7 +81,11 @@ function CompararPage() {
       {result ? (
         <>
           <ComparisonSummaryBar summary={result.summary} />
-          <ComparisonFiltersBar value={filters} onChange={setFilters} />
+          <ComparisonFiltersBar
+            value={filters}
+            onChange={setFilters}
+            competitorOptions={result.marketCompetitors}
+          />
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Exibindo {filteredRows.length} de {result.rows.length} linha(s).
