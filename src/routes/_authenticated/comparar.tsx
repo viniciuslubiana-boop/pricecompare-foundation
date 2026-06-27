@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { SummaryCard } from "@/features/dashboard/widgets/SummaryCard";
 import { RadarPanel } from "@/features/comparison/components/RadarPanel";
+import { StrategyPanel } from "@/features/comparison/components/StrategyPanel";
 import {
   Select,
   SelectContent,
@@ -64,6 +65,14 @@ function CompararPage() {
       >
         <RadarPanel />
       </SummaryCard>
+
+      <SummaryCard
+        title="Estratégia de Preço"
+        description="Recomendação comercial por veículo com cenários simulados de redução."
+      >
+        <StrategyPanel />
+      </SummaryCard>
+
 
 
       <Card>

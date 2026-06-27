@@ -173,3 +173,86 @@ export interface RadarFilters {
   search?: string;
 }
 
+// ============================================================
+// Estratégia de Preço
+// ============================================================
+
+export interface PriceScenario {
+  /** Identificador estável do cenário */
+  id: "reduce_500" | "reduce_1000" | "reduce_1500" | "reach_min";
+  label: string;
+  /** Valor da redução em R$ (positivo) */
+  reduction: number;
+  /** Preço resultante após a redução */
+  newPrice: number;
+  /** Nova posição estimada no ranking (1 = mais barato) */
+  newRank: number | null;
+  /** Total de participantes considerando este cenário */
+  totalRanked: number;
+  /** Quantas posições ganhou em relação à posição atual */
+  positionsGained: number;
+  /** Se o cenário coloca o veículo no melhor preço */
+  becomesBestPrice: boolean;
+  /** Se o cenário é aplicável (ex.: reach_min faz sentido apenas se está acima do mínimo) */
+  applicable: boolean;
+}
+
+export type StrategyRecommendationKind =
+  | "keep"
+  | "reduce"
+  | "excellent_position"
+  | "market_up"
+  | "market_down"
+  | "insufficient_data";
+
+export interface StrategyRecommendation {
+  kind: StrategyRecommendationKind;
+  label: string;
+  /** Valor sugerido em R$ (positivo) quando aplicável */
+  amount: number | null;
+  /** Texto curto descrevendo o impacto esperado */
+  impact: string;
+}
+
+export interface StrategyRow {
+  id: string;
+  myVehicle: MyVehicle;
+  market: MarketIntelligence;
+  scenarios: PriceScenario[];
+  recommendation: StrategyRecommendation;
+  /** Maior impacto possível observado nos cenários simulados (em R$) */
+  maxImpact: number;
+}
+
+export interface StrategySummary {
+  totalWithRecommendation: number;
+  reduceCount: number;
+  keepCount: number;
+  excellentCount: number;
+  totalSuggestedReduction: number;
+  biggestOpportunityValue: number;
+  biggestOpportunityLabel: string | null;
+  avgCompetitiveness: number;
+}
+
+export interface StrategyResult {
+  rows: StrategyRow[];
+  /** Linhas elegíveis para o painel (qualquer recomendação válida) */
+  recommendedRows: StrategyRow[];
+  summary: StrategySummary;
+  brands: string[];
+  competitors: string[];
+}
+
+export type StrategySortKey = "max_impact" | "suggested_reduction" | "best_opportunity" | "none";
+
+export interface StrategyFilters {
+  /** Ordena por maior impacto possível (qualquer cenário) */
+  sort?: StrategySortKey;
+  /** Apenas linhas cuja recomendação é "Reduzir R$ X" */
+  onlyReduce?: boolean;
+  brand?: string;
+  competitorName?: string;
+  search?: string;
+}
+
