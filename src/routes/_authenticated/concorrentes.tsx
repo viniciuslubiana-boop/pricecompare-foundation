@@ -142,17 +142,28 @@ function ConcorrentesPage() {
           }
         />
       ) : (
-        <CompetitorTable
-          rows={rows}
-          onEdit={openEdit}
-          onToggleStatus={(c) =>
-            statusMut.mutate({
-              id: c.id,
-              status: (c.status as CompetitorStatus) === "active" ? "inactive" : "active",
-            })
-          }
-          onDelete={(c) => setToDelete(c)}
-        />
+        <>
+          <BulkActionsBar
+            count={selected.size}
+            onClear={() => setSelected(new Set())}
+            onDelete={() => setBulkConfirmOpen(true)}
+            pending={deleteMut.isPending}
+          />
+          <CompetitorTable
+            rows={rows}
+            onEdit={openEdit}
+            onToggleStatus={(c) =>
+              statusMut.mutate({
+                id: c.id,
+                status: (c.status as CompetitorStatus) === "active" ? "inactive" : "active",
+              })
+            }
+            onDelete={(c) => setToDelete(c)}
+            selected={selected}
+            onToggleOne={toggleOne}
+            onToggleAll={toggleAll}
+          />
+        </>
       )}
 
       <CompetitorForm
