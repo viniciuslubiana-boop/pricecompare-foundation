@@ -244,7 +244,7 @@ export const marketUpdateService = {
         percent: Math.round((i / total) * 100),
       });
 
-      const detail = await processCompetitor(c, userId, (patch) => {
+      const detail = await processCompetitor(c, userId, runId, (patch) => {
         onProgress({
           phase: "processing-competitor",
           currentCompetitorIndex: i + 1,
