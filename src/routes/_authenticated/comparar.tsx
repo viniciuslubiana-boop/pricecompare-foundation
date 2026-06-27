@@ -5,6 +5,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { SummaryCard } from "@/features/dashboard/widgets/SummaryCard";
+import { RadarPanel } from "@/features/comparison/components/RadarPanel";
 import {
   Select,
   SelectContent,
