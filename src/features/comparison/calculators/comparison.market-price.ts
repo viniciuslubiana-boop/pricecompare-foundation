@@ -27,7 +27,7 @@ function sameYear(a: string | null, b: string | null): boolean {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-function equivalents(me: MyVehicle, pool: CompetitorVehicle[]): CompetitorVehicle[] {
+export function equivalentsFor(me: MyVehicle, pool: CompetitorVehicle[]): CompetitorVehicle[] {
   const meBrand = norm(me.brand);
   const meModelRoot = firstToken(me.model);
   return pool.filter(
@@ -39,6 +39,8 @@ function equivalents(me: MyVehicle, pool: CompetitorVehicle[]): CompetitorVehicl
       (c.price as number) > 0,
   );
 }
+
+const equivalents = equivalentsFor;
 
 /** 0..100 — 100 quando me <= min; cai linearmente ~2 pp por 1% acima do menor. */
 function computeCompetitiveness(myPrice: number | null, min: number | null): number {

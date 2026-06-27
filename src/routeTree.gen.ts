@@ -24,6 +24,7 @@ import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authent
 import { Route as AuthenticatedCompararRouteImport } from './routes/_authenticated/comparar'
 import { Route as AuthenticatedAlteracoesMercadoRouteImport } from './routes/_authenticated/alteracoes-mercado'
 import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated/administracao'
+import { Route as AuthenticatedVeiculoIdRouteImport } from './routes/_authenticated/veiculo.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -106,6 +107,11 @@ const AuthenticatedAdministracaoRoute =
     path: '/administracao',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVeiculoIdRoute = AuthenticatedVeiculoIdRouteImport.update({
+  id: '/veiculo/$id',
+  path: '/veiculo/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/meu-estoque': typeof AuthenticatedMeuEstoqueRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
 export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/': typeof AuthenticatedIndexRoute
+  '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/_authenticated/operacoes': typeof AuthenticatedOperacoesRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/meu-estoque'
     | '/operacoes'
     | '/relatorios'
+    | '/veiculo/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/forgot-password'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/operacoes'
     | '/relatorios'
     | '/'
+    | '/veiculo/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/_authenticated/operacoes'
     | '/_authenticated/relatorios'
     | '/_authenticated/'
+    | '/_authenticated/veiculo/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -322,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdministracaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/veiculo/$id': {
+      id: '/_authenticated/veiculo/$id'
+      path: '/veiculo/$id'
+      fullPath: '/veiculo/$id'
+      preLoaderRoute: typeof AuthenticatedVeiculoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -338,6 +357,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOperacoesRoute: typeof AuthenticatedOperacoesRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedVeiculoIdRoute: typeof AuthenticatedVeiculoIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -353,6 +373,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOperacoesRoute: AuthenticatedOperacoesRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedVeiculoIdRoute: AuthenticatedVeiculoIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
