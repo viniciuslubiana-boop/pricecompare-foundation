@@ -46,6 +46,9 @@ export interface ImportRunResult {
   rowsReceived: number;
   rowsImported: number;
   rowsFailed: number;
-  status: "completed" | "partial" | "failed";
+  rowsInvalid: number;
+  rowsDuplicateIgnored: number;
+  rowsInsertError: number;
+  status: "completed" | "partial" | "failed" | "no_changes";
   errorLog: Array<{ index: number; errors: string[] }>;
 }
