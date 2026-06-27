@@ -12,9 +12,12 @@
 import { competitorRepository } from "@/repositories/competitor.repository";
 import { extractionService } from "@/features/extraction/services/extraction.service";
 import { comparisonService } from "@/features/comparison/services/comparison.service";
+import { detectChanges } from "@/features/comparison/calculators/change-detection";
 import { marketUpdateRepository } from "../repositories/market-update.repository";
+import { marketChangesRepository } from "../repositories/market-changes.repository";
 import type {
   CompetitorRunDetail,
+  MarketChangeInsert,
   MarketUpdateProgress,
   MarketUpdateResult,
   MarketUpdateStatus,
@@ -40,6 +43,7 @@ async function fetchCompetitorContent(url: string, signal?: AbortSignal): Promis
 async function processCompetitor(
   competitor: Competitor,
   userId: string,
+  runId: string | null,
   emit: (patch: Partial<MarketUpdateProgress>) => void,
   signal?: AbortSignal,
 ): Promise<CompetitorRunDetail> {
@@ -70,6 +74,12 @@ async function processCompetitor(
   });
 
   try {
+    // ETAPA 1.5 — snapshot lógico ANTES de inserir novos veículos
+    const previousSnapshot = await marketChangesRepository
+      .fetchSnapshot(competitor.name)
+      .catch(() => []);
+    const snapshotTakenAt = new Date().toISOString();
+
     // ETAPA 2 — extração via engine existente (reaproveita preview/confirm)
     const html = await fetchCompetitorContent(competitor.url, signal);
     detail.pagesProcessed = 1;
@@ -93,6 +103,38 @@ async function processCompetitor(
       });
       detail.vehiclesFound = confirmed.savedCount;
       emit({ vehiclesFoundCurrent: confirmed.savedCount });
+    }
+
+    // ETAPA 2.5 — detectar e persistir alterações (lógica em Comparison Engine)
+    try {
+      const currentSnapshot = await marketChangesRepository.fetchNewSince(
+        competitor.name,
+        snapshotTakenAt,
+      );
+      const changes = detectChanges(previousSnapshot, currentSnapshot);
+      if (changes.length) {
+        const payload: MarketChangeInsert[] = changes.map((c) => ({
+          run_id: runId,
+          competitor_id: competitor.id,
+          competitor_name: competitor.name,
+          change_type: c.changeType,
+          vehicle_key: c.vehicleKey,
+          brand: c.brand,
+          model: c.model,
+          year_model: c.yearModel,
+          previous_price: c.previousPrice,
+          current_price: c.currentPrice,
+          price_diff: c.priceDiff,
+          price_diff_pct: c.priceDiffPct,
+          previous_km: c.previousKm,
+          current_km: c.currentKm,
+          km_diff: c.kmDiff,
+          summary: c.summary,
+        }));
+        await marketChangesRepository.bulkInsert(payload);
+      }
+    } catch {
+      /* não interrompe o fluxo se a persistência de changes falhar */
     }
 
     // ETAPA 3 — comparação automática deste concorrente vs estoque
@@ -202,7 +244,7 @@ export const marketUpdateService = {
         percent: Math.round((i / total) * 100),
       });
 
-      const detail = await processCompetitor(c, userId, (patch) => {
+      const detail = await processCompetitor(c, userId, runId, (patch) => {
         onProgress({
           phase: "processing-competitor",
           currentCompetitorIndex: i + 1,

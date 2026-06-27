@@ -1,6 +1,8 @@
 export { marketUpdateService } from "./services/market-update.service";
 export { marketUpdateRepository } from "./repositories/market-update.repository";
+export { marketChangesRepository } from "./repositories/market-changes.repository";
 export { useMarketUpdate } from "./hooks/useMarketUpdate";
+export { useMarketChanges, useFilteredChanges, marketChangesKeys } from "./hooks/useMarketChanges";
 export { MarketUpdateButton } from "./components/MarketUpdateButton";
 export { MarketUpdateDetailsDialog } from "./components/MarketUpdateDetailsDialog";
 export type * from "./types";

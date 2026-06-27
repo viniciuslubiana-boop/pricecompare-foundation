@@ -21,6 +21,7 @@ import { Route as AuthenticatedExtrairConcorrenteRouteImport } from './routes/_a
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authenticated/concorrentes'
 import { Route as AuthenticatedCompararRouteImport } from './routes/_authenticated/comparar'
+import { Route as AuthenticatedAlteracoesMercadoRouteImport } from './routes/_authenticated/alteracoes-mercado'
 import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated/administracao'
 
 const LoginRoute = LoginRouteImport.update({
@@ -86,6 +87,12 @@ const AuthenticatedCompararRoute = AuthenticatedCompararRouteImport.update({
   path: '/comparar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAlteracoesMercadoRoute =
+  AuthenticatedAlteracoesMercadoRouteImport.update({
+    id: '/alteracoes-mercado',
+    path: '/alteracoes-mercado',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdministracaoRoute =
   AuthenticatedAdministracaoRouteImport.update({
     id: '/administracao',
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
+  '/alteracoes-mercado': typeof AuthenticatedAlteracoesMercadoRoute
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -111,6 +119,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/administracao': typeof AuthenticatedAdministracaoRoute
+  '/alteracoes-mercado': typeof AuthenticatedAlteracoesMercadoRoute
   '/comparar': typeof AuthenticatedCompararRoute
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -127,6 +136,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/_authenticated/administracao': typeof AuthenticatedAdministracaoRoute
+  '/_authenticated/alteracoes-mercado': typeof AuthenticatedAlteracoesMercadoRoute
   '/_authenticated/comparar': typeof AuthenticatedCompararRoute
   '/_authenticated/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/administracao'
+    | '/alteracoes-mercado'
     | '/comparar'
     | '/concorrentes'
     | '/configuracoes'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/administracao'
+    | '/alteracoes-mercado'
     | '/comparar'
     | '/concorrentes'
     | '/configuracoes'
@@ -172,6 +184,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/_authenticated/administracao'
+    | '/_authenticated/alteracoes-mercado'
     | '/_authenticated/comparar'
     | '/_authenticated/concorrentes'
     | '/_authenticated/configuracoes'
@@ -275,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompararRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/alteracoes-mercado': {
+      id: '/_authenticated/alteracoes-mercado'
+      path: '/alteracoes-mercado'
+      fullPath: '/alteracoes-mercado'
+      preLoaderRoute: typeof AuthenticatedAlteracoesMercadoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/administracao': {
       id: '/_authenticated/administracao'
       path: '/administracao'
@@ -287,6 +307,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdministracaoRoute: typeof AuthenticatedAdministracaoRoute
+  AuthenticatedAlteracoesMercadoRoute: typeof AuthenticatedAlteracoesMercadoRoute
   AuthenticatedCompararRoute: typeof AuthenticatedCompararRoute
   AuthenticatedConcorrentesRoute: typeof AuthenticatedConcorrentesRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
@@ -300,6 +321,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdministracaoRoute: AuthenticatedAdministracaoRoute,
+  AuthenticatedAlteracoesMercadoRoute: AuthenticatedAlteracoesMercadoRoute,
   AuthenticatedCompararRoute: AuthenticatedCompararRoute,
   AuthenticatedConcorrentesRoute: AuthenticatedConcorrentesRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
