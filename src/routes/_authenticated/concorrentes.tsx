@@ -35,6 +35,8 @@ function ConcorrentesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Competitor | null>(null);
   const [toDelete, setToDelete] = useState<Competitor | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
   const filters = useMemo(() => ({ search, status }), [search, status]);
   const listQ = useCompetitorsList(filters);
