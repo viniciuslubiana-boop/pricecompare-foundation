@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Power, PowerOff, Trash2, ExternalLink } from "lucide-react";
 import { CompetitorStatusBadge } from "./CompetitorStatusBadge";
 import type { Competitor, CompetitorStatus } from "../types/competitor.types";
@@ -16,14 +17,38 @@ interface Props {
   onEdit: (c: Competitor) => void;
   onToggleStatus: (c: Competitor) => void;
   onDelete: (c: Competitor) => void;
+  selected?: Set<string>;
+  onToggleOne?: (id: string) => void;
+  onToggleAll?: () => void;
 }
 
-export function CompetitorTable({ rows, onEdit, onToggleStatus, onDelete }: Props) {
+export function CompetitorTable({
+  rows,
+  onEdit,
+  onToggleStatus,
+  onDelete,
+  selected,
+  onToggleOne,
+  onToggleAll,
+}: Props) {
+  const selectionEnabled = !!selected && !!onToggleOne && !!onToggleAll;
+  const allChecked = selectionEnabled && rows.length > 0 && rows.every((r) => selected!.has(r.id));
+  const someChecked = selectionEnabled && rows.some((r) => selected!.has(r.id));
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
+            {selectionEnabled && (
+              <TableHead className="w-[40px]">
+                <Checkbox
+                  checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                  onCheckedChange={onToggleAll}
+                  aria-label="Selecionar todos"
+                />
+              </TableHead>
+            )}
             <TableHead>Nome</TableHead>
             <TableHead>URL</TableHead>
             <TableHead className="w-[110px]">Status</TableHead>
@@ -35,7 +60,19 @@ export function CompetitorTable({ rows, onEdit, onToggleStatus, onDelete }: Prop
           {rows.map((c) => {
             const status = (c.status as CompetitorStatus) ?? "active";
             return (
-              <TableRow key={c.id}>
+              <TableRow
+                key={c.id}
+                data-state={selectionEnabled && selected!.has(c.id) ? "selected" : undefined}
+              >
+                {selectionEnabled && (
+                  <TableCell>
+                    <Checkbox
+                      checked={selected!.has(c.id)}
+                      onCheckedChange={() => onToggleOne!(c.id)}
+                      aria-label={`Selecionar ${c.name}`}
+                    />
+                  </TableCell>
+                )}
                 <TableCell className="font-medium">{c.name}</TableCell>
                 <TableCell>
                   {c.url ? (
