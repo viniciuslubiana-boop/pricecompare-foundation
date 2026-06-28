@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
+import { Loader2, Store } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
