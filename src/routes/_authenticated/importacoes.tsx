@@ -56,6 +56,16 @@ function statusBadge(status: string | null) {
 function CentralImportacoesPage() {
   const logsQ = useImportLogs();
   const deleteMut = useDeleteImportLog();
+  const competitorsQ = useCompetitorsList({ status: "all" });
+  const companiesQ = useActiveBaseCompanies();
+  const competitorMap = useMemo(
+    () => new Map((competitorsQ.data ?? []).map((c) => [c.id, c.name])),
+    [competitorsQ.data],
+  );
+  const companyMap = useMemo(
+    () => new Map((companiesQ.data ?? []).map((c) => [c.id, c.name])),
+    [companiesQ.data],
+  );
   const [wizardOpen, setWizardOpen] = useState(false);
   const [details, setDetails] = useState<ImportLog | null>(null);
   const [toDelete, setToDelete] = useState<ImportLog | null>(null);
