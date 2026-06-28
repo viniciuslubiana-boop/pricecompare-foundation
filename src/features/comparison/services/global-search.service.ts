@@ -224,10 +224,12 @@ export const globalSearchService = {
 
     return {
       myVehicle,
+      myVehiclesByCompany,
       market,
       competitors: entries,
       history,
       query,
+
     };
   },
 };
