@@ -37,6 +37,10 @@ import {
 import { VehicleFormDialog } from "@/features/inventory/components/VehicleFormDialog";
 import type { Vehicle } from "@/features/inventory/types/inventory.types";
 import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
+import { BaseCompanySelector } from "@/features/base-companies/components/BaseCompanySelector";
+import { useSelectedBaseCompany } from "@/features/base-companies/context/SelectedBaseCompanyContext";
+import { EmptyState as EmptyState2 } from "@/components/EmptyState";
+import { Building2 } from "lucide-react";
 
 const ALL = "__all__";
 
