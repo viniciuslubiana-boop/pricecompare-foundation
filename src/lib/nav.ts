@@ -23,6 +23,7 @@ export type NavItem = {
   title: string;
   url: string;
   icon: LucideIcon;
+  adminOnly?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -43,6 +44,6 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Central de Movimentações", url: "/movimentacoes-mercado", icon: Radio },
   { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
-  { title: "Administração", url: "/administracao", icon: ShieldCheck },
+  { title: "Administração", url: "/administracao", icon: ShieldCheck, adminOnly: true },
 ];
 

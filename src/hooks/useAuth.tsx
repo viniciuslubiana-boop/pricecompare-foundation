@@ -17,6 +17,7 @@ interface AuthContextValue {
   loading: boolean;
   isAdmin: boolean;
   isGerente: boolean;
+  isInactive: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
@@ -36,42 +37,45 @@ function mapUser(u: User | null | undefined): AuthUser | null {
   };
 }
 
-async function fetchRoles(userId: string): Promise<AppRole[]> {
-  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-  if (error) {
-    console.error("Erro ao carregar papéis", error);
-    return [];
-  }
-  return (data ?? []).map((r) => r.role as AppRole);
-}
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
+  const [status, setStatus] = useState<"active" | "inactive">("active");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1) Listener primeiro (síncrono)
+    async function loadProfile(userId: string) {
+      const [{ data: rolesData }, { data: profile }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", userId),
+        supabase.from("profiles").select("status").eq("id", userId).maybeSingle(),
+      ]);
+      setRoles((rolesData ?? []).map((r) => r.role as AppRole));
+      const s = (profile?.status as "active" | "inactive" | null) ?? "active";
+      setStatus(s);
+      if (s === "inactive") {
+        await supabase.auth.signOut();
+      }
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setUser(mapUser(newSession?.user));
       if (newSession?.user) {
-        // Adiar busca para evitar deadlock
-        setTimeout(() => {
-          void fetchRoles(newSession.user.id).then(setRoles);
-        }, 0);
+        setTimeout(() => void loadProfile(newSession.user.id), 0);
       } else {
         setRoles([]);
+        setStatus("active");
       }
     });
 
-    // 2) Sessão atual
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(mapUser(data.session?.user));
       if (data.session?.user) {
-        void fetchRoles(data.session.user.id).then(setRoles);
+        void loadProfile(data.session.user.id);
       }
       setLoading(false);
     });
@@ -89,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       isAdmin: roles.includes("admin"),
       isGerente: roles.includes("gerente"),
+      isInactive: status === "inactive",
       async signIn(email, password) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -103,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
       },
     }),
-    [session, user, roles, loading],
+    [session, user, roles, status, loading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

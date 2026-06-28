@@ -13,10 +13,14 @@ import {
 } from "@/components/ui/sidebar";
 import { NAV_ITEMS } from "@/lib/nav";
 import { Gauge } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { isAdmin } = useAuth();
+  const items = NAV_ITEMS.filter((i) => !i.adminOnly || isAdmin);
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
+
 
   return (
     <Sidebar collapsible="icon">
@@ -37,7 +41,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV_ITEMS.map((item) => (
+              {items.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
                     <Link to={item.url}>
