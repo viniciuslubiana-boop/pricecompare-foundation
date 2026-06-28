@@ -198,12 +198,12 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
       });
     }
 
+    void startedAt;
     await context.supabase.from("extraction_logs").insert({
       competitor_id: data.competitorId,
       url: data.url,
       status,
       started_by: context.userId,
-      started_at: startedAt.toISOString(),
       finished_at: finishedAt.toISOString(),
       vehicles_found: savedCount,
       pages_processed: attempts,
