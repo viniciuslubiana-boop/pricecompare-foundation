@@ -234,7 +234,7 @@ export const testApiIntegration = createServerFn({ method: "POST" })
         status: "failed",
         http_status: null,
         message: error?.message ?? "Integração não encontrada.",
-        sample: null,
+        sample: "",
         vehicles_count: 0,
       };
     }
@@ -289,7 +289,7 @@ export const testApiIntegration = createServerFn({ method: "POST" })
           http_status: res.status,
           message:
             "Conexão OK, mas nenhum veículo encontrado no caminho informado. Revise o list_path.",
-          sample: res.json,
+          sample: JSON.stringify(res.json).slice(0, 500),
           vehicles_count: 0,
         };
       }
@@ -298,7 +298,7 @@ export const testApiIntegration = createServerFn({ method: "POST" })
         status: "success",
         http_status: res.status,
         message: `Conexão OK. ${list.length} item(ns) encontrados.`,
-        sample: list.slice(0, 3),
+        sample: JSON.stringify(list.slice(0, 3)).slice(0, 1000),
         vehicles_count: list.length,
       };
     } catch (err) {
@@ -308,7 +308,7 @@ export const testApiIntegration = createServerFn({ method: "POST" })
         status: "unavailable",
         http_status: null,
         message: `Falha ao chamar a API: ${msg}`,
-        sample: null,
+        sample: "",
         vehicles_count: 0,
       };
     }
