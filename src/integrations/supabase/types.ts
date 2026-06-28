@@ -129,6 +129,45 @@ export type Database = {
           },
         ]
       }
+      base_companies: {
+        Row: {
+          city: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          state: string | null
+          status: string
+          type: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          state?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          state?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       comparisons: {
         Row: {
           compatibility_score: number | null
@@ -516,6 +555,7 @@ export type Database = {
       }
       my_vehicles: {
         Row: {
+          base_company_id: string | null
           brand: string
           created_at: string
           created_by: string | null
@@ -529,6 +569,7 @@ export type Database = {
           year_model: string
         }
         Insert: {
+          base_company_id?: string | null
           brand: string
           created_at?: string
           created_by?: string | null
@@ -542,6 +583,7 @@ export type Database = {
           year_model: string
         }
         Update: {
+          base_company_id?: string | null
           brand?: string
           created_at?: string
           created_by?: string | null
@@ -555,6 +597,13 @@ export type Database = {
           year_model?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "my_vehicles_base_company_id_fkey"
+            columns: ["base_company_id"]
+            isOneToOne: false
+            referencedRelation: "base_companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "my_vehicles_created_by_fkey"
             columns: ["created_by"]
