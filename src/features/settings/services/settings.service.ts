@@ -36,7 +36,7 @@ export const settingsService = {
   ): Promise<AppSettingsBundle[K]> {
     const { error } = await supabase
       .from("app_settings")
-      .upsert({ key, value: value as unknown as Record<string, unknown> }, { onConflict: "key" });
+      .upsert({ key, value: value as never }, { onConflict: "key" });
     if (error) throw error;
 
     // best-effort audit log
