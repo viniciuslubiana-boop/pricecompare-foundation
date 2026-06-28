@@ -28,12 +28,15 @@ import {
 import { cn } from "@/lib/utils";
 import { useGlobalSearch } from "@/features/comparison/hooks/useGlobalSearch";
 import { applyVehicle360Filters } from "@/features/comparison/utils/vehicle360.filters";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type {
   Vehicle360Filters,
   Vehicle360SortKey,
 } from "@/features/comparison/types/comparison.types";
 import type { GlobalSearchQuery } from "@/features/comparison/services/global-search.service";
 import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
+
 
 export const Route = createFileRoute("/_authenticated/consulta-mercado")({
   head: () => ({ meta: [{ title: "Consulta Global de Mercado · PriceCompare" }] }),
