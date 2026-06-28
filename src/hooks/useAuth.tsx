@@ -37,14 +37,7 @@ function mapUser(u: User | null | undefined): AuthUser | null {
   };
 }
 
-async function fetchRoles(userId: string): Promise<AppRole[]> {
-  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-  if (error) {
-    console.error("Erro ao carregar papéis", error);
-    return [];
-  }
-  return (data ?? []).map((r) => r.role as AppRole);
-}
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
