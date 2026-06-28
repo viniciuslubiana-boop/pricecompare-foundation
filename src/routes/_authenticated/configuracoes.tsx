@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2, Store } from "lucide-react";
+import { Building2, Loader2, Store } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { BaseCompaniesSection } from "@/features/base-companies/components/BaseCompaniesSection";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -56,8 +57,11 @@ function SettingsPage() {
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       ) : (
-        <Tabs defaultValue="reference" className="space-y-4">
-          <TabsList>
+        <Tabs defaultValue="base-companies" className="space-y-4">
+          <TabsList className="flex-wrap">
+            <TabsTrigger value="base-companies">
+              <Building2 className="h-4 w-4 mr-1.5" /> Empresas Base
+            </TabsTrigger>
             <TabsTrigger value="reference">
               <Store className="h-4 w-4 mr-1.5" /> Loja de Referência
             </TabsTrigger>
@@ -68,6 +72,9 @@ function SettingsPage() {
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="base-companies">
+            <BaseCompaniesSection />
+          </TabsContent>
           <TabsContent value="reference">
             <ReferenceStoreSection value={bundle.referenceStore} />
           </TabsContent>

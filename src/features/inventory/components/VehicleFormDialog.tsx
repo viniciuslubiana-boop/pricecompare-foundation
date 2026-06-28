@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,8 +17,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import {
   inventoryVehicleSchema,
@@ -26,12 +34,14 @@ import {
   type InventoryFormValues,
 } from "../schemas/inventory.schema";
 import type { Vehicle } from "../types/inventory.types";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vehicle?: Vehicle | null;
-  onSubmit: (values: InventoryFormValues) => Promise<unknown> | void;
+  defaultBaseCompanyId?: string | null;
+  onSubmit: (values: InventoryFormValues, baseCompanyId: string) => Promise<unknown> | void;
   submitting?: boolean;
 }
 
@@ -44,32 +54,49 @@ const empty: InventoryFormInput = {
   supplier_name: "",
 };
 
-export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submitting }: Props) {
+export function VehicleFormDialog({
+  open,
+  onOpenChange,
+  vehicle,
+  defaultBaseCompanyId,
+  onSubmit,
+  submitting,
+}: Props) {
+  const { data: active = [] } = useActiveBaseCompanies();
+  const [companyId, setCompanyId] = useState<string>("");
+  const [companyError, setCompanyError] = useState(false);
+
   const form = useForm<InventoryFormInput>({
     resolver: zodResolver(inventoryVehicleSchema) as never,
     defaultValues: empty,
   });
 
   useEffect(() => {
-    if (open) {
-      form.reset(
-        vehicle
-          ? {
-              brand: vehicle.brand,
-              model: vehicle.model,
-              year_model: vehicle.year_model,
-              km: String(vehicle.km ?? ""),
-              price: String(vehicle.price ?? ""),
-              supplier_name: vehicle.supplier_name ?? "",
-            }
-          : empty,
-      );
-    }
-  }, [open, vehicle, form]);
+    if (!open) return;
+    form.reset(
+      vehicle
+        ? {
+            brand: vehicle.brand,
+            model: vehicle.model,
+            year_model: vehicle.year_model,
+            km: String(vehicle.km ?? ""),
+            price: String(vehicle.price ?? ""),
+            supplier_name: vehicle.supplier_name ?? "",
+          }
+        : empty,
+    );
+    setCompanyId(
+      vehicle?.base_company_id ?? defaultBaseCompanyId ?? active[0]?.id ?? "",
+    );
+    setCompanyError(false);
+  }, [open, vehicle, defaultBaseCompanyId, active, form]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    // values já passaram pelo zodResolver — são InventoryFormValues
-    await onSubmit(values as unknown as InventoryFormValues);
+    if (!companyId) {
+      setCompanyError(true);
+      return;
+    }
+    await onSubmit(values as unknown as InventoryFormValues, companyId);
   });
 
   return (
@@ -83,6 +110,37 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Empresa Base *</Label>
+              {active.length === 0 ? (
+                <p className="text-xs text-destructive">
+                  Nenhuma Empresa Base ativa. Cadastre em Configurações → Empresas Base.
+                </p>
+              ) : (
+                <Select
+                  value={companyId}
+                  onValueChange={(v) => {
+                    setCompanyId(v);
+                    setCompanyError(false);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a empresa base" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {active.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {companyError && (
+                <p className="text-xs text-destructive">Selecione uma Empresa Base.</p>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -177,7 +235,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting || active.length === 0}>
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {vehicle ? "Salvar alterações" : "Cadastrar veículo"}
               </Button>

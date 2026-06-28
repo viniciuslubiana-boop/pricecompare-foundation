@@ -37,10 +37,15 @@ import {
 import { VehicleFormDialog } from "@/features/inventory/components/VehicleFormDialog";
 import type { Vehicle } from "@/features/inventory/types/inventory.types";
 import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
+import { BaseCompanySelector } from "@/features/base-companies/components/BaseCompanySelector";
+import { useSelectedBaseCompany } from "@/features/base-companies/context/SelectedBaseCompanyContext";
+import { Building2 } from "lucide-react";
 
 const ALL = "__all__";
 
 function MeuEstoquePage() {
+  const { selectedId, selected: selectedCompany, hasAny, isLoading: loadingCompanies } =
+    useSelectedBaseCompany();
   const [search, setSearch] = useState("");
   const [brand, setBrand] = useState<string>(ALL);
   const [formOpen, setFormOpen] = useState(false);
@@ -49,9 +54,12 @@ function MeuEstoquePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
-  const filters = useMemo(() => ({ search, brand }), [search, brand]);
+  const filters = useMemo(
+    () => ({ search, brand, baseCompanyId: selectedId }),
+    [search, brand, selectedId],
+  );
   const vehiclesQ = useInventoryList(filters);
-  const brandsQ = useInventoryBrands();
+  const brandsQ = useInventoryBrands(selectedId);
   const createMut = useCreateVehicle();
   const updateMut = useUpdateVehicle();
   const deleteMut = useDeleteVehicle();
@@ -113,28 +121,57 @@ function MeuEstoquePage() {
         }
       />
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <SearchInput
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por marca ou modelo..."
+      {!loadingCompanies && !hasAny ? (
+        <EmptyState
+          icon={Building2}
+          title="Cadastre uma Empresa Base para começar."
+          description="Vá em Configurações → Empresas Base para cadastrar sua loja. Você pode ter até duas Empresas Base ativas."
+          action={
+            <Button asChild>
+              <Link to="/configuracoes">
+                <Building2 className="h-4 w-4" /> Ir para Configurações
+              </Link>
+            </Button>
+          }
         />
-        <Select value={brand} onValueChange={setBrand}>
-          <SelectTrigger className="w-full sm:w-56">
-            <SelectValue placeholder="Filtrar por marca" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>Todas as marcas</SelectItem>
-            {(brandsQ.data ?? []).map((b) => (
-              <SelectItem key={b} value={b}>
-                {b}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      ) : (
+        <>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <BaseCompanySelector />
+            </div>
+            {selectedCompany && (
+              <span className="text-sm text-muted-foreground">
+                Estoque de <strong>{selectedCompany.name}</strong>
+              </span>
+            )}
+          </div>
 
-      {vehiclesQ.isError ? (
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por marca ou modelo..."
+            />
+            <Select value={brand} onValueChange={setBrand}>
+              <SelectTrigger className="w-full sm:w-56">
+                <SelectValue placeholder="Filtrar por marca" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>Todas as marcas</SelectItem>
+                {(brandsQ.data ?? []).map((b) => (
+                  <SelectItem key={b} value={b}>
+                    {b}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
+
+      {hasAny && (vehiclesQ.isError ? (
         <ErrorState
           title="Não foi possível carregar o estoque"
           description={(vehiclesQ.error as Error)?.message}
@@ -240,18 +277,19 @@ function MeuEstoquePage() {
             </Table>
           </div>
         </>
-      )}
+      ))}
 
       <VehicleFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
         vehicle={editing}
+        defaultBaseCompanyId={selectedId}
         submitting={createMut.isPending || updateMut.isPending}
-        onSubmit={async (values) => {
+        onSubmit={async (values, baseCompanyId) => {
           if (editing) {
-            await updateMut.mutateAsync({ id: editing.id, values });
+            await updateMut.mutateAsync({ id: editing.id, values, baseCompanyId });
           } else {
-            await createMut.mutateAsync(values);
+            await createMut.mutateAsync({ values, baseCompanyId });
           }
           setFormOpen(false);
         }}

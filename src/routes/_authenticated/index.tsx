@@ -31,6 +31,16 @@ import {
 import { MarketUpdateButton } from "@/features/market-update";
 import { RadarPanel } from "@/features/comparison/components/RadarPanel";
 import { StrategyPanel } from "@/features/comparison/components/StrategyPanel";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+import { useState } from "react";
+import { Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -57,7 +67,10 @@ function CompetitivenessTone(level: "high" | "medium" | "low" | "unknown") {
 }
 
 function DashboardPage() {
-  const { data, isLoading, isError, error, refetch } = useDashboard();
+  const { data: activeCompanies = [] } = useActiveBaseCompanies();
+  const [companyFilter, setCompanyFilter] = useState<string>("__all__");
+  const baseCompanyId = companyFilter === "__all__" ? null : companyFilter;
+  const { data, isLoading, isError, error, refetch } = useDashboard(baseCompanyId);
 
   if (isLoading) {
     return (
@@ -99,7 +112,23 @@ function DashboardPage() {
         title="Dashboard Executivo"
         description="Visão consolidada do mercado, do estoque e da concorrência."
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <Select value={companyFilter} onValueChange={setCompanyFilter}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Empresa Base" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">Todas as Empresas Base</SelectItem>
+                  {activeCompanies.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <MarketUpdateButton />
             <Button asChild variant="outline">
               <Link to="/comparar">

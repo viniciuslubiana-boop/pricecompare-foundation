@@ -8,7 +8,13 @@ export function useComparison() {
   const [result, setResult] = useState<ComparisonResult | null>(null);
 
   const runMutation = useMutation({
-    mutationFn: (competitorId: string) => comparisonService.run(competitorId),
+    mutationFn: ({
+      competitorId,
+      baseCompanyId,
+    }: {
+      competitorId: string;
+      baseCompanyId?: string | null;
+    }) => comparisonService.run(competitorId, baseCompanyId),
     onSuccess: (data) => {
       setResult(data);
       const { summary } = data;

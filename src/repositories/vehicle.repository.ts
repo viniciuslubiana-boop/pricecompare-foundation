@@ -11,6 +11,9 @@ class VehicleRepository extends BaseRepository<"my_vehicles"> {
   async list(filters: InventoryFilters = {}): Promise<MyVehicle[]> {
     let query = supabase.from("my_vehicles").select("*").order("created_at", { ascending: false });
 
+    if (filters.baseCompanyId) {
+      query = query.eq("base_company_id", filters.baseCompanyId);
+    }
     if (filters.brand && filters.brand !== "__all__") {
       query = query.eq("brand", filters.brand);
     }
@@ -24,8 +27,10 @@ class VehicleRepository extends BaseRepository<"my_vehicles"> {
     return data ?? [];
   }
 
-  async listBrands(): Promise<string[]> {
-    const { data, error } = await supabase.from("my_vehicles").select("brand").order("brand");
+  async listBrands(baseCompanyId?: string | null): Promise<string[]> {
+    let query = supabase.from("my_vehicles").select("brand").order("brand");
+    if (baseCompanyId) query = query.eq("base_company_id", baseCompanyId);
+    const { data, error } = await query;
     if (error) throw error;
     const set = new Set<string>();
     (data ?? []).forEach((row) => row.brand && set.add(row.brand));

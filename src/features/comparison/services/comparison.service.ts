@@ -19,13 +19,13 @@ function emptyScore(): ScoreBreakdown {
 }
 
 export const comparisonService = {
-  async run(competitorId: string): Promise<ComparisonResult> {
+  async run(competitorId: string, baseCompanyId?: string | null): Promise<ComparisonResult> {
     const all = await competitorRepository.list({});
     const target = all.find((c) => c.id === competitorId);
     if (!target) throw new Error("Concorrente não encontrado.");
 
     const [mine, targetVehicles, marketPool] = await Promise.all([
-      vehicleRepository.list({}),
+      vehicleRepository.list({ baseCompanyId: baseCompanyId ?? undefined }),
       comparisonDataRepository.listCompetitorVehiclesByName(target.name),
       comparisonDataRepository.listMarketPool(),
     ]);

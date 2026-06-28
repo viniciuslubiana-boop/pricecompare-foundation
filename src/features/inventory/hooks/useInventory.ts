@@ -15,10 +15,10 @@ export function useInventoryList(filters: InventoryFilters) {
   });
 }
 
-export function useInventoryBrands() {
+export function useInventoryBrands(baseCompanyId?: string | null) {
   return useQuery({
-    queryKey: [...KEY, "brands"],
-    queryFn: () => inventoryService.listBrands(),
+    queryKey: [...KEY, "brands", baseCompanyId ?? null],
+    queryFn: () => inventoryService.listBrands(baseCompanyId),
   });
 }
 
@@ -34,11 +34,18 @@ export function useCreateVehicle() {
   const qc = useQueryClient();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async (values: InventoryFormValues) => {
+    mutationFn: async ({
+      values,
+      baseCompanyId,
+    }: {
+      values: InventoryFormValues;
+      baseCompanyId: string;
+    }) => {
       if (!user) throw new Error("Sessão expirada. Faça login novamente.");
-      const existing = await inventoryService.list({});
+      if (!baseCompanyId) throw new Error("Selecione uma Empresa Base.");
+      const existing = await inventoryService.list({ baseCompanyId });
       const dups = findDuplicates(values, existing);
-      const created = await inventoryService.create(values, user.id);
+      const created = await inventoryService.create(values, user.id, baseCompanyId);
       return { created, dups };
     },
     onSuccess: ({ dups }) => {
@@ -55,10 +62,18 @@ export function useCreateVehicle() {
 export function useUpdateVehicle() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, values }: { id: string; values: InventoryFormValues }) => {
-      const existing = await inventoryService.list({});
+    mutationFn: async ({
+      id,
+      values,
+      baseCompanyId,
+    }: {
+      id: string;
+      values: InventoryFormValues;
+      baseCompanyId?: string;
+    }) => {
+      const existing = await inventoryService.list({ baseCompanyId });
       const dups = findDuplicates(values, existing, { excludeId: id });
-      const updated = await inventoryService.update(id, values);
+      const updated = await inventoryService.update(id, values, baseCompanyId);
       return { updated, dups };
     },
     onSuccess: ({ dups }) => {
@@ -77,13 +92,11 @@ export function useDeleteVehicle() {
   return useMutation({
     mutationFn: (id: string) => inventoryService.remove(id),
     onSuccess: (_data, id) => {
-      // 1) Remoção imediata do item em todas as listas em cache
       qc.setQueriesData<Array<{ id: string }> | undefined>(
         { queryKey: [...KEY, "list"] },
         (old) => (Array.isArray(old) ? old.filter((v) => v.id !== id) : old),
       );
       toast.success("Veículo excluído");
-      // 2) Refetch para garantir consistência com o servidor
       qc.invalidateQueries({ queryKey: KEY });
     },
     onError: (err: Error) => {
