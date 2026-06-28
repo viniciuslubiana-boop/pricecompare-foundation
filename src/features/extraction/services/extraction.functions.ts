@@ -234,8 +234,19 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
     if (savedCount === 0 && vehicles.length === 0) {
       errorLog.push({
         stage: "ai",
-        message: "IA não retornou nenhum veículo a partir do markdown.",
-        sample: markdown.slice(0, 300),
+        message: `IA não retornou nenhum veículo apesar do conteúdo ter sinais de anúncios (preço=${signals.priceBRL}, km=${signals.km}, ano=${signals.yearModel}, marcas=${signals.brandHits}).`,
+        sample: markdown.slice(0, 500),
+      });
+    } else if (vehicles.length > 0 && validVehicles.length === 0) {
+      errorLog.push({
+        stage: "validation",
+        message: `IA retornou ${vehicles.length} veículo(s), porém nenhum passou na validação mínima (brand/model/year_model/price>0).`,
+        sample: JSON.stringify(vehicles.slice(0, 3)),
+      });
+    } else if (validVehicles.length > 0 && validVehicles.length < vehicles.length) {
+      errorLog.push({
+        stage: "validation",
+        message: `${vehicles.length - validVehicles.length} de ${vehicles.length} veículo(s) descartados por validação incompleta.`,
       });
     }
 
