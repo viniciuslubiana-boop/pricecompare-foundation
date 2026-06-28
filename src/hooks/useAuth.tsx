@@ -17,6 +17,7 @@ interface AuthContextValue {
   loading: boolean;
   isAdmin: boolean;
   isGerente: boolean;
+  isInactive: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
