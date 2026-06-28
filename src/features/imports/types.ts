@@ -1,13 +1,44 @@
-export type SystemField = "brand" | "model" | "year_model" | "km" | "price" | "supplier_name";
+export type ImportTargetType = "my_vehicles" | "competitor";
 
-export const SYSTEM_FIELDS: { key: SystemField; label: string; required: boolean }[] = [
-  { key: "brand", label: "Marca", required: true },
-  { key: "model", label: "Modelo", required: true },
-  { key: "year_model", label: "Ano/Modelo", required: true },
-  { key: "km", label: "KM", required: true },
-  { key: "price", label: "Valor", required: true },
-  { key: "supplier_name", label: "Fornecedor", required: false },
+export type SystemField =
+  | "brand"
+  | "model"
+  | "version"
+  | "year_model"
+  | "km"
+  | "price"
+  | "supplier_name"
+  | "source_url"
+  | "photo_url"
+  | "city";
+
+export interface SystemFieldDef {
+  key: SystemField;
+  label: string;
+  requiredFor: ImportTargetType[];
+  availableFor: ImportTargetType[];
+}
+
+export const SYSTEM_FIELDS: SystemFieldDef[] = [
+  { key: "brand", label: "Marca", requiredFor: ["my_vehicles", "competitor"], availableFor: ["my_vehicles", "competitor"] },
+  { key: "model", label: "Modelo", requiredFor: ["my_vehicles", "competitor"], availableFor: ["my_vehicles", "competitor"] },
+  { key: "version", label: "Versão", requiredFor: [], availableFor: ["competitor"] },
+  { key: "year_model", label: "Ano/Modelo", requiredFor: ["my_vehicles", "competitor"], availableFor: ["my_vehicles", "competitor"] },
+  { key: "km", label: "KM", requiredFor: ["my_vehicles"], availableFor: ["my_vehicles", "competitor"] },
+  { key: "price", label: "Valor", requiredFor: ["my_vehicles", "competitor"], availableFor: ["my_vehicles", "competitor"] },
+  { key: "supplier_name", label: "Fornecedor", requiredFor: [], availableFor: ["my_vehicles"] },
+  { key: "source_url", label: "Link do anúncio", requiredFor: [], availableFor: ["competitor"] },
+  { key: "photo_url", label: "Foto (URL)", requiredFor: [], availableFor: ["competitor"] },
+  { key: "city", label: "Cidade", requiredFor: [], availableFor: ["competitor"] },
 ];
+
+export function fieldsForTarget(target: ImportTargetType): SystemFieldDef[] {
+  return SYSTEM_FIELDS.filter((f) => f.availableFor.includes(target));
+}
+
+export function requiredFieldsForTarget(target: ImportTargetType): SystemField[] {
+  return SYSTEM_FIELDS.filter((f) => f.requiredFor.includes(target)).map((f) => f.key);
+}
 
 export type ColumnMapping = Partial<Record<SystemField, string>>;
 
@@ -26,10 +57,14 @@ export interface PreviewRow {
   values: {
     brand: string;
     model: string;
+    version: string;
     year_model: string;
     km: string;
     price: string;
     supplier_name: string;
+    source_url: string;
+    photo_url: string;
+    city: string;
   };
   status: RowStatus;
   errors: string[];

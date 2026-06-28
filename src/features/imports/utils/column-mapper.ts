@@ -2,11 +2,15 @@ import type { ColumnMapping, SystemField } from "../types";
 
 const ALIASES: Record<SystemField, string[]> = {
   brand: ["marca", "brand", "fabricante", "make"],
-  model: ["modelo", "model", "versao", "versão", "version"],
+  model: ["modelo", "model"],
+  version: ["versao", "versão", "version", "trim"],
   year_model: ["ano", "ano/modelo", "ano modelo", "year", "year_model", "ano_modelo"],
   km: ["km", "quilometragem", "kilometragem", "mileage", "odometro", "odômetro"],
   price: ["preco", "preço", "valor", "price", "value"],
-  supplier_name: ["fornecedor", "supplier", "loja", "vendedor", "origem"],
+  supplier_name: ["fornecedor", "supplier", "vendedor"],
+  source_url: ["link", "url", "anuncio", "anúncio", "source", "fonte"],
+  photo_url: ["foto", "imagem", "photo", "image"],
+  city: ["cidade", "city", "localizacao", "localização"],
 };
 
 const norm = (s: string) =>
@@ -17,10 +21,16 @@ const norm = (s: string) =>
     .replace(/[_\s./-]+/g, " ")
     .trim();
 
-export function autoMapColumns(columns: string[]): ColumnMapping {
+export function autoMapColumns(
+  columns: string[],
+  available?: SystemField[],
+): ColumnMapping {
   const mapping: ColumnMapping = {};
   const used = new Set<string>();
-  for (const [field, aliases] of Object.entries(ALIASES) as [SystemField, string[]][]) {
+  const entries = (Object.entries(ALIASES) as [SystemField, string[]][]).filter(
+    ([field]) => !available || available.includes(field),
+  );
+  for (const [field, aliases] of entries) {
     const match = columns.find((c) => {
       if (used.has(c)) return false;
       const n = norm(c);
