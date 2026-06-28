@@ -200,7 +200,6 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
       });
     }
 
-    void startedAt;
     await context.supabase.from("extraction_logs").insert({
       competitor_id: data.competitorId,
       url: data.url,
@@ -215,4 +214,25 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
     });
 
     return { savedCount, status, vehiclesReturned: vehicles.length };
+    } catch (fatal) {
+      const msg = fatal instanceof Error ? fatal.message : String(fatal);
+      console.error("[runCompetitorExtraction] fatal", fatal);
+      try {
+        await context.supabase.from("extraction_logs").insert({
+          competitor_id: data.competitorId,
+          url: data.url,
+          status: "failed",
+          started_by: context.userId,
+          finished_at: new Date().toISOString(),
+          vehicles_found: 0,
+          pages_processed: 0,
+          total_pages: 1,
+          checkpoint_page: 0,
+          error_log: [{ stage: "fatal", message: msg }],
+        });
+      } catch {
+        /* ignore */
+      }
+      return { savedCount: 0, status: "failed" as const, error: msg };
+    }
   });
