@@ -28,6 +28,7 @@ export function CompetitorTable({
   onEdit,
   onToggleStatus,
   onDelete,
+  onImport,
   selected,
   onToggleOne,
   onToggleAll,
