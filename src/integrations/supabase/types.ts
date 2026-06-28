@@ -61,6 +61,147 @@ export type Database = {
           },
         ]
       }
+      api_integration_logs: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          finished_at: string | null
+          http_status: number | null
+          id: string
+          integration_id: string
+          started_at: string
+          status: string
+          url_called: string | null
+          user_id: string | null
+          vehicles_imported: number
+          vehicles_received: number
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          http_status?: number | null
+          id?: string
+          integration_id: string
+          started_at?: string
+          status: string
+          url_called?: string | null
+          user_id?: string | null
+          vehicles_imported?: number
+          vehicles_received?: number
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          http_status?: number | null
+          id?: string
+          integration_id?: string
+          started_at?: string
+          status?: string
+          url_called?: string | null
+          user_id?: string | null
+          vehicles_imported?: number
+          vehicles_received?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_integration_logs_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "api_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_integration_logs_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "api_integrations_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_integrations: {
+        Row: {
+          auth_header_name: string | null
+          auth_header_value: string | null
+          base_company_id: string | null
+          body_template: Json | null
+          competitor_id: string | null
+          created_at: string
+          extra_headers: Json
+          field_mapping: Json
+          frequency: string
+          http_method: string
+          id: string
+          last_run_at: string | null
+          name: string
+          status: string
+          target_type: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          auth_header_name?: string | null
+          auth_header_value?: string | null
+          base_company_id?: string | null
+          body_template?: Json | null
+          competitor_id?: string | null
+          created_at?: string
+          extra_headers?: Json
+          field_mapping?: Json
+          frequency?: string
+          http_method?: string
+          id?: string
+          last_run_at?: string | null
+          name: string
+          status?: string
+          target_type: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          auth_header_name?: string | null
+          auth_header_value?: string | null
+          base_company_id?: string | null
+          body_template?: Json | null
+          competitor_id?: string | null
+          created_at?: string
+          extra_headers?: Json
+          field_mapping?: Json
+          frequency?: string
+          http_method?: string
+          id?: string
+          last_run_at?: string | null
+          name?: string
+          status?: string
+          target_type?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_integrations_base_company_id_fkey"
+            columns: ["base_company_id"]
+            isOneToOne: false
+            referencedRelation: "base_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_integrations_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           created_at: string
@@ -666,6 +807,84 @@ export type Database = {
       }
     }
     Views: {
+      api_integrations_public: {
+        Row: {
+          auth_header_name: string | null
+          base_company_id: string | null
+          body_template: Json | null
+          competitor_id: string | null
+          created_at: string | null
+          extra_headers: Json | null
+          field_mapping: Json | null
+          frequency: string | null
+          has_auth_header_value: boolean | null
+          http_method: string | null
+          id: string | null
+          last_run_at: string | null
+          name: string | null
+          status: string | null
+          target_type: string | null
+          updated_at: string | null
+          url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          auth_header_name?: string | null
+          base_company_id?: string | null
+          body_template?: Json | null
+          competitor_id?: string | null
+          created_at?: string | null
+          extra_headers?: Json | null
+          field_mapping?: Json | null
+          frequency?: string | null
+          has_auth_header_value?: never
+          http_method?: string | null
+          id?: string | null
+          last_run_at?: string | null
+          name?: string | null
+          status?: string | null
+          target_type?: string | null
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          auth_header_name?: string | null
+          base_company_id?: string | null
+          body_template?: Json | null
+          competitor_id?: string | null
+          created_at?: string | null
+          extra_headers?: Json | null
+          field_mapping?: Json | null
+          frequency?: string | null
+          has_auth_header_value?: never
+          http_method?: string | null
+          id?: string | null
+          last_run_at?: string | null
+          name?: string | null
+          status?: string | null
+          target_type?: string | null
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_integrations_base_company_id_fkey"
+            columns: ["base_company_id"]
+            isOneToOne: false
+            referencedRelation: "base_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_integrations_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       view_dashboard_summary: {
         Row: {
           running_extractions: number | null
