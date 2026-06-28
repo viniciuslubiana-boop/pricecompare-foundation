@@ -82,9 +82,10 @@ export interface TestConnectionResult {
   status: ApiLogStatus;
   http_status: number | null;
   message: string;
-  sample: unknown;
+  sample: string;
   vehicles_count: number;
 }
+
 
 export interface RunResult {
   status: ApiLogStatus;
