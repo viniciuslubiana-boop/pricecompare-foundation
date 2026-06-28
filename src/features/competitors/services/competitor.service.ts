@@ -34,6 +34,7 @@ async function assertNotReferenceStore(url: string): Promise<void> {
  */
 export const competitorService = {
   list: (filters: CompetitorFilters = {}) => competitorRepository.list(filters),
+  getById: (id: string) => competitorRepository.findById(id),
 
   create: async (values: CompetitorFormValues, userId: string) => {
     await assertNotReferenceStore(values.url);

@@ -24,6 +24,16 @@ class CompetitorRepository extends BaseRepository<"competitors"> {
     return (data ?? []) as Competitor[];
   }
 
+  async findById(id: string): Promise<Competitor | null> {
+    const { data, error } = await supabase
+      .from("competitors")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return (data as Competitor) ?? null;
+  }
+
   async findActiveByUrl(url: string, excludeId?: string): Promise<Competitor | null> {
     let q = supabase.from("competitors").select("*").eq("status", "active").eq("url", url).limit(1);
     if (excludeId) q = q.neq("id", excludeId);
