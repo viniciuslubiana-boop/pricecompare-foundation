@@ -57,11 +57,14 @@ export interface RunImportArgs {
   rows: RawRow[];
   mapping: ColumnMapping;
   userId: string;
+  baseCompanyId: string;
   duplicatesPolicy: "ignore" | "import";
   existing: Vehicle[];
 }
 
 export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
+  if (!args.baseCompanyId) throw new Error("Selecione uma Empresa Base antes de importar.");
+
   const preview = buildPreview(args.rows, args.mapping, args.existing);
   const errorLog: Array<{ index: number; errors: string[] }> = [];
   let imported = 0;
@@ -76,7 +79,6 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
       continue;
     }
     if (item.status === "duplicate" && args.duplicatesPolicy === "ignore") {
-      // Duplicidade é aviso, não erro — não vai para error_log.
       duplicateIgnored++;
       continue;
     }
@@ -92,7 +94,7 @@ export async function runImport(args: RunImportArgs): Promise<ImportRunResult> {
     }
 
     try {
-      await inventoryService.create(parsed.data, args.userId, args.fileType);
+      await inventoryService.create(parsed.data, args.userId, args.baseCompanyId, args.fileType);
       imported++;
     } catch (e) {
       insertError++;
