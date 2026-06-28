@@ -117,20 +117,20 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
 
     let vehicles: z.infer<typeof Vehicle>[] = [];
     try {
-      const { generateText, Output } = await import("ai");
+      const { generateObject } = await import("ai");
       const { createLovableAiGatewayProvider } = await import("@/lib/ai-gateway.server");
       const gateway = createLovableAiGatewayProvider(lovableKey);
       const model = gateway("google/gemini-3-flash-preview");
 
-      const { output } = await generateText({
+      const { object } = await generateObject({
         model,
-        output: Output.object({ schema: VehicleList }),
+        schema: VehicleList,
         system:
           "Você extrai anúncios de venda de veículos usados a partir de markdown de páginas de revenda/marketplace. Ignore menus, planos, banners, telefones e CEPs. Retorne SOMENTE veículos à venda com pelo menos marca, modelo e preço.",
         prompt: `Extraia os veículos à venda do conteúdo abaixo do concorrente "${data.competitorName}". Para cada veículo retorne: brand, model (com versão se houver), year_model (formato "AAAA" ou "AAAA/AAAA"), km (número em quilômetros, null se não houver), price (número em reais, null se não houver), source_url (URL do anúncio individual quando aparecer, senão null).\n\n--- CONTEÚDO ---\n${content}`,
       });
 
-      vehicles = output?.vehicles ?? [];
+      vehicles = object?.vehicles ?? [];
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       errorLog.push({ stage: "ai", message: msg, sample: markdown.slice(0, 300) });
