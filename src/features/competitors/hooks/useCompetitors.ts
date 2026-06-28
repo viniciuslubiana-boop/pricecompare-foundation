@@ -1,16 +1,34 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { competitorService } from "../services/competitor.service";
+import { importLogRepository } from "@/repositories/import.repository";
 import type { CompetitorFilters, CompetitorStatus } from "../types/competitor.types";
 import type { CompetitorFormValues } from "../schemas/competitor.schema";
 import { useAuth } from "@/hooks/useAuth";
 
 const KEY = ["competitors"] as const;
+const IMPORT_KEY = ["competitor-imports"] as const;
 
 export function useCompetitorsList(filters: CompetitorFilters) {
   return useQuery({
     queryKey: [...KEY, "list", filters],
     queryFn: () => competitorService.list(filters),
+  });
+}
+
+export function useCompetitor(id: string) {
+  return useQuery({
+    queryKey: [...KEY, "detail", id],
+    queryFn: () => competitorService.getById(id),
+    enabled: !!id,
+  });
+}
+
+export function useCompetitorImports(id: string) {
+  return useQuery({
+    queryKey: [...IMPORT_KEY, id],
+    queryFn: () => importLogRepository.listByCompetitor(id),
+    enabled: !!id,
   });
 }
 

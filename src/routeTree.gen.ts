@@ -32,6 +32,7 @@ import { Route as AuthenticatedCentralConsultaRouteImport } from './routes/_auth
 import { Route as AuthenticatedAlteracoesMercadoRouteImport } from './routes/_authenticated/alteracoes-mercado'
 import { Route as AuthenticatedAdministracaoRouteImport } from './routes/_authenticated/administracao'
 import { Route as AuthenticatedVeiculoIdRouteImport } from './routes/_authenticated/veiculo.$id'
+import { Route as AuthenticatedConcorrenteIdRouteImport } from './routes/_authenticated/concorrente.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -161,6 +162,12 @@ const AuthenticatedVeiculoIdRoute = AuthenticatedVeiculoIdRouteImport.update({
   path: '/veiculo/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConcorrenteIdRoute =
+  AuthenticatedConcorrenteIdRouteImport.update({
+    id: '/concorrente/$id',
+    path: '/concorrente/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
 export interface FileRoutesByTo {
@@ -208,6 +216,7 @@ export interface FileRoutesByTo {
   '/operacoes': typeof AuthenticatedOperacoesRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/': typeof AuthenticatedIndexRoute
+  '/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
 export interface FileRoutesById {
@@ -234,6 +243,7 @@ export interface FileRoutesById {
   '/_authenticated/operacoes': typeof AuthenticatedOperacoesRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/_authenticated/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
 export interface FileRouteTypes {
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/movimentacoes-mercado'
     | '/operacoes'
     | '/relatorios'
+    | '/concorrente/$id'
     | '/veiculo/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/operacoes'
     | '/relatorios'
     | '/'
+    | '/concorrente/$id'
     | '/veiculo/$id'
   id:
     | '__root__'
@@ -309,6 +321,7 @@ export interface FileRouteTypes {
     | '/_authenticated/operacoes'
     | '/_authenticated/relatorios'
     | '/_authenticated/'
+    | '/_authenticated/concorrente/$id'
     | '/_authenticated/veiculo/$id'
   fileRoutesById: FileRoutesById
 }
@@ -481,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVeiculoIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/concorrente/$id': {
+      id: '/_authenticated/concorrente/$id'
+      path: '/concorrente/$id'
+      fullPath: '/concorrente/$id'
+      preLoaderRoute: typeof AuthenticatedConcorrenteIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -504,6 +524,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOperacoesRoute: typeof AuthenticatedOperacoesRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedConcorrenteIdRoute: typeof AuthenticatedConcorrenteIdRoute
   AuthenticatedVeiculoIdRoute: typeof AuthenticatedVeiculoIdRoute
 }
 
@@ -529,6 +550,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOperacoesRoute: AuthenticatedOperacoesRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedConcorrenteIdRoute: AuthenticatedConcorrenteIdRoute,
   AuthenticatedVeiculoIdRoute: AuthenticatedVeiculoIdRoute,
 }
 
