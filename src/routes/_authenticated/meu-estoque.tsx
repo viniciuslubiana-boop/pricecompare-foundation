@@ -121,26 +121,55 @@ function MeuEstoquePage() {
         }
       />
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <SearchInput
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por marca ou modelo..."
+      {!loadingCompanies && !hasAny ? (
+        <EmptyState
+          icon={Building2}
+          title="Cadastre uma Empresa Base para começar."
+          description="Vá em Configurações → Empresas Base para cadastrar sua loja. Você pode ter até duas Empresas Base ativas."
+          action={
+            <Button asChild>
+              <Link to="/configuracoes">
+                <Building2 className="h-4 w-4" /> Ir para Configurações
+              </Link>
+            </Button>
+          }
         />
-        <Select value={brand} onValueChange={setBrand}>
-          <SelectTrigger className="w-full sm:w-56">
-            <SelectValue placeholder="Filtrar por marca" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>Todas as marcas</SelectItem>
-            {(brandsQ.data ?? []).map((b) => (
-              <SelectItem key={b} value={b}>
-                {b}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      ) : (
+        <>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <BaseCompanySelector />
+            </div>
+            {selectedCompany && (
+              <span className="text-sm text-muted-foreground">
+                Estoque de <strong>{selectedCompany.name}</strong>
+              </span>
+            )}
+          </div>
+
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por marca ou modelo..."
+            />
+            <Select value={brand} onValueChange={setBrand}>
+              <SelectTrigger className="w-full sm:w-56">
+                <SelectValue placeholder="Filtrar por marca" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>Todas as marcas</SelectItem>
+                {(brandsQ.data ?? []).map((b) => (
+                  <SelectItem key={b} value={b}>
+                    {b}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
 
       {vehiclesQ.isError ? (
         <ErrorState
