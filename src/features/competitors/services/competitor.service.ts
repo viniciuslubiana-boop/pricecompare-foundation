@@ -55,6 +55,7 @@ export const competitorService = {
   },
 
   update: async (id: string, values: CompetitorFormValues) => {
+    await assertNotReferenceStore(values.url);
     if (values.status === "active") {
       const dup = await competitorRepository.findActiveByUrl(values.url, id);
       if (dup) {
