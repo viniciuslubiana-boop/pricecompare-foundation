@@ -64,7 +64,7 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
     const lovableKey = process.env.LOVABLE_API_KEY;
     if (!firecrawlKey) throw new Error("FIRECRAWL_API_KEY ausente no servidor. Configure o conector Firecrawl.");
     if (!lovableKey) throw new Error("LOVABLE_API_KEY ausente no servidor.");
-    void startedAt;
+    
 
     const errorLog: Array<{ stage: string; message: string; sample?: string }> = [];
     let markdown = "";
