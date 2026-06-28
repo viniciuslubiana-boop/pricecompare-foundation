@@ -254,12 +254,13 @@ function MeuEstoquePage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         vehicle={editing}
+        defaultBaseCompanyId={selectedId}
         submitting={createMut.isPending || updateMut.isPending}
-        onSubmit={async (values) => {
+        onSubmit={async (values, baseCompanyId) => {
           if (editing) {
-            await updateMut.mutateAsync({ id: editing.id, values });
+            await updateMut.mutateAsync({ id: editing.id, values, baseCompanyId });
           } else {
-            await createMut.mutateAsync(values);
+            await createMut.mutateAsync({ values, baseCompanyId });
           }
           setFormOpen(false);
         }}
