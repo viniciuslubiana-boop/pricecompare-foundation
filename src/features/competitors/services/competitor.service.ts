@@ -1,4 +1,6 @@
 import { competitorRepository } from "@/repositories/competitor.repository";
+import { settingsService } from "@/features/settings/services/settings.service";
+import { sameSite } from "@/features/settings/utils/url";
 import type {
   CompetitorFilters,
   CompetitorInsert,
@@ -6,6 +8,24 @@ import type {
   CompetitorUpdate,
 } from "../types/competitor.types";
 import type { CompetitorFormValues } from "../schemas/competitor.schema";
+
+/**
+ * Bloqueia cadastrar a Loja de Referência como concorrente.
+ * Carrega settings sob demanda para não acoplar o engine.
+ */
+async function assertNotReferenceStore(url: string): Promise<void> {
+  try {
+    const bundle = await settingsService.loadAll();
+    const ref = bundle.referenceStore;
+    if (ref?.active && ref.website && sameSite(ref.website, url)) {
+      throw new Error("Esta empresa já está configurada como Loja de Referência.");
+    }
+  } catch (err) {
+    // só re-lança se for a mensagem do bloqueio
+    if (err instanceof Error && err.message.includes("Loja de Referência")) throw err;
+  }
+}
+
 
 /**
  * Competitor Service — ponto único de entrada para qualquer operação
