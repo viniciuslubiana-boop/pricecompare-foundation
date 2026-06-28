@@ -60,10 +60,11 @@ export const globalSearchService = {
       throw new Error("Informe ao menos Marca e Modelo para realizar a consulta.");
     }
 
-    const [inventory, competitors, marketPool] = await Promise.all([
+    const [inventory, competitors, marketPool, baseCompanies] = await Promise.all([
       vehicleRepository.list({}),
       competitorRepository.list({}),
       comparisonDataRepository.listMarketPool(),
+      baseCompaniesService.list().catch(() => []),
     ]);
 
     const bBrand = norm(brand);
@@ -71,15 +72,36 @@ export const globalSearchService = {
     const versionTerm = norm(query.version);
     const yearTerm = query.year ? yearOf(query.year) : null;
 
-    // 1) Tenta localizar um veículo do estoque (heurística reuso: brand + model-root + ano)
-    const myVehicle =
-      inventory.find((v) => {
-        if (norm(v.brand) !== bBrand) return false;
-        if (firstToken(v.model) !== bModelRoot) return false;
-        if (yearTerm && yearOf(v.year_model) !== yearTerm) return false;
-        if (versionTerm && !norm(v.model).includes(versionTerm)) return false;
-        return true;
-      }) ?? null;
+    // 1) Localiza TODOS os veículos do estoque que casam com a busca.
+    const matches = inventory.filter((v) => {
+      if (norm(v.brand) !== bBrand) return false;
+      if (firstToken(v.model) !== bModelRoot) return false;
+      if (yearTerm && yearOf(v.year_model) !== yearTerm) return false;
+      if (versionTerm && !norm(v.model).includes(versionTerm)) return false;
+      return true;
+    });
+    const myVehicle = matches[0] ?? null;
+
+    // 1.1) Agrupa por Empresa Base.
+    const companyNameById = new Map<string, string>();
+    baseCompanies.forEach((bc) => companyNameById.set(bc.id, bc.name));
+    const groupsMap = new Map<string, GlobalSearchCompanyGroup>();
+    for (const v of matches) {
+      const cid = v.base_company_id ?? null;
+      const key = cid ?? "__none__";
+      if (!groupsMap.has(key)) {
+        groupsMap.set(key, {
+          baseCompanyId: cid,
+          baseCompanyName: cid ? (companyNameById.get(cid) ?? "Empresa Base") : "Sem Empresa Base",
+          vehicles: [],
+        });
+      }
+      groupsMap.get(key)!.vehicles.push(v);
+    }
+    const myVehiclesByCompany = Array.from(groupsMap.values()).sort((a, b) =>
+      a.baseCompanyName.localeCompare(b.baseCompanyName, "pt-BR"),
+    );
+
 
     // 2) Sintetiza um "alvo" para reusar o Comparison Engine sem duplicar lógica.
     //    Quando há veículo do estoque, usamos ele (preço, ano reais).
