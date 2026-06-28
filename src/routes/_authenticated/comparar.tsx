@@ -87,6 +87,26 @@ function CompararPage() {
       <Card>
         <CardContent className="grid gap-4 p-4 md:grid-cols-2">
           <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" /> Empresa Base *
+            </Label>
+            <Select value={baseCompanyId} onValueChange={setBaseCompanyId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a Empresa Base" />
+              </SelectTrigger>
+              <SelectContent>
+                {activeCompanies.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              A comparação considera apenas o estoque desta empresa.
+            </p>
+          </div>
+          <div className="space-y-2">
             <Label>Concorrente</Label>
             <Select value={competitorId} onValueChange={setCompetitorId}>
               <SelectTrigger>
