@@ -49,6 +49,8 @@ import { useRunImport } from "../hooks/useImports";
 import { useInventoryList } from "@/features/inventory/hooks/useInventory";
 import { useAuth } from "@/hooks/useAuth";
 import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+import { useSelectedBaseCompany } from "@/features/base-companies/context/SelectedBaseCompanyContext";
 
 interface Props {
   open: boolean;
@@ -62,7 +64,10 @@ const REQUIRED: SystemField[] = ["brand", "model", "year_model", "km", "price"];
 
 export function ImportWizard({ open, onOpenChange }: Props) {
   const { user } = useAuth();
-  const inventoryQ = useInventoryList({});
+  const { data: activeCompanies = [] } = useActiveBaseCompanies();
+  const { selectedId } = useSelectedBaseCompany();
+  const [baseCompanyId, setBaseCompanyId] = useState<string>("");
+  const inventoryQ = useInventoryList({ baseCompanyId: baseCompanyId || null });
   const runMut = useRunImport();
 
   const [step, setStep] = useState<Step>("upload");
@@ -80,8 +85,11 @@ export function ImportWizard({ open, onOpenChange }: Props) {
       setParsed(null);
       setMapping({});
       setDupPolicy("import");
+    } else {
+      // pré-seleciona a empresa atual do contexto se houver
+      setBaseCompanyId((prev) => prev || selectedId || activeCompanies[0]?.id || "");
     }
-  }, [open]);
+  }, [open, selectedId, activeCompanies]);
 
   const handleFile = async (f: File) => {
     setFile(f);
