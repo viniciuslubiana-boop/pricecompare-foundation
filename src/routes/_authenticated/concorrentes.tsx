@@ -161,6 +161,7 @@ function ConcorrentesPage() {
               })
             }
             onDelete={(c) => setToDelete(c)}
+            onImport={(c) => setImportTarget(c)}
             selected={selected}
             onToggleOne={toggleOne}
             onToggleAll={toggleAll}
