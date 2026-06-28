@@ -20,6 +20,16 @@ class ImportLogRepository {
     return data;
   }
 
+  async listByCompetitor(competitorId: string): Promise<Row[]> {
+    const { data, error } = await supabase
+      .from("import_logs")
+      .select("*")
+      .eq("competitor_id", competitorId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+  }
+
   async remove(id: string) {
     const { error, count } = await supabase
       .from("import_logs")
