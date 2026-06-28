@@ -9,6 +9,10 @@ import {
   testApiIntegration,
   updateApiIntegration,
 } from "../services/api-integrations.functions";
+import type { ApiIntegrationInput } from "../types";
+
+type UpdatePayload = ApiIntegrationInput & { id: string };
+
 
 const KEY = ["api-integrations"] as const;
 const LOGS_KEY = ["api-integration-logs"] as const;
@@ -33,7 +37,7 @@ export function useApiIntegrationMutations() {
   const runFn = useServerFn(runApiIntegration);
 
   const create = useMutation({
-    mutationFn: (data: Parameters<typeof createFn>[0]["data"]) => createFn({ data }),
+    mutationFn: (data: ApiIntegrationInput) => createFn({ data }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY });
       toast.success("Integração cadastrada.");
@@ -42,13 +46,14 @@ export function useApiIntegrationMutations() {
   });
 
   const update = useMutation({
-    mutationFn: (data: Parameters<typeof updateFn>[0]["data"]) => updateFn({ data }),
+    mutationFn: (data: UpdatePayload) => updateFn({ data }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY });
       toast.success("Integração atualizada.");
     },
     onError: (e: Error) => toast.error("Erro ao atualizar", { description: e.message }),
   });
+
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteFn({ data: { id } }),
