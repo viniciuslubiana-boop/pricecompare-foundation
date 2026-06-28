@@ -61,6 +61,7 @@ export interface AppSettingsBundle {
   market: MarketSettings;
   imports: ImportSettings;
   reports: ReportSettings;
+  referenceStore: ReferenceStoreSettings;
 }
 
 export const SETTINGS_KEYS = {
@@ -69,6 +70,7 @@ export const SETTINGS_KEYS = {
   market: "market",
   imports: "imports",
   reports: "reports",
+  referenceStore: "referenceStore",
 } as const;
 
 export type SettingsKey = keyof typeof SETTINGS_KEYS;
@@ -106,4 +108,16 @@ export const DEFAULT_SETTINGS: AppSettingsBundle = {
     showPriceHistory: true,
     showListingLinks: true,
   },
+  referenceStore: {
+    name: "",
+    city: "",
+    state: "",
+    website: "",
+    logoUrl: "",
+    mainStock: "",
+    active: false,
+    updatedAt: null,
+    updatedBy: null,
+  },
 };
+
