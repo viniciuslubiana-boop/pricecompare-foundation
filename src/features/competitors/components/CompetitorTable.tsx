@@ -55,7 +55,7 @@ export function CompetitorTable({
             <TableHead>URL</TableHead>
             <TableHead className="w-[110px]">Status</TableHead>
             <TableHead className="w-[170px]">Última atualização</TableHead>
-            <TableHead className="w-[140px] text-right">Ações</TableHead>
+            <TableHead className="w-[180px] text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
