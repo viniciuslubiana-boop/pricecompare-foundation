@@ -56,7 +56,7 @@ async function scrapeWithRetry(url: string, apiKey: string) {
 
 export const runCompetitorExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
     const startedAt = new Date();
     const firecrawlKey = process.env.FIRECRAWL_API_KEY;
