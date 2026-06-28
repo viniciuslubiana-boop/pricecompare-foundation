@@ -394,3 +394,118 @@ function ReportsSection({ value }: { value: AppSettingsBundle["reports"] }) {
     </SectionCard>
   );
 }
+
+function ReferenceStoreSection({ value }: { value: AppSettingsBundle["referenceStore"] }) {
+  const { isAdmin, user } = useAuth();
+  const save = useSaveSettingsSection("referenceStore");
+  const [v, setV] = useState(value);
+  useEffect(() => setV(value), [value]);
+
+  const readOnly = !isAdmin;
+
+  const handleSave = () => {
+    save.mutate({
+      ...v,
+      // Garante singleton: ao salvar como ativo, esta passa a ser A loja de referência.
+      active: true,
+      updatedAt: new Date().toISOString(),
+      updatedBy: user?.id ?? null,
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Store className="h-5 w-5" /> Loja de Referência
+        </CardTitle>
+        <CardDescription>
+          Empresa base de TODAS as comparações do PCM. Apenas administradores podem alterar.
+          Todo estoque importado é vinculado automaticamente a esta loja.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Nome da empresa</Label>
+            <Input
+              value={v.name}
+              disabled={readOnly}
+              onChange={(e) => setV({ ...v, name: e.target.value })}
+              placeholder="Ex.: Uninova Veículos"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Site</Label>
+            <Input
+              value={v.website}
+              disabled={readOnly}
+              onChange={(e) => setV({ ...v, website: e.target.value })}
+              placeholder="https://uninova.com.br"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Cidade</Label>
+            <Input
+              value={v.city}
+              disabled={readOnly}
+              onChange={(e) => setV({ ...v, city: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Estado</Label>
+            <Input
+              value={v.state}
+              disabled={readOnly}
+              onChange={(e) => setV({ ...v, state: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Logotipo (URL)</Label>
+            <Input
+              value={v.logoUrl}
+              disabled={readOnly}
+              onChange={(e) => setV({ ...v, logoUrl: e.target.value })}
+              placeholder="https://..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Estoque principal</Label>
+            <Input
+              value={v.mainStock}
+              disabled={readOnly}
+              onChange={(e) => setV({ ...v, mainStock: e.target.value })}
+              placeholder="Ex.: Matriz / Filial 1"
+            />
+          </div>
+        </div>
+
+        {v.active && v.name && (
+          <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm">
+            <strong>{v.name}</strong> está ativa como Loja de Referência.
+            {v.updatedAt && (
+              <span className="text-muted-foreground">
+                {" "}· Atualizada em {new Date(v.updatedAt).toLocaleString("pt-BR")}
+              </span>
+            )}
+          </div>
+        )}
+
+        {readOnly ? (
+          <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
+            Somente administradores podem alterar a Loja de Referência. Você pode visualizar as informações.
+          </div>
+        ) : (
+          <>
+            <Separator />
+            <div className="flex justify-end">
+              <Button onClick={handleSave} disabled={save.isPending || !v.name.trim()}>
+                {save.isPending ? "Salvando..." : "Definir como Loja de Referência"}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
