@@ -2,11 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Comparison, Competitor, CompetitorVehicle, MyVehicle } from "@/types/database.types";
 
 class AnalyticsRepository {
-  async listMyVehicles(): Promise<MyVehicle[]> {
-    const { data, error } = await supabase
-      .from("my_vehicles")
-      .select("*")
-      .order("created_at", { ascending: false });
+  async listMyVehicles(baseCompanyId?: string | null): Promise<MyVehicle[]> {
+    let q = supabase.from("my_vehicles").select("*").order("created_at", { ascending: false });
+    if (baseCompanyId) q = q.eq("base_company_id", baseCompanyId);
+    const { data, error } = await q;
     if (error) throw error;
     return (data ?? []) as MyVehicle[];
   }
