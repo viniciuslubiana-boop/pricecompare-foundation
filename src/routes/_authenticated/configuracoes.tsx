@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Loader2, Store } from "lucide-react";
+import { Building2, Loader2, Plug, Store } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { BaseCompaniesSection } from "@/features/base-companies/components/BaseCompaniesSection";
+import { ApiIntegrationsSection } from "@/features/api-integrations/components/ApiIntegrationsSection";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -69,8 +70,12 @@ function SettingsPage() {
             <TabsTrigger value="comparison">Comparação</TabsTrigger>
             <TabsTrigger value="market">Mercado</TabsTrigger>
             <TabsTrigger value="imports">Importação</TabsTrigger>
+            <TabsTrigger value="api">
+              <Plug className="h-4 w-4 mr-1.5" /> Integração por API
+            </TabsTrigger>
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="base-companies">
             <BaseCompaniesSection />
@@ -90,9 +95,13 @@ function SettingsPage() {
           <TabsContent value="imports">
             <ImportsSection value={bundle.imports} />
           </TabsContent>
+          <TabsContent value="api">
+            <ApiIntegrationsSection />
+          </TabsContent>
           <TabsContent value="reports">
             <ReportsSection value={bundle.reports} />
           </TabsContent>
+
         </Tabs>
       )}
     </div>
