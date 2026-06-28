@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
-import { useCompetitors } from "@/features/competitors/hooks/useCompetitors";
+import { useCompetitorsList } from "@/features/competitors/hooks/useCompetitors";
 import {
   useApiIntegrationLogs,
   useApiIntegrationMutations,
@@ -217,7 +217,7 @@ function ApiIntegrationForm({
 }) {
   const { create, update } = useApiIntegrationMutations();
   const { data: companies } = useBaseCompanies();
-  const { data: competitors } = useCompetitors();
+  const { data: competitors } = useCompetitorsList({});
 
   const [form, setForm] = useState<ApiIntegrationInput>(EMPTY_INPUT);
   const [extraHeadersText, setExtraHeadersText] = useState("");
