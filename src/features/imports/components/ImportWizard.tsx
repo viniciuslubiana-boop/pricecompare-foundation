@@ -120,12 +120,17 @@ export function ImportWizard({ open, onOpenChange }: Props) {
 
   const handleConfirm = async () => {
     if (!parsed || !file || !user) return;
+    if (!baseCompanyId) {
+      toast.error("Selecione uma Empresa Base antes de importar.");
+      return;
+    }
     const result = await runMut.mutateAsync({
       fileName: file.name,
       fileType: parsed.fileType,
       rows: parsed.rows,
       mapping,
       userId: user.id,
+      baseCompanyId,
       duplicatesPolicy: dupPolicy,
       existing: inventoryQ.data ?? [],
     });
