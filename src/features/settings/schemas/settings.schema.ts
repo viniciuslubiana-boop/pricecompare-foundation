@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+export const referenceStoreSchema = z.object({
+  name: z.string().trim().min(2, "Informe o nome da empresa").max(120),
+  city: z.string().trim().max(80).default(""),
+  state: z.string().trim().max(40).default(""),
+  website: z.string().trim().max(255).default(""),
+  logoUrl: z.string().trim().max(500).default(""),
+  mainStock: z.string().trim().max(120).default(""),
+  active: z.boolean().default(true),
+  updatedAt: z.string().nullable().default(null),
+  updatedBy: z.string().nullable().default(null),
+});
+
+export type ReferenceStoreFormValues = z.infer<typeof referenceStoreSchema>;
+
 export const generalSchema = z.object({
   companyName: z.string().trim().max(120).default(""),
   city: z.string().trim().max(80).default(""),
