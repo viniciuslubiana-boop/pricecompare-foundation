@@ -18,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { CompetitorForm } from "@/features/competitors/components/CompetitorForm";
 import { CompetitorTable } from "@/features/competitors/components/CompetitorTable";
+import { ImportWizard } from "@/features/imports/components/ImportWizard";
 import {
   useCompetitorsList,
   useCreateCompetitor,
