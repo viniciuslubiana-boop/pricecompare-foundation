@@ -113,6 +113,45 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
       return { savedCount: 0, status: "failed" as const, error: "Markdown vazio." };
     }
 
+    // === Validação heurística: o markdown realmente contém anúncios? ===
+    const signals = {
+      priceBRL: (markdown.match(/R\$\s?\d{1,3}(?:[.\s]\d{3})+(?:,\d{2})?/g) ?? []).length,
+      km: (markdown.match(/\b\d{1,3}(?:[.\s]?\d{3})*\s?km\b/gi) ?? []).length,
+      yearModel: (markdown.match(/\b(?:19|20)\d{2}\s?\/\s?(?:19|20)\d{2}\b/g) ?? []).length,
+      brandHits: (markdown.match(
+        /\b(fiat|volkswagen|vw|chevrolet|gm|ford|toyota|honda|hyundai|renault|peugeot|citro[eë]n|jeep|nissan|mitsubishi|kia|bmw|mercedes|audi|volvo|land\s?rover|jaguar|porsche|ram|dodge|chery|caoa|byd|gwm)\b/gi,
+      ) ?? []).length,
+    };
+    const score =
+      signals.priceBRL * 3 + signals.km * 2 + signals.yearModel * 2 + signals.brandHits;
+    // Exige pelo menos 1 preço E (km ou ano ou marca), com score mínimo 6
+    const looksLikeListing = signals.priceBRL >= 1 && score >= 6;
+
+    if (!looksLikeListing) {
+      errorLog.push({
+        stage: "validation",
+        message: `Markdown não contém anúncios reconhecíveis (preço=${signals.priceBRL}, km=${signals.km}, ano=${signals.yearModel}, marcas=${signals.brandHits}, score=${score}). Possíveis causas: página de login, captcha, SPA não renderizada, lista vazia ou URL incorreta.`,
+        sample: markdown.slice(0, 500),
+      });
+      await context.supabase.from("extraction_logs").insert({
+        competitor_id: data.competitorId,
+        url: data.url,
+        status: "failed",
+        started_by: context.userId,
+        finished_at: new Date().toISOString(),
+        vehicles_found: 0,
+        pages_processed: attempts,
+        total_pages: 1,
+        checkpoint_page: 0,
+        error_log: errorLog,
+      });
+      return {
+        savedCount: 0,
+        status: "failed" as const,
+        error: "Nenhum anúncio reconhecível no conteúdo retornado pelo scrape.",
+      };
+    }
+
     // Trunca para caber confortavelmente no contexto do modelo
     const TRUNC = 60_000;
     const content = markdown.length > TRUNC ? markdown.slice(0, TRUNC) : markdown;
