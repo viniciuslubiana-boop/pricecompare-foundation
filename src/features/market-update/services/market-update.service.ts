@@ -10,7 +10,7 @@
  * Nenhuma regra de cálculo vive aqui. Apenas orquestração.
  */
 import { competitorRepository } from "@/repositories/competitor.repository";
-import { extractionService } from "@/features/extraction/services/extraction.service";
+import { runCompetitorExtraction } from "@/features/extraction/services/extraction.functions";
 import { comparisonService } from "@/features/comparison/services/comparison.service";
 import { detectChanges } from "@/features/comparison/calculators/change-detection";
 import { marketUpdateRepository } from "../repositories/market-update.repository";
