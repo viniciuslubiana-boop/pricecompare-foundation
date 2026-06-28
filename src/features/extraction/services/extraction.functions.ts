@@ -56,13 +56,15 @@ async function scrapeWithRetry(url: string, apiKey: string) {
 
 export const runCompetitorExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
+    try {
     const startedAt = new Date();
     const firecrawlKey = process.env.FIRECRAWL_API_KEY;
     const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!firecrawlKey) throw new Error("FIRECRAWL_API_KEY ausente no servidor.");
+    if (!firecrawlKey) throw new Error("FIRECRAWL_API_KEY ausente no servidor. Configure o conector Firecrawl.");
     if (!lovableKey) throw new Error("LOVABLE_API_KEY ausente no servidor.");
+    
 
     const errorLog: Array<{ stage: string; message: string; sample?: string }> = [];
     let markdown = "";
@@ -117,20 +119,20 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
 
     let vehicles: z.infer<typeof Vehicle>[] = [];
     try {
-      const { generateText, Output } = await import("ai");
+      const { generateObject } = await import("ai");
       const { createLovableAiGatewayProvider } = await import("@/lib/ai-gateway.server");
       const gateway = createLovableAiGatewayProvider(lovableKey);
       const model = gateway("google/gemini-3-flash-preview");
 
-      const { output } = await generateText({
+      const { object } = await generateObject({
         model,
-        output: Output.object({ schema: VehicleList }),
+        schema: VehicleList,
         system:
           "Você extrai anúncios de venda de veículos usados a partir de markdown de páginas de revenda/marketplace. Ignore menus, planos, banners, telefones e CEPs. Retorne SOMENTE veículos à venda com pelo menos marca, modelo e preço.",
         prompt: `Extraia os veículos à venda do conteúdo abaixo do concorrente "${data.competitorName}". Para cada veículo retorne: brand, model (com versão se houver), year_model (formato "AAAA" ou "AAAA/AAAA"), km (número em quilômetros, null se não houver), price (número em reais, null se não houver), source_url (URL do anúncio individual quando aparecer, senão null).\n\n--- CONTEÚDO ---\n${content}`,
       });
 
-      vehicles = output?.vehicles ?? [];
+      vehicles = object?.vehicles ?? [];
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       errorLog.push({ stage: "ai", message: msg, sample: markdown.slice(0, 300) });
@@ -198,7 +200,6 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
       });
     }
 
-    void startedAt;
     await context.supabase.from("extraction_logs").insert({
       competitor_id: data.competitorId,
       url: data.url,
@@ -213,4 +214,25 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
     });
 
     return { savedCount, status, vehiclesReturned: vehicles.length };
+    } catch (fatal) {
+      const msg = fatal instanceof Error ? fatal.message : String(fatal);
+      console.error("[runCompetitorExtraction] fatal", fatal);
+      try {
+        await context.supabase.from("extraction_logs").insert({
+          competitor_id: data.competitorId,
+          url: data.url,
+          status: "failed",
+          started_by: context.userId,
+          finished_at: new Date().toISOString(),
+          vehicles_found: 0,
+          pages_processed: 0,
+          total_pages: 1,
+          checkpoint_page: 0,
+          error_log: [{ stage: "fatal", message: msg }],
+        });
+      } catch {
+        /* ignore */
+      }
+      return { savedCount: 0, status: "failed" as const, error: msg };
+    }
   });
