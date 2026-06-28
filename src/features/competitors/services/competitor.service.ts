@@ -36,6 +36,7 @@ export const competitorService = {
   list: (filters: CompetitorFilters = {}) => competitorRepository.list(filters),
 
   create: async (values: CompetitorFormValues, userId: string) => {
+    await assertNotReferenceStore(values.url);
     // impede dois concorrentes ATIVOS com a mesma URL
     if (values.status === "active") {
       const dup = await competitorRepository.findActiveByUrl(values.url);
