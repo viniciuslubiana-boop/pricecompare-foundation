@@ -174,45 +174,75 @@ function GlobalMarketSearchPage() {
 
       {submitted && data && (
         <>
-          {/* MEU VEÍCULO */}
-          {data.myVehicle ? (
-            <Card>
-              <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <Package className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium uppercase text-muted-foreground">
-                      Meu Veículo · {data.myVehicle.brand}
+          {/* MEU ESTOQUE — agrupado por Empresa Base */}
+          {data.myVehiclesByCompany.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex items-baseline justify-between">
+                <h3 className="text-sm font-semibold uppercase text-muted-foreground">
+                  Meu Estoque por Empresa Base
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  {data.myVehiclesByCompany.reduce((acc, g) => acc + g.vehicles.length, 0)} veículo(s)
+                  em {data.myVehiclesByCompany.length} empresa(s)
+                </span>
+              </div>
+              {data.myVehiclesByCompany.map((group) => (
+                <Card key={group.baseCompanyId ?? "__none__"}>
+                  <CardContent className="space-y-3 p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-semibold">
+                          {group.baseCompanyName}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {group.vehicles.length} veículo(s)
+                        </span>
+                      </div>
                     </div>
-                    <h2 className="text-xl font-semibold leading-tight">
-                      {data.myVehicle.model}
-                    </h2>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                      <Badge variant="secondary">{data.myVehicle.year_model}</Badge>
-                      <span>•</span>
-                      <span>{formatKm(data.myVehicle.km)}</span>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {group.vehicles.map((v) => (
+                        <div
+                          key={v.id}
+                          className="flex items-center justify-between rounded-lg border p-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-muted">
+                              <Package className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <div className="text-xs uppercase text-muted-foreground">
+                                {v.brand}
+                              </div>
+                              <div className="text-sm font-semibold leading-tight">
+                                {v.model}
+                              </div>
+                              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                                <Badge variant="secondary">{v.year_model}</Badge>
+                                <span>•</span>
+                                <span>{formatKm(v.km)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="text-xs uppercase text-muted-foreground">Preço</div>
+                            <div className="text-lg font-bold tabular-nums">
+                              {v.price != null
+                                ? formatBRL(v.price as unknown as number)
+                                : "—"}
+                            </div>
+                            <Button asChild size="sm" variant="outline">
+                              <Link to="/veiculo/$id" params={{ id: v.id }}>
+                                Visão 360°
+                              </Link>
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div>
-                    <div className="text-xs uppercase text-muted-foreground">Meu preço</div>
-                    <div className="text-2xl font-bold tabular-nums">
-                      {data.myVehicle.price != null
-                        ? formatBRL(data.myVehicle.price as unknown as number)
-                        : "—"}
-                    </div>
-                  </div>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/veiculo/$id" params={{ id: data.myVehicle.id }}>
-                      Abrir Visão 360°
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : (
             <Card>
               <CardContent className="p-4 text-sm text-muted-foreground">
@@ -221,6 +251,7 @@ function GlobalMarketSearchPage() {
               </CardContent>
             </Card>
           )}
+
 
           {/* ESTATÍSTICAS */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
