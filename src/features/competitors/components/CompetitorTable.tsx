@@ -6,9 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Power, PowerOff, Trash2, ExternalLink, Upload } from "lucide-react";
+import { Pencil, Power, PowerOff, Trash2, ExternalLink, Upload, Eye } from "lucide-react";
 import { CompetitorStatusBadge } from "./CompetitorStatusBadge";
 import type { Competitor, CompetitorStatus } from "../types/competitor.types";
 
@@ -99,6 +100,11 @@ export function CompetitorTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    <Button size="icon" variant="ghost" asChild>
+                      <Link to="/concorrente/$id" params={{ id: c.id }} aria-label="Ver detalhes">
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </Button>
                     {onImport && (
                       <Button
                         size="icon"
