@@ -1,5 +1,18 @@
 export type ThemePref = "light" | "dark" | "system";
 
+export interface ReferenceStoreSettings {
+  /** Loja de Referência ativa — empresa base de todas as comparações do PCM. */
+  name: string;
+  city: string;
+  state: string;
+  website: string;
+  logoUrl: string;
+  mainStock: string;
+  active: boolean;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
 export interface GeneralSettings {
   companyName: string;
   city: string;
