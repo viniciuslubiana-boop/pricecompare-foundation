@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Power, PowerOff, Trash2, ExternalLink } from "lucide-react";
+import { Pencil, Power, PowerOff, Trash2, ExternalLink, Upload } from "lucide-react";
 import { CompetitorStatusBadge } from "./CompetitorStatusBadge";
 import type { Competitor, CompetitorStatus } from "../types/competitor.types";
 
@@ -17,6 +17,7 @@ interface Props {
   onEdit: (c: Competitor) => void;
   onToggleStatus: (c: Competitor) => void;
   onDelete: (c: Competitor) => void;
+  onImport?: (c: Competitor) => void;
   selected?: Set<string>;
   onToggleOne?: (id: string) => void;
   onToggleAll?: () => void;
