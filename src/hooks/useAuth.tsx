@@ -100,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       isAdmin: roles.includes("admin"),
       isGerente: roles.includes("gerente"),
+      isInactive: status === "inactive",
       async signIn(email, password) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
