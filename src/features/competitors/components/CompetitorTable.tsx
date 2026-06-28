@@ -99,6 +99,17 @@ export function CompetitorTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    {onImport && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => onImport(c)}
+                        aria-label="Importar estoque"
+                        title="Importar estoque"
+                      >
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       size="icon"
                       variant="ghost"
