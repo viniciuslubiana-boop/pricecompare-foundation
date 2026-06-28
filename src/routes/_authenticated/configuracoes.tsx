@@ -95,9 +95,13 @@ function SettingsPage() {
           <TabsContent value="imports">
             <ImportsSection value={bundle.imports} />
           </TabsContent>
+          <TabsContent value="api">
+            <ApiIntegrationsSection />
+          </TabsContent>
           <TabsContent value="reports">
             <ReportsSection value={bundle.reports} />
           </TabsContent>
+
         </Tabs>
       )}
     </div>
