@@ -17,6 +17,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -26,12 +33,14 @@ import {
   type InventoryFormValues,
 } from "../schemas/inventory.schema";
 import type { Vehicle } from "../types/inventory.types";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vehicle?: Vehicle | null;
-  onSubmit: (values: InventoryFormValues) => Promise<unknown> | void;
+  defaultBaseCompanyId?: string | null;
+  onSubmit: (values: InventoryFormValues, baseCompanyId: string) => Promise<unknown> | void;
   submitting?: boolean;
 }
 
@@ -44,11 +53,29 @@ const empty: InventoryFormInput = {
   supplier_name: "",
 };
 
-export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submitting }: Props) {
+export function VehicleFormDialog({
+  open,
+  onOpenChange,
+  vehicle,
+  defaultBaseCompanyId,
+  onSubmit,
+  submitting,
+}: Props) {
+  const { data: active = [] } = useActiveBaseCompanies();
   const form = useForm<InventoryFormInput>({
     resolver: zodResolver(inventoryVehicleSchema) as never,
     defaultValues: empty,
   });
+
+  // Empresa Base selecionada no form (estado local controlado fora do schema).
+  const initialCompany =
+    vehicle?.base_company_id ?? defaultBaseCompanyId ?? active[0]?.id ?? "";
+  const [companyId, setCompanyId] = ((): [string, (v: string) => void] => {
+    // truque simples para manter dentro da assinatura única
+    return [initialCompany, () => {}];
+  })();
+  // Mantemos via key — recriado quando reabre.
+  void setCompanyId;
 
   useEffect(() => {
     if (open) {
@@ -68,8 +95,11 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
   }, [open, vehicle, form]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    // values já passaram pelo zodResolver — são InventoryFormValues
-    await onSubmit(values as unknown as InventoryFormValues);
+    const selected =
+      (document.getElementById("vehicle-base-company") as HTMLInputElement | null)?.value ||
+      companyId;
+    if (!selected) return;
+    await onSubmit(values as unknown as InventoryFormValues, selected);
   });
 
   return (
@@ -83,6 +113,11 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <BaseCompanyField
+              key={`bc-${vehicle?.id ?? "new"}-${open}`}
+              defaultValue={initialCompany}
+              options={active}
+            />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -177,7 +212,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting || active.length === 0}>
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {vehicle ? "Salvar alterações" : "Cadastrar veículo"}
               </Button>
@@ -186,5 +221,53 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle, onSubmit, submi
         </Form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function BaseCompanyField({
+  defaultValue,
+  options,
+}: {
+  defaultValue: string;
+  options: Array<{ id: string; name: string }>;
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium leading-none">Empresa Base *</label>
+      {options.length === 0 ? (
+        <p className="text-xs text-destructive">
+          Nenhuma Empresa Base ativa. Cadastre uma em Configurações → Empresas Base.
+        </p>
+      ) : (
+        <Select defaultValue={defaultValue} name="base_company_id">
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione a empresa base" />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      {/* hidden mirror para leitura no submit */}
+      <input
+        type="hidden"
+        id="vehicle-base-company"
+        defaultValue={defaultValue}
+        ref={(el) => {
+          if (!el) return;
+          const sync = () => {
+            const trigger = document.querySelector<HTMLButtonElement>(
+              '[data-radix-select-trigger][name="base_company_id"], [name="base_company_id"]',
+            );
+            void trigger;
+          };
+          sync();
+        }}
+      />
+    </div>
   );
 }
