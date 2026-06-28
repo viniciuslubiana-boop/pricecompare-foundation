@@ -16,6 +16,7 @@ import {
   Search,
   MapPin,
   History,
+  Stethoscope,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,6 +35,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
   { title: "Localizar Concorrentes", url: "/localizar-concorrentes", icon: MapPin },
   { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
+  { title: "Diagnóstico de Extração", url: "/diagnostico-extracao", icon: Stethoscope },
   { title: "Consulta Global", url: "/consulta-mercado", icon: Search },
   { title: "Central de Consulta", url: "/central-consulta", icon: Search },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },

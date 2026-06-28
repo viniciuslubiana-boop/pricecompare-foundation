@@ -10,7 +10,7 @@
  * Nenhuma regra de cálculo vive aqui. Apenas orquestração.
  */
 import { competitorRepository } from "@/repositories/competitor.repository";
-import { extractionService } from "@/features/extraction/services/extraction.service";
+import { runCompetitorExtraction } from "@/features/extraction/services/extraction.functions";
 import { comparisonService } from "@/features/comparison/services/comparison.service";
 import { detectChanges } from "@/features/comparison/calculators/change-detection";
 import { marketUpdateRepository } from "../repositories/market-update.repository";
@@ -34,11 +34,6 @@ interface RunParams {
 
 const noop: ProgressFn = () => {};
 
-async function fetchCompetitorContent(url: string, signal?: AbortSignal): Promise<string> {
-  const res = await fetch(url, { method: "GET", signal, redirect: "follow" });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ao acessar ${url}`);
-  return await res.text();
-}
 
 async function processCompetitor(
   competitor: Competitor,
@@ -84,29 +79,20 @@ async function processCompetitor(
       .catch(() => []);
     const snapshotTakenAt = new Date().toISOString();
 
-    // ETAPA 2 — extração via engine existente (reaproveita preview/confirm)
-    const html = await fetchCompetitorContent(competitor.url, signal);
-    detail.pagesProcessed = 1;
-    emit({ currentPage: 1 });
-
-    const preview = extractionService.preview({
-      competitorId: competitor.id,
-      competitorName: competitor.name,
-      competitorUrl: competitor.url,
-      rawContent: html,
-      inputType: "html",
-    });
-
-    if (preview.rows.length) {
-      const confirmed = await extractionService.confirm({
-        rows: preview.rows,
+    // ETAPA 2 — extração real via server function (Firecrawl + IA)
+    void userId;
+    const extracted = await runCompetitorExtraction({
+      data: {
         competitorId: competitor.id,
         competitorName: competitor.name,
-        competitorUrl: competitor.url,
-        userId,
-      });
-      detail.vehiclesFound = confirmed.savedCount;
-      emit({ vehiclesFoundCurrent: confirmed.savedCount });
+        url: competitor.url,
+      },
+    });
+    detail.pagesProcessed = 1;
+    detail.vehiclesFound = extracted.savedCount;
+    emit({ currentPage: 1, vehiclesFoundCurrent: extracted.savedCount });
+    if (extracted.status === "failed" && extracted.error) {
+      detail.error = extracted.error;
     }
 
     // ETAPA 2.5 — detectar e persistir alterações (lógica em Comparison Engine)
