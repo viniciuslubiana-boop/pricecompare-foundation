@@ -24,9 +24,9 @@ interface AnalyticsSnapshot {
   comparisons: Comparison[];
 }
 
-async function loadSnapshot(): Promise<AnalyticsSnapshot> {
+async function loadSnapshot(baseCompanyId?: string | null): Promise<AnalyticsSnapshot> {
   const [myVehicles, competitorVehicles, competitors, comparisons] = await Promise.all([
-    analyticsRepository.listMyVehicles(),
+    analyticsRepository.listMyVehicles(baseCompanyId),
     analyticsRepository.listCompetitorVehicles(),
     analyticsRepository.listCompetitors(),
     analyticsRepository.listComparisons(),
@@ -37,8 +37,8 @@ async function loadSnapshot(): Promise<AnalyticsSnapshot> {
 export const analyticsService = {
   loadSnapshot,
 
-  async getExecutiveSummary(): Promise<ExecutiveSummary> {
-    const snap = await loadSnapshot();
+  async getExecutiveSummary(baseCompanyId?: string | null): Promise<ExecutiveSummary> {
+    const snap = await loadSnapshot(baseCompanyId);
     const inv = inventoryStatisticsService.compute(snap.myVehicles);
     const comp = competitorStatisticsService.compute(snap.competitors, snap.competitorVehicles);
     const cmp = comparisonStatisticsService.compute(snap.comparisons);
@@ -56,8 +56,8 @@ export const analyticsService = {
     };
   },
 
-  async getInventoryStatistics() {
-    const vehicles = await analyticsRepository.listMyVehicles();
+  async getInventoryStatistics(baseCompanyId?: string | null) {
+    const vehicles = await analyticsRepository.listMyVehicles(baseCompanyId);
     return inventoryStatisticsService.compute(vehicles);
   },
 
@@ -69,17 +69,17 @@ export const analyticsService = {
     return competitorStatisticsService.compute(competitors, vehicles);
   },
 
-  async getMarketIndicators(): Promise<MarketIndicators> {
+  async getMarketIndicators(baseCompanyId?: string | null): Promise<MarketIndicators> {
     const [mine, competitor] = await Promise.all([
-      analyticsRepository.listMyVehicles(),
+      analyticsRepository.listMyVehicles(baseCompanyId),
       analyticsRepository.listCompetitorVehicles(),
     ]);
     return marketStatisticsService.compute(mine, competitor);
   },
 
-  async getPriceDistribution(): Promise<PriceDistribution> {
+  async getPriceDistribution(baseCompanyId?: string | null): Promise<PriceDistribution> {
     const [mine, competitor] = await Promise.all([
-      analyticsRepository.listMyVehicles(),
+      analyticsRepository.listMyVehicles(baseCompanyId),
       analyticsRepository.listCompetitorVehicles(),
     ]);
     return computePriceDistribution(mine, competitor);
