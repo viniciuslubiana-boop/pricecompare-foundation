@@ -12,13 +12,15 @@ import { computePriceDistribution } from "@/features/analytics/calculators/price
 
 export const dashboardKeys = {
   all: [...analyticsKeys.all, "dashboard"] as const,
+  scoped: (baseCompanyId?: string | null) =>
+    [...analyticsKeys.all, "dashboard", baseCompanyId ?? "all"] as const,
 };
 
-export function useDashboard() {
+export function useDashboard(baseCompanyId?: string | null) {
   return useQuery({
-    queryKey: dashboardKeys.all,
+    queryKey: dashboardKeys.scoped(baseCompanyId),
     queryFn: async () => {
-      const snap = await analyticsService.loadSnapshot();
+      const snap = await analyticsService.loadSnapshot(baseCompanyId);
       const inventory = inventoryStatisticsService.compute(snap.myVehicles);
       const competitors = competitorStatisticsService.compute(
         snap.competitors,
