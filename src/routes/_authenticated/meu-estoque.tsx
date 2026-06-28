@@ -277,7 +277,7 @@ function MeuEstoquePage() {
             </Table>
           </div>
         </>
-      )}
+      ))}
 
       <VehicleFormDialog
         open={formOpen}
