@@ -196,7 +196,7 @@ function DiagnosticoExtracaoPage() {
                 const isOpen = !!expanded[l.id];
                 const errors = parseErrors(l.error_log);
                 return (
-                  <>
+                  <Fragment key={l.id}>
                     <tr
                       key={l.id}
                       className="border-b last:border-0 cursor-pointer hover:bg-muted/30"
@@ -305,7 +305,7 @@ function DiagnosticoExtracaoPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>
