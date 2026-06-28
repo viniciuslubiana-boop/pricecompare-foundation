@@ -71,17 +71,34 @@ function GlobalMarketSearchPage() {
     sameYear: true,
     sort: "price",
   });
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<string[]>([]);
 
+  const { data: activeCompanies = [] } = useActiveBaseCompanies();
   const { data, isLoading, isError, error, refetch, isFetching } = useGlobalSearch(submitted);
+
+  const visibleGroups = useMemo(() => {
+    if (!data) return [];
+    if (selectedCompanyIds.length === 0) return data.myVehiclesByCompany;
+    const set = new Set(selectedCompanyIds);
+    return data.myVehiclesByCompany.filter(
+      (g) => g.baseCompanyId != null && set.has(g.baseCompanyId),
+    );
+  }, [data, selectedCompanyIds]);
+
+  const referenceVehicle = useMemo(() => {
+    const firstFromVisible = visibleGroups[0]?.vehicles[0];
+    return firstFromVisible ?? data?.myVehicle ?? null;
+  }, [visibleGroups, data]);
 
   const filteredCompetitors = useMemo(() => {
     if (!data) return [];
     return applyVehicle360Filters(
       data.competitors,
       filters,
-      data.myVehicle?.km ?? null,
+      referenceVehicle?.km ?? null,
     );
-  }, [data, filters]);
+  }, [data, filters, referenceVehicle]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
