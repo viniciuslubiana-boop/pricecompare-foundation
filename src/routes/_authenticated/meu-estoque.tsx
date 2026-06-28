@@ -171,7 +171,7 @@ function MeuEstoquePage() {
         </>
       )}
 
-      {vehiclesQ.isError ? (
+      {hasAny && (vehiclesQ.isError ? (
         <ErrorState
           title="Não foi possível carregar o estoque"
           description={(vehiclesQ.error as Error)?.message}
