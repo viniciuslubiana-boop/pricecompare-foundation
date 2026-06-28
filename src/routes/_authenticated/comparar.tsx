@@ -23,6 +23,9 @@ import { ComparisonFiltersBar } from "@/features/comparison/components/Compariso
 import { ComparisonTable } from "@/features/comparison/components/ComparisonTable";
 import { applyComparisonFilters } from "@/features/comparison/utils/comparison.filters";
 import type { ComparisonFilters } from "@/features/comparison/types/comparison.types";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+import { useSelectedBaseCompany } from "@/features/base-companies/context/SelectedBaseCompanyContext";
+import { Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/comparar")({
   head: () => ({ meta: [{ title: "Comparar · PriceCompare" }] }),
@@ -30,6 +33,9 @@ export const Route = createFileRoute("/_authenticated/comparar")({
 });
 
 function CompararPage() {
+  const { data: activeCompanies = [] } = useActiveBaseCompanies();
+  const { selectedId } = useSelectedBaseCompany();
+  const [baseCompanyId, setBaseCompanyId] = useState<string>(selectedId ?? "");
   const { data: competitors = [], isLoading } = useCompetitorsList({
     status: "active",
   });
@@ -48,7 +54,10 @@ function CompararPage() {
         title="Comparar"
         description="Compare seu estoque com o de um concorrente. Cálculos centralizados no Comparison Engine."
         actions={
-          <Button onClick={() => run(competitorId)} disabled={!competitorId || isRunning}>
+          <Button
+            onClick={() => run({ competitorId, baseCompanyId: baseCompanyId || null })}
+            disabled={!competitorId || !baseCompanyId || isRunning}
+          >
             {isRunning ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
