@@ -58,11 +58,13 @@ export const runCompetitorExtraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
+    try {
     const startedAt = new Date();
     const firecrawlKey = process.env.FIRECRAWL_API_KEY;
     const lovableKey = process.env.LOVABLE_API_KEY;
-    if (!firecrawlKey) throw new Error("FIRECRAWL_API_KEY ausente no servidor.");
+    if (!firecrawlKey) throw new Error("FIRECRAWL_API_KEY ausente no servidor. Configure o conector Firecrawl.");
     if (!lovableKey) throw new Error("LOVABLE_API_KEY ausente no servidor.");
+    void startedAt;
 
     const errorLog: Array<{ stage: string; message: string; sample?: string }> = [];
     let markdown = "";
