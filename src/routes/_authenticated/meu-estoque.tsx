@@ -44,6 +44,8 @@ import { Building2 } from "lucide-react";
 const ALL = "__all__";
 
 function MeuEstoquePage() {
+  const { selectedId, selected: selectedCompany, hasAny, isLoading: loadingCompanies } =
+    useSelectedBaseCompany();
   const [search, setSearch] = useState("");
   const [brand, setBrand] = useState<string>(ALL);
   const [formOpen, setFormOpen] = useState(false);
@@ -52,9 +54,12 @@ function MeuEstoquePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
 
-  const filters = useMemo(() => ({ search, brand }), [search, brand]);
+  const filters = useMemo(
+    () => ({ search, brand, baseCompanyId: selectedId }),
+    [search, brand, selectedId],
+  );
   const vehiclesQ = useInventoryList(filters);
-  const brandsQ = useInventoryBrands();
+  const brandsQ = useInventoryBrands(selectedId);
   const createMut = useCreateVehicle();
   const updateMut = useUpdateVehicle();
   const deleteMut = useDeleteVehicle();
