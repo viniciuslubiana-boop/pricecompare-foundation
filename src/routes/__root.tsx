@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
+import { SelectedBaseCompanyProvider } from "@/features/base-companies/context/SelectedBaseCompanyContext";
 
 function NotFoundComponent() {
   return (
@@ -115,8 +116,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <Outlet />
-          <Toaster richColors position="top-right" />
+          <SelectedBaseCompanyProvider>
+            <Outlet />
+            <Toaster richColors position="top-right" />
+          </SelectedBaseCompanyProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
