@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { NAV_ITEMS } from "@/lib/nav";
 import { Gauge } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
