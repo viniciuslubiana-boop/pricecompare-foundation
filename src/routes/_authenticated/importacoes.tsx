@@ -175,7 +175,9 @@ function CentralImportacoesPage() {
                     />
                   </TableHead>
                   <TableHead>Arquivo</TableHead>
+                  <TableHead>Destino</TableHead>
                   <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Duplicadas</TableHead>
                   <TableHead className="text-right">Recebidas</TableHead>
                   <TableHead className="text-right">Importadas</TableHead>
                   <TableHead className="text-right">Falhas</TableHead>
