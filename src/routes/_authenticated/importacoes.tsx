@@ -202,7 +202,23 @@ function CentralImportacoesPage() {
                         {r.file_name ?? "—"}
                       </div>
                     </TableCell>
+                    {(() => {
+                      const d = destinationLabel(r, competitorMap, companyMap);
+                      return (
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <Badge variant="outline" className="w-fit">
+                              {d.label}
+                            </Badge>
+                            <span className="mt-0.5 text-xs text-muted-foreground">
+                              {d.target}
+                            </span>
+                          </div>
+                        </TableCell>
+                      );
+                    })()}
                     <TableCell className="uppercase">{r.file_type ?? "—"}</TableCell>
+                    <TableCell className="text-right">{r.rows_duplicated ?? 0}</TableCell>
                     <TableCell className="text-right">{r.rows_received}</TableCell>
                     <TableCell className="text-right">{r.rows_imported}</TableCell>
                     <TableCell className="text-right">{r.rows_failed}</TableCell>
