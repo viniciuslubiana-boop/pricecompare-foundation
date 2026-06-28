@@ -12,6 +12,7 @@ import { vehicleRepository } from "@/repositories/vehicle.repository";
 import { competitorRepository } from "@/repositories/competitor.repository";
 import { comparisonDataRepository } from "../repositories/comparison.repository";
 import { marketChangesRepository } from "@/features/market-update/repositories/market-changes.repository";
+import { baseCompaniesService } from "@/features/base-companies/services/base-companies.service";
 import { equivalentsFor, intelligenceFor } from "../calculators/comparison.market-price";
 import type {
   MarketIntelligence,
@@ -27,13 +28,21 @@ export interface GlobalSearchQuery {
   year?: string;
 }
 
+export interface GlobalSearchCompanyGroup {
+  baseCompanyId: string | null;
+  baseCompanyName: string;
+  vehicles: MyVehicle[];
+}
+
 export interface GlobalSearchResult {
   myVehicle: MyVehicle | null;
+  myVehiclesByCompany: GlobalSearchCompanyGroup[];
   market: MarketIntelligence;
   competitors: Vehicle360CompetitorEntry[];
   history: Vehicle360HistoryEntry[];
   query: GlobalSearchQuery;
 }
+
 
 const norm = (s: string | null | undefined) => (s ?? "").toString().trim().toLowerCase();
 const firstToken = (s: string) => norm(s).split(/\s+/)[0] ?? "";
