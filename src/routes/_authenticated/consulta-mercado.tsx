@@ -28,12 +28,15 @@ import {
 import { cn } from "@/lib/utils";
 import { useGlobalSearch } from "@/features/comparison/hooks/useGlobalSearch";
 import { applyVehicle360Filters } from "@/features/comparison/utils/vehicle360.filters";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type {
   Vehicle360Filters,
   Vehicle360SortKey,
 } from "@/features/comparison/types/comparison.types";
 import type { GlobalSearchQuery } from "@/features/comparison/services/global-search.service";
 import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
+
 
 export const Route = createFileRoute("/_authenticated/consulta-mercado")({
   head: () => ({ meta: [{ title: "Consulta Global de Mercado · PriceCompare" }] }),
@@ -68,17 +71,34 @@ function GlobalMarketSearchPage() {
     sameYear: true,
     sort: "price",
   });
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<string[]>([]);
 
+  const { data: activeCompanies = [] } = useActiveBaseCompanies();
   const { data, isLoading, isError, error, refetch, isFetching } = useGlobalSearch(submitted);
+
+  const visibleGroups = useMemo(() => {
+    if (!data) return [];
+    if (selectedCompanyIds.length === 0) return data.myVehiclesByCompany;
+    const set = new Set(selectedCompanyIds);
+    return data.myVehiclesByCompany.filter(
+      (g) => g.baseCompanyId != null && set.has(g.baseCompanyId),
+    );
+  }, [data, selectedCompanyIds]);
+
+  const referenceVehicle = useMemo(() => {
+    const firstFromVisible = visibleGroups[0]?.vehicles[0];
+    return firstFromVisible ?? data?.myVehicle ?? null;
+  }, [visibleGroups, data]);
 
   const filteredCompetitors = useMemo(() => {
     if (!data) return [];
     return applyVehicle360Filters(
       data.competitors,
       filters,
-      data.myVehicle?.km ?? null,
+      referenceVehicle?.km ?? null,
     );
-  }, [data, filters]);
+  }, [data, filters, referenceVehicle]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,19 +194,61 @@ function GlobalMarketSearchPage() {
 
       {submitted && data && (
         <>
+          {/* FILTRO — Empresa Base */}
+          {activeCompanies.length > 0 && (
+            <Card>
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <div>
+                  <Label className="text-xs uppercase text-muted-foreground">
+                    Filtrar por Empresa Base
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Selecione uma ou mais empresas para refinar o agrupamento. Vazio = todas.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <ToggleGroup
+                    type="multiple"
+                    value={selectedCompanyIds}
+                    onValueChange={(v) => setSelectedCompanyIds(v)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {activeCompanies.map((bc) => (
+                      <ToggleGroupItem key={bc.id} value={bc.id} aria-label={bc.name}>
+                        {bc.name}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                  {selectedCompanyIds.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setSelectedCompanyIds([])}
+                    >
+                      Limpar
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* MEU ESTOQUE — agrupado por Empresa Base */}
-          {data.myVehiclesByCompany.length > 0 ? (
+          {visibleGroups.length > 0 ? (
             <div className="space-y-3">
               <div className="flex items-baseline justify-between">
                 <h3 className="text-sm font-semibold uppercase text-muted-foreground">
                   Meu Estoque por Empresa Base
                 </h3>
                 <span className="text-xs text-muted-foreground">
-                  {data.myVehiclesByCompany.reduce((acc, g) => acc + g.vehicles.length, 0)} veículo(s)
-                  em {data.myVehiclesByCompany.length} empresa(s)
+                  {visibleGroups.reduce((acc, g) => acc + g.vehicles.length, 0)} veículo(s)
+                  em {visibleGroups.length} empresa(s)
+                  {selectedCompanyIds.length > 0 &&
+                    ` · ${data.myVehiclesByCompany.length - visibleGroups.length} oculta(s) pelo filtro`}
                 </span>
               </div>
-              {data.myVehiclesByCompany.map((group) => (
+              {visibleGroups.map((group) => (
                 <Card key={group.baseCompanyId ?? "__none__"}>
                   <CardContent className="space-y-3 p-4">
                     <div className="flex items-center justify-between">
@@ -246,11 +308,13 @@ function GlobalMarketSearchPage() {
           ) : (
             <Card>
               <CardContent className="p-4 text-sm text-muted-foreground">
-                Nenhum veículo do seu estoque corresponde a esta busca. Exibindo apenas o painel
-                de mercado.
+                {selectedCompanyIds.length > 0
+                  ? "Nenhum veículo do seu estoque nessa(s) Empresa(s) Base corresponde à busca."
+                  : "Nenhum veículo do seu estoque corresponde a esta busca. Exibindo apenas o painel de mercado."}
               </CardContent>
             </Card>
           )}
+
 
 
           {/* ESTATÍSTICAS */}
