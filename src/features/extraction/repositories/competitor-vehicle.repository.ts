@@ -8,6 +8,16 @@ class CompetitorVehicleRepository {
     if (error) throw error;
     return (data ?? []) as CompetitorVehicle[];
   }
+
+  async listByCompetitor(competitorId: string): Promise<CompetitorVehicle[]> {
+    const { data, error } = await supabase
+      .from("competitor_vehicles")
+      .select("*")
+      .eq("competitor_id", competitorId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as CompetitorVehicle[];
+  }
 }
 
 export const competitorVehicleRepository = new CompetitorVehicleRepository();
