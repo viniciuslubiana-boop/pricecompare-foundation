@@ -158,54 +158,87 @@ export function ImportWizard({ open, onOpenChange }: Props) {
         </DialogHeader>
 
         {step === "upload" && (
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragOver(false);
-              const f = e.dataTransfer.files?.[0];
-              if (f) handleFile(f);
-            }}
-            className={`flex flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed p-12 text-center transition-colors ${
-              dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/30"
-            }`}
-          >
-            {parsing ? (
-              <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-            ) : (
-              <UploadCloud className="h-10 w-10 text-muted-foreground" />
-            )}
-            <div>
-              <p className="font-medium">Arraste o arquivo aqui</p>
-              <p className="text-sm text-muted-foreground">
-                ou clique para selecionar (.csv, .xlsx)
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Importar para qual Empresa Base? *</Label>
+              {activeCompanies.length === 0 ? (
+                <p className="text-sm text-destructive">
+                  Nenhuma Empresa Base ativa. Cadastre uma em Configurações → Empresas Base.
+                </p>
+              ) : (
+                <Select value={baseCompanyId} onValueChange={setBaseCompanyId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a empresa base" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeCompanies.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Todo veículo deste arquivo será vinculado à empresa selecionada.
               </p>
             </div>
-            <input
-              type="file"
-              accept=".csv,.xlsx,.xls"
-              className="hidden"
-              id="import-file-input"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
+
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (!baseCompanyId) return;
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                if (!baseCompanyId) {
+                  toast.error("Selecione uma Empresa Base antes de enviar o arquivo.");
+                  return;
+                }
+                const f = e.dataTransfer.files?.[0];
                 if (f) handleFile(f);
               }}
-            />
-            <Button asChild variant="outline" disabled={parsing}>
-              <label htmlFor="import-file-input" className="cursor-pointer">
-                Selecionar arquivo
-              </label>
-            </Button>
-            {file && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                <FileSpreadsheet className="h-4 w-4" />
-                {file.name} · {(file.size / 1024).toFixed(1)} KB
+              className={`flex flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed p-12 text-center transition-colors ${
+                dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/30"
+              } ${!baseCompanyId ? "opacity-60" : ""}`}
+            >
+              {parsing ? (
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+              ) : (
+                <UploadCloud className="h-10 w-10 text-muted-foreground" />
+              )}
+              <div>
+                <p className="font-medium">Arraste o arquivo aqui</p>
+                <p className="text-sm text-muted-foreground">
+                  ou clique para selecionar (.csv, .xlsx)
+                </p>
               </div>
-            )}
+              <input
+                type="file"
+                accept=".csv,.xlsx,.xls"
+                className="hidden"
+                id="import-file-input"
+                disabled={!baseCompanyId}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleFile(f);
+                }}
+              />
+              <Button asChild variant="outline" disabled={parsing || !baseCompanyId}>
+                <label htmlFor="import-file-input" className="cursor-pointer">
+                  Selecionar arquivo
+                </label>
+              </Button>
+              {file && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  {file.name} · {(file.size / 1024).toFixed(1)} KB
+                </div>
+              )}
+            </div>
           </div>
         )}
 
