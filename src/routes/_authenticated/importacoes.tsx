@@ -29,6 +29,22 @@ import {
 import { ImportWizard } from "@/features/imports/components/ImportWizard";
 import { useImportLogs, useDeleteImportLog } from "@/features/imports/hooks/useImports";
 import type { ImportLog } from "@/repositories/import.repository";
+import { useCompetitorsList } from "@/features/competitors/hooks/useCompetitors";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+
+function destinationLabel(
+  r: ImportLog,
+  competitorMap: Map<string, string>,
+  companyMap: Map<string, string>,
+) {
+  const type = (r.import_target_type as string) || "my_vehicles";
+  if (type === "competitor") {
+    const name = r.competitor_id ? competitorMap.get(r.competitor_id) : null;
+    return { label: "Concorrente", target: name ?? "—" };
+  }
+  const name = r.base_company_id ? companyMap.get(r.base_company_id) : null;
+  return { label: "Meu Estoque", target: name ?? "—" };
+}
 
 function statusBadge(status: string | null) {
   if (status === "completed") return <Badge variant="secondary">Concluída</Badge>;
