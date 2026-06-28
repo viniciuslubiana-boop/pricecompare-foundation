@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import {
   inventoryVehicleSchema,
@@ -62,44 +63,40 @@ export function VehicleFormDialog({
   submitting,
 }: Props) {
   const { data: active = [] } = useActiveBaseCompanies();
+  const [companyId, setCompanyId] = useState<string>("");
+  const [companyError, setCompanyError] = useState(false);
+
   const form = useForm<InventoryFormInput>({
     resolver: zodResolver(inventoryVehicleSchema) as never,
     defaultValues: empty,
   });
 
-  // Empresa Base selecionada no form (estado local controlado fora do schema).
-  const initialCompany =
-    vehicle?.base_company_id ?? defaultBaseCompanyId ?? active[0]?.id ?? "";
-  const [companyId, setCompanyId] = ((): [string, (v: string) => void] => {
-    // truque simples para manter dentro da assinatura única
-    return [initialCompany, () => {}];
-  })();
-  // Mantemos via key — recriado quando reabre.
-  void setCompanyId;
-
   useEffect(() => {
-    if (open) {
-      form.reset(
-        vehicle
-          ? {
-              brand: vehicle.brand,
-              model: vehicle.model,
-              year_model: vehicle.year_model,
-              km: String(vehicle.km ?? ""),
-              price: String(vehicle.price ?? ""),
-              supplier_name: vehicle.supplier_name ?? "",
-            }
-          : empty,
-      );
-    }
-  }, [open, vehicle, form]);
+    if (!open) return;
+    form.reset(
+      vehicle
+        ? {
+            brand: vehicle.brand,
+            model: vehicle.model,
+            year_model: vehicle.year_model,
+            km: String(vehicle.km ?? ""),
+            price: String(vehicle.price ?? ""),
+            supplier_name: vehicle.supplier_name ?? "",
+          }
+        : empty,
+    );
+    setCompanyId(
+      vehicle?.base_company_id ?? defaultBaseCompanyId ?? active[0]?.id ?? "",
+    );
+    setCompanyError(false);
+  }, [open, vehicle, defaultBaseCompanyId, active, form]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const selected =
-      (document.getElementById("vehicle-base-company") as HTMLInputElement | null)?.value ||
-      companyId;
-    if (!selected) return;
-    await onSubmit(values as unknown as InventoryFormValues, selected);
+    if (!companyId) {
+      setCompanyError(true);
+      return;
+    }
+    await onSubmit(values as unknown as InventoryFormValues, companyId);
   });
 
   return (
@@ -113,11 +110,37 @@ export function VehicleFormDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <BaseCompanyField
-              key={`bc-${vehicle?.id ?? "new"}-${open}`}
-              defaultValue={initialCompany}
-              options={active}
-            />
+            <div className="space-y-2">
+              <Label>Empresa Base *</Label>
+              {active.length === 0 ? (
+                <p className="text-xs text-destructive">
+                  Nenhuma Empresa Base ativa. Cadastre em Configurações → Empresas Base.
+                </p>
+              ) : (
+                <Select
+                  value={companyId}
+                  onValueChange={(v) => {
+                    setCompanyId(v);
+                    setCompanyError(false);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a empresa base" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {active.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {companyError && (
+                <p className="text-xs text-destructive">Selecione uma Empresa Base.</p>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -221,53 +244,5 @@ export function VehicleFormDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function BaseCompanyField({
-  defaultValue,
-  options,
-}: {
-  defaultValue: string;
-  options: Array<{ id: string; name: string }>;
-}) {
-  return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium leading-none">Empresa Base *</label>
-      {options.length === 0 ? (
-        <p className="text-xs text-destructive">
-          Nenhuma Empresa Base ativa. Cadastre uma em Configurações → Empresas Base.
-        </p>
-      ) : (
-        <Select defaultValue={defaultValue} name="base_company_id">
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione a empresa base" />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((c) => (
-              <SelectItem key={c.id} value={c.id}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      {/* hidden mirror para leitura no submit */}
-      <input
-        type="hidden"
-        id="vehicle-base-company"
-        defaultValue={defaultValue}
-        ref={(el) => {
-          if (!el) return;
-          const sync = () => {
-            const trigger = document.querySelector<HTMLButtonElement>(
-              '[data-radix-select-trigger][name="base_company_id"], [name="base_company_id"]',
-            );
-            void trigger;
-          };
-          sync();
-        }}
-      />
-    </div>
   );
 }
