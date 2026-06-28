@@ -38,6 +38,7 @@ function ConcorrentesPage() {
   const [toDelete, setToDelete] = useState<Competitor | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  const [importTarget, setImportTarget] = useState<Competitor | null>(null);
 
   const filters = useMemo(() => ({ search, status }), [search, status]);
   const listQ = useCompetitorsList(filters);
