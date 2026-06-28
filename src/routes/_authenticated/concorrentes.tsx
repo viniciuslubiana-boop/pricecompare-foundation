@@ -209,6 +209,14 @@ function ConcorrentesPage() {
         confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir selecionados"}
         onConfirm={handleBulkDelete}
       />
+
+      <ImportWizard
+        open={!!importTarget}
+        onOpenChange={(o) => !o && setImportTarget(null)}
+        initialTarget="competitor"
+        initialCompetitorId={importTarget?.id}
+        lockTarget
+      />
     </div>
   );
 }
