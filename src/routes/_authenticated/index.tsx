@@ -31,6 +31,16 @@ import {
 import { MarketUpdateButton } from "@/features/market-update";
 import { RadarPanel } from "@/features/comparison/components/RadarPanel";
 import { StrategyPanel } from "@/features/comparison/components/StrategyPanel";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+import { useState } from "react";
+import { Building2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
