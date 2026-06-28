@@ -357,6 +357,8 @@ export type Database = {
       competitor_vehicles: {
         Row: {
           brand: string
+          city: string | null
+          competitor_id: string | null
           competitor_name: string | null
           confidence: Json | null
           created_at: string
@@ -364,13 +366,18 @@ export type Database = {
           id: string
           km: number | null
           model: string
+          photo_url: string | null
           price: number | null
+          source: string | null
           source_url: string | null
           updated_at: string
+          version: string | null
           year_model: string
         }
         Insert: {
           brand: string
+          city?: string | null
+          competitor_id?: string | null
           competitor_name?: string | null
           confidence?: Json | null
           created_at?: string
@@ -378,13 +385,18 @@ export type Database = {
           id?: string
           km?: number | null
           model: string
+          photo_url?: string | null
           price?: number | null
+          source?: string | null
           source_url?: string | null
           updated_at?: string
+          version?: string | null
           year_model: string
         }
         Update: {
           brand?: string
+          city?: string | null
+          competitor_id?: string | null
           competitor_name?: string | null
           confidence?: Json | null
           created_at?: string
@@ -392,12 +404,22 @@ export type Database = {
           id?: string
           km?: number | null
           model?: string
+          photo_url?: string | null
           price?: number | null
+          source?: string | null
           source_url?: string | null
           updated_at?: string
+          version?: string | null
           year_model?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "competitor_vehicles_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "competitor_vehicles_extraction_id_fkey"
             columns: ["extraction_id"]
@@ -534,42 +556,68 @@ export type Database = {
       }
       import_logs: {
         Row: {
+          base_company_id: string | null
+          competitor_id: string | null
           created_at: string
           created_by: string | null
           error_log: Json | null
           file_name: string | null
           file_type: string | null
           id: string
+          import_target_type: string
+          rows_duplicated: number
           rows_failed: number
           rows_imported: number
           rows_received: number
           status: string | null
         }
         Insert: {
+          base_company_id?: string | null
+          competitor_id?: string | null
           created_at?: string
           created_by?: string | null
           error_log?: Json | null
           file_name?: string | null
           file_type?: string | null
           id?: string
+          import_target_type?: string
+          rows_duplicated?: number
           rows_failed?: number
           rows_imported?: number
           rows_received?: number
           status?: string | null
         }
         Update: {
+          base_company_id?: string | null
+          competitor_id?: string | null
           created_at?: string
           created_by?: string | null
           error_log?: Json | null
           file_name?: string | null
           file_type?: string | null
           id?: string
+          import_target_type?: string
+          rows_duplicated?: number
           rows_failed?: number
           rows_imported?: number
           rows_received?: number
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "import_logs_base_company_id_fkey"
+            columns: ["base_company_id"]
+            isOneToOne: false
+            referencedRelation: "base_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_logs_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "import_logs_created_by_fkey"
             columns: ["created_by"]

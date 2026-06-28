@@ -18,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { CompetitorForm } from "@/features/competitors/components/CompetitorForm";
 import { CompetitorTable } from "@/features/competitors/components/CompetitorTable";
+import { ImportWizard } from "@/features/imports/components/ImportWizard";
 import {
   useCompetitorsList,
   useCreateCompetitor,
@@ -37,6 +38,7 @@ function ConcorrentesPage() {
   const [toDelete, setToDelete] = useState<Competitor | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  const [importTarget, setImportTarget] = useState<Competitor | null>(null);
 
   const filters = useMemo(() => ({ search, status }), [search, status]);
   const listQ = useCompetitorsList(filters);
@@ -159,6 +161,7 @@ function ConcorrentesPage() {
               })
             }
             onDelete={(c) => setToDelete(c)}
+            onImport={(c) => setImportTarget(c)}
             selected={selected}
             onToggleOne={toggleOne}
             onToggleAll={toggleAll}
@@ -205,6 +208,14 @@ function ConcorrentesPage() {
         destructive
         confirmText={deleteMut.isPending ? "Excluindo..." : "Excluir selecionados"}
         onConfirm={handleBulkDelete}
+      />
+
+      <ImportWizard
+        open={!!importTarget}
+        onOpenChange={(o) => !o && setImportTarget(null)}
+        initialTarget="competitor"
+        initialCompetitorId={importTarget?.id}
+        lockTarget
       />
     </div>
   );

@@ -29,6 +29,22 @@ import {
 import { ImportWizard } from "@/features/imports/components/ImportWizard";
 import { useImportLogs, useDeleteImportLog } from "@/features/imports/hooks/useImports";
 import type { ImportLog } from "@/repositories/import.repository";
+import { useCompetitorsList } from "@/features/competitors/hooks/useCompetitors";
+import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
+
+function destinationLabel(
+  r: ImportLog,
+  competitorMap: Map<string, string>,
+  companyMap: Map<string, string>,
+) {
+  const type = (r.import_target_type as string) || "my_vehicles";
+  if (type === "competitor") {
+    const name = r.competitor_id ? competitorMap.get(r.competitor_id) : null;
+    return { label: "Concorrente", target: name ?? "—" };
+  }
+  const name = r.base_company_id ? companyMap.get(r.base_company_id) : null;
+  return { label: "Meu Estoque", target: name ?? "—" };
+}
 
 function statusBadge(status: string | null) {
   if (status === "completed") return <Badge variant="secondary">Concluída</Badge>;
@@ -40,6 +56,16 @@ function statusBadge(status: string | null) {
 function CentralImportacoesPage() {
   const logsQ = useImportLogs();
   const deleteMut = useDeleteImportLog();
+  const competitorsQ = useCompetitorsList({ status: "all" });
+  const companiesQ = useActiveBaseCompanies();
+  const competitorMap = useMemo(
+    () => new Map((competitorsQ.data ?? []).map((c) => [c.id, c.name])),
+    [competitorsQ.data],
+  );
+  const companyMap = useMemo(
+    () => new Map((companiesQ.data ?? []).map((c) => [c.id, c.name])),
+    [companiesQ.data],
+  );
   const [wizardOpen, setWizardOpen] = useState(false);
   const [details, setDetails] = useState<ImportLog | null>(null);
   const [toDelete, setToDelete] = useState<ImportLog | null>(null);
@@ -149,7 +175,9 @@ function CentralImportacoesPage() {
                     />
                   </TableHead>
                   <TableHead>Arquivo</TableHead>
+                  <TableHead>Destino</TableHead>
                   <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Duplicadas</TableHead>
                   <TableHead className="text-right">Recebidas</TableHead>
                   <TableHead className="text-right">Importadas</TableHead>
                   <TableHead className="text-right">Falhas</TableHead>
@@ -174,7 +202,23 @@ function CentralImportacoesPage() {
                         {r.file_name ?? "—"}
                       </div>
                     </TableCell>
+                    {(() => {
+                      const d = destinationLabel(r, competitorMap, companyMap);
+                      return (
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <Badge variant="outline" className="w-fit">
+                              {d.label}
+                            </Badge>
+                            <span className="mt-0.5 text-xs text-muted-foreground">
+                              {d.target}
+                            </span>
+                          </div>
+                        </TableCell>
+                      );
+                    })()}
                     <TableCell className="uppercase">{r.file_type ?? "—"}</TableCell>
+                    <TableCell className="text-right">{r.rows_duplicated ?? 0}</TableCell>
                     <TableCell className="text-right">{r.rows_received}</TableCell>
                     <TableCell className="text-right">{r.rows_imported}</TableCell>
                     <TableCell className="text-right">{r.rows_failed}</TableCell>

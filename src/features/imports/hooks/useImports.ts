@@ -62,6 +62,10 @@ export function useRunImport() {
       }
       qc.invalidateQueries({ queryKey: KEY });
       qc.invalidateQueries({ queryKey: ["inventory"] });
+      qc.invalidateQueries({ queryKey: ["competitor-vehicles"] });
+      qc.invalidateQueries({ queryKey: ["comparison"] });
+      qc.invalidateQueries({ queryKey: ["analytics"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
     onError: (e: Error) => toast.error("Erro na importação", { description: e.message }),
   });

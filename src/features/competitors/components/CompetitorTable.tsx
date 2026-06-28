@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Power, PowerOff, Trash2, ExternalLink } from "lucide-react";
+import { Pencil, Power, PowerOff, Trash2, ExternalLink, Upload } from "lucide-react";
 import { CompetitorStatusBadge } from "./CompetitorStatusBadge";
 import type { Competitor, CompetitorStatus } from "../types/competitor.types";
 
@@ -17,6 +17,7 @@ interface Props {
   onEdit: (c: Competitor) => void;
   onToggleStatus: (c: Competitor) => void;
   onDelete: (c: Competitor) => void;
+  onImport?: (c: Competitor) => void;
   selected?: Set<string>;
   onToggleOne?: (id: string) => void;
   onToggleAll?: () => void;
@@ -27,6 +28,7 @@ export function CompetitorTable({
   onEdit,
   onToggleStatus,
   onDelete,
+  onImport,
   selected,
   onToggleOne,
   onToggleAll,
@@ -53,7 +55,7 @@ export function CompetitorTable({
             <TableHead>URL</TableHead>
             <TableHead className="w-[110px]">Status</TableHead>
             <TableHead className="w-[170px]">Última atualização</TableHead>
-            <TableHead className="w-[140px] text-right">Ações</TableHead>
+            <TableHead className="w-[180px] text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -97,6 +99,17 @@ export function CompetitorTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    {onImport && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => onImport(c)}
+                        aria-label="Importar estoque"
+                        title="Importar estoque"
+                      >
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       size="icon"
                       variant="ghost"
