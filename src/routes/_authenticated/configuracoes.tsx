@@ -56,8 +56,11 @@ function SettingsPage() {
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       ) : (
-        <Tabs defaultValue="general" className="space-y-4">
+        <Tabs defaultValue="reference" className="space-y-4">
           <TabsList>
+            <TabsTrigger value="reference">
+              <Store className="h-4 w-4 mr-1.5" /> Loja de Referência
+            </TabsTrigger>
             <TabsTrigger value="general">Geral</TabsTrigger>
             <TabsTrigger value="comparison">Comparação</TabsTrigger>
             <TabsTrigger value="market">Mercado</TabsTrigger>
@@ -65,6 +68,9 @@ function SettingsPage() {
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="reference">
+            <ReferenceStoreSection value={bundle.referenceStore} />
+          </TabsContent>
           <TabsContent value="general">
             <GeneralSection value={bundle.general} />
           </TabsContent>
