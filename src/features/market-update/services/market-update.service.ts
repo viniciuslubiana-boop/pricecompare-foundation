@@ -34,11 +34,6 @@ interface RunParams {
 
 const noop: ProgressFn = () => {};
 
-async function fetchCompetitorContent(url: string, signal?: AbortSignal): Promise<string> {
-  const res = await fetch(url, { method: "GET", signal, redirect: "follow" });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ao acessar ${url}`);
-  return await res.text();
-}
 
 async function processCompetitor(
   competitor: Competitor,
