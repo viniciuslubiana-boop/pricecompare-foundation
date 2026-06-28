@@ -17,7 +17,10 @@ import { useAuth } from "@/hooks/useAuth";
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { isAdmin } = useAuth();
+  const items = NAV_ITEMS.filter((i) => !i.adminOnly || isAdmin);
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
+
 
   return (
     <Sidebar collapsible="icon">
