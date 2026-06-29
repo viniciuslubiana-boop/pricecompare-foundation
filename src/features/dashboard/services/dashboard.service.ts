@@ -13,6 +13,7 @@ import {
   marketStatisticsService,
 } from "@/features/analytics";
 import { computePriceDistribution } from "@/features/analytics/calculators/price-distribution";
+import { computeFipeIndicators } from "@/features/fipe/utils/fipe-indicators";
 import { buildInsights, deriveCompetitiveness } from "./dashboard.derive";
 
 export type DashboardData = Awaited<ReturnType<typeof loadDashboard>>;
@@ -28,6 +29,7 @@ async function loadDashboard(baseCompanyId?: string | null) {
   const market = marketStatisticsService.compute(snap.myVehicles, snap.competitorVehicles);
   const distribution = computePriceDistribution(snap.myVehicles, snap.competitorVehicles);
   const competitiveness = deriveCompetitiveness(comparison);
+  const fipe = computeFipeIndicators(snap.myVehicles);
 
   const summary = {
     totalMyVehicles: inventory.total,
@@ -51,6 +53,7 @@ async function loadDashboard(baseCompanyId?: string | null) {
     market,
     distribution,
     competitiveness,
+    fipe,
     insights,
   };
 }
