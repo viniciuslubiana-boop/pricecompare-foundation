@@ -50,7 +50,7 @@ const FIPE_MODEL_ALIASES: Record<string, string> = {
   "bmw|x 1 s 20 i": "X1 SDRIVE20I",
   "bmw|x 1 s 20 i active flex": "X1 SDRIVE 20i X-Line 2.0 TB Active Flex",
   "bmw motorrad|x 1 s 20 i": "X1 SDRIVE20I",
-  "ford|fiesta sd 1.6 lsea": "FIESTA SE 1.6 16V Flex 5p",
+  "ford|fiesta sd 1.6 lsea": "Fiesta Sedan 1.6 16V Flex Mec.",
   "byd|dolphin mini gs ev": "Dolphin Mini",
 };
 
