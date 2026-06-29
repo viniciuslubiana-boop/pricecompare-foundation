@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { BaseCompaniesSection } from "@/features/base-companies/components/BaseCompaniesSection";
 import { ApiIntegrationsSection } from "@/features/api-integrations/components/ApiIntegrationsSection";
 import { ConstitutionSection } from "@/features/settings/components/ConstitutionSection";
+import { VehicleMasterCatalogSection } from "@/features/vehicle-catalog/components/VehicleMasterCatalogSection";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,6 +46,7 @@ const SOURCES: { value: MarketSource; label: string }[] = [
 ];
 
 function SettingsPage() {
+  const { isAdmin } = useAuth();
   const { data, isLoading } = useSettings();
   const bundle = data ?? DEFAULT_SETTINGS;
 
@@ -74,6 +76,11 @@ function SettingsPage() {
             <TabsTrigger value="constitution">
               <BookOpen className="h-4 w-4 mr-1.5" /> Constituição
             </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="catalog">
+                <Store className="h-4 w-4 mr-1.5" /> Catálogo Mestre
+              </TabsTrigger>
+            )}
           </TabsList>
 
 
@@ -99,6 +106,11 @@ function SettingsPage() {
           <TabsContent value="constitution">
             <ConstitutionSection />
           </TabsContent>
+          {isAdmin && (
+            <TabsContent value="catalog">
+              <VehicleMasterCatalogSection />
+            </TabsContent>
+          )}
 
         </Tabs>
       )}
