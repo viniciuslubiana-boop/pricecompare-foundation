@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Package, Plus, Upload, Pencil, Trash2, Loader2, Link2 } from "lucide-react";
+import { Package, Plus, Upload, Pencil, Trash2, Loader2, Link2, Eye } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
@@ -43,6 +43,7 @@ import { Building2 } from "lucide-react";
 import { FipeUpdateButton } from "@/features/fipe/components/FipeUpdateButton";
 import { FipeStatusBadge } from "@/features/fipe/components/FipeStatusBadge";
 import { FipeManualLinkDialog } from "@/features/fipe/components/FipeManualLinkDialog";
+import { FipeDetailsDialog } from "@/features/fipe/components/FipeDetailsDialog";
 
 const ALL = "__all__";
 
@@ -57,6 +58,7 @@ function MeuEstoquePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
   const [fipeLinkTarget, setFipeLinkTarget] = useState<Vehicle | null>(null);
+  const [fipeDetailsTarget, setFipeDetailsTarget] = useState<Vehicle | null>(null);
 
   const filters = useMemo(
     () => ({ search, brand, baseCompanyId: selectedId }),
@@ -287,6 +289,15 @@ function MeuEstoquePage() {
                         <Button
                           size="icon"
                           variant="ghost"
+                          onClick={() => setFipeDetailsTarget(v)}
+                          aria-label="Ver detalhes FIPE"
+                          title="Ver detalhes FIPE"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           onClick={() => setFipeLinkTarget(v)}
                           aria-label="Vincular FIPE manualmente"
                           title="Vincular FIPE manualmente"
@@ -374,6 +385,16 @@ function MeuEstoquePage() {
                 model: fipeLinkTarget.model,
                 year_model: Number(fipeLinkTarget.year_model),
               }
+            : null
+        }
+      />
+
+      <FipeDetailsDialog
+        open={!!fipeDetailsTarget}
+        onOpenChange={(o) => !o && setFipeDetailsTarget(null)}
+        vehicle={
+          fipeDetailsTarget
+            ? (fipeDetailsTarget as unknown as Parameters<typeof FipeDetailsDialog>[0]["vehicle"])
             : null
         }
       />
