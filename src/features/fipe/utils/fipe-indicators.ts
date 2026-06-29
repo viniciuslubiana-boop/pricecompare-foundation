@@ -17,7 +17,7 @@ export interface FipeIndicators {
   avgDiffPercent: number | null;
 }
 
-const STATUS_LINKED = new Set(["vinculada", "vinculada_manualmente"]);
+const STATUS_LINKED = new Set(["encontrada", "vinculada_manualmente"]);
 
 export function computeFipeIndicators(vehicles: Pick<
   MyVehicle,
