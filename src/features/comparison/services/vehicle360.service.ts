@@ -95,10 +95,11 @@ export const vehicle360Service = {
         const sameBrand = (ch.brand ?? "").trim().toLowerCase() ===
           myVehicle.brand.trim().toLowerCase();
         const sameYear = !!yearMatch && !!chYear && yearMatch === chYear;
-        const sameModelRoot =
-          (ch.model ?? "").trim().toLowerCase().split(/\s+/)[0] ===
-          myVehicle.model.trim().toLowerCase().split(/\s+/)[0];
-        if (!sameBrand || !sameYear || !sameModelRoot) continue;
+        const compact = (s: string | null | undefined) =>
+          (s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase().replace(/[^a-z0-9]+/g, "");
+        const sameModel = compact(ch.model) === compact(myVehicle.model);
+        if (!sameBrand || !sameYear || !sameModel) continue;
         history.push({
           id: ch.id,
           competitorName: ch.competitor_name,

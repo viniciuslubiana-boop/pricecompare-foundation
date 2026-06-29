@@ -14,6 +14,7 @@ import { comparisonDataRepository } from "../repositories/comparison.repository"
 import { marketChangesRepository } from "@/features/market-update/repositories/market-changes.repository";
 import { baseCompaniesService } from "@/features/base-companies/services/base-companies.service";
 import { equivalentsFor, intelligenceFor } from "../calculators/comparison.market-price";
+import { normPhrase, normToken, yearOf } from "../matching/vehicle-equivalence";
 import type {
   MarketIntelligence,
   MyVehicle,
@@ -44,13 +45,9 @@ export interface GlobalSearchResult {
 }
 
 
-const norm = (s: string | null | undefined) => (s ?? "").toString().trim().toLowerCase();
-const firstToken = (s: string) => norm(s).split(/\s+/)[0] ?? "";
 const round2 = (n: number) => Math.round(n * 100) / 100;
-
-function yearOf(s: string | null | undefined): string | null {
-  return s?.match(/\d{4}/)?.[0] ?? null;
-}
+const modelCompact = (s: string | null | undefined) =>
+  normPhrase(s).replace(/\s+/g, "");
 
 export const globalSearchService = {
   async search(query: GlobalSearchQuery): Promise<GlobalSearchResult> {
@@ -67,17 +64,18 @@ export const globalSearchService = {
       baseCompaniesService.list().catch(() => []),
     ]);
 
-    const bBrand = norm(brand);
-    const bModelRoot = firstToken(model);
-    const versionTerm = norm(query.version);
+    const bBrand = normToken(brand);
+    const bModelCompact = modelCompact(model);
+    const versionTerm = normPhrase(query.version);
     const yearTerm = query.year ? yearOf(query.year) : null;
 
-    // 1) Localiza TODOS os veículos do estoque que casam com a busca.
+    // 1) Localiza TODOS os veículos do estoque que casam EXATAMENTE com a busca
+    //    (marca + modelo completo normalizado + ano, quando informado).
     const matches = inventory.filter((v) => {
-      if (norm(v.brand) !== bBrand) return false;
-      if (firstToken(v.model) !== bModelRoot) return false;
+      if (normToken(v.brand) !== bBrand) return false;
+      if (modelCompact(v.model) !== bModelCompact) return false;
       if (yearTerm && yearOf(v.year_model) !== yearTerm) return false;
-      if (versionTerm && !norm(v.model).includes(versionTerm)) return false;
+      if (versionTerm && !normPhrase(v.model).includes(versionTerm)) return false;
       return true;
     });
     const myVehicle = matches[0] ?? null;
@@ -104,7 +102,6 @@ export const globalSearchService = {
 
 
     // 2) Sintetiza um "alvo" para reusar o Comparison Engine sem duplicar lógica.
-    //    Quando há veículo do estoque, usamos ele (preço, ano reais).
     const target: MyVehicle = myVehicle ?? ({
       id: "__synthetic__",
       brand,
@@ -117,20 +114,21 @@ export const globalSearchService = {
       updated_at: new Date().toISOString(),
     } as unknown as MyVehicle);
 
-    // 3) Equivalentes via Comparison Engine (mesmo brand + model-root + mesmo ano).
-    //    Se a busca não trouxer ano, fazemos um match mais largo (apenas brand + model-root).
+    // 3) Equivalentes — Comparison Engine estrito (marca + modelo + ano exatos).
+    //    Quando a busca não tem ano, relaxamos APENAS o ano, mantendo marca e
+    //    modelo exatos.
     let eq = equivalentsFor(target, marketPool);
     if (!yearTerm && !target.year_model) {
       eq = marketPool.filter(
         (c) =>
-          norm(c.brand) === bBrand &&
-          firstToken(c.model) === bModelRoot &&
+          normToken(c.brand) === bBrand &&
+          modelCompact(c.model) === bModelCompact &&
           typeof c.price === "number" &&
           (c.price as number) > 0,
       );
     }
     if (versionTerm) {
-      eq = eq.filter((c) => norm(c.model).includes(versionTerm));
+      eq = eq.filter((c) => normPhrase(c.model).includes(versionTerm));
     }
 
     // 4) Intelligence (stats) — reuso direto. Quando filtramos por versão, recalculamos via
@@ -200,8 +198,8 @@ export const globalSearchService = {
       for (const ch of changes) {
         if (ch.change_type !== "price") continue;
         if (!competitorNames.has(ch.competitor_name)) continue;
-        if (norm(ch.brand) !== bBrand) continue;
-        if (firstToken(ch.model ?? "") !== bModelRoot) continue;
+        if (normToken(ch.brand) !== bBrand) continue;
+        if (modelCompact(ch.model ?? "") !== bModelCompact) continue;
         if (yearTerm) {
           const chYear = yearOf(ch.year_model);
           if (!chYear || chYear !== yearTerm) continue;

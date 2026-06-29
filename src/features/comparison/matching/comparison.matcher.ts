@@ -11,11 +11,13 @@ import type {
 } from "../types/comparison.types";
 import { computeScore } from "./comparison.score";
 
-const MATCH_THRESHOLD = 40; // abaixo disto, não consideramos par
+// Match Score mínimo para considerar par. Abaixo disto, o veículo é
+// classificado como "Revisão Necessária" (regra estrita do PCM).
+const MATCH_THRESHOLD = 80;
 
 export function statusFromScore(total: number): MatchStatus {
-  if (total >= 85) return "perfect";
-  if (total >= 60) return "partial";
+  if (total >= 100) return "perfect";
+  if (total >= 95) return "partial";
   if (total >= MATCH_THRESHOLD) return "review";
   return "none";
 }

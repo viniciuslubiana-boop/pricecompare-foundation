@@ -13,30 +13,16 @@ import type {
   RecommendedAction,
 } from "../types/comparison.types";
 
-const norm = (s: string | null | undefined) => (s ?? "").toString().trim().toLowerCase();
-
-function firstToken(model: string): string {
-  return norm(model).split(/\s+/)[0] ?? "";
-}
-
-function sameYear(a: string | null, b: string | null): boolean {
-  const ya = a?.match(/\d{4}/)?.[0];
-  const yb = b?.match(/\d{4}/)?.[0];
-  return !!ya && !!yb && ya === yb;
-}
+import { isEquivalent } from "../matching/vehicle-equivalence";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export function equivalentsFor(me: MyVehicle, pool: CompetitorVehicle[]): CompetitorVehicle[] {
-  const meBrand = norm(me.brand);
-  const meModelRoot = firstToken(me.model);
   return pool.filter(
     (c) =>
-      norm(c.brand) === meBrand &&
-      firstToken(c.model) === meModelRoot &&
-      sameYear(c.year_model, me.year_model) &&
       typeof c.price === "number" &&
-      (c.price as number) > 0,
+      (c.price as number) > 0 &&
+      isEquivalent(me, c),
   );
 }
 
