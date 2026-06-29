@@ -337,7 +337,14 @@ function DashboardPage() {
         favorite={isFavorite("fipe")}
         onToggleFavorite={() => toggleFavorite("fipe")}
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <MetricCard
+            label="Com FIPE confirmada"
+            value={fipe.withFipe}
+            hint="Vinculadas automaticamente ou manualmente"
+            tone="primary"
+            icon={<Gauge className="h-5 w-5" />}
+          />
           <MetricCard
             label="Acima da FIPE"
             value={fipe.aboveFipe}
