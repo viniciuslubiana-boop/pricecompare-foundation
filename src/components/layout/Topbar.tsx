@@ -11,7 +11,6 @@ export function Topbar() {
       <SidebarTrigger />
       <Separator orientation="vertical" className="mx-1 h-5" />
       <div className="flex-1" />
-      <MarketUpdateButton size="sm" className="hidden sm:inline-flex" />
       <Button variant="ghost" size="icon" aria-label="Notificações">
         <Bell className="h-4 w-4" />
       </Button>
