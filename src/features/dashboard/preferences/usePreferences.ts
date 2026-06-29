@@ -70,8 +70,8 @@ export function useDashboardPreferences() {
         {
           user_id: user.id,
           base_company_id: prefs.baseCompanyId,
-          filters: prefs.filters as unknown as Record<string, unknown>,
-          layout: prefs.layout as unknown as Record<string, unknown>,
+          filters: JSON.parse(JSON.stringify(prefs.filters)),
+          layout: JSON.parse(JSON.stringify(prefs.layout)),
           favorites: prefs.favorites,
           collapsed: prefs.collapsed,
           hidden: prefs.hidden,
