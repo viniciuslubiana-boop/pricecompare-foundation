@@ -1,0 +1,9 @@
+# PriceCompare
+
+> Plataforma de inteligência de mercado para concessionárias de veículos: monitora preços de concorrentes, compara com o estoque das suas lojas e revela oportunidades em tempo real.
+
+PriceCompare consolida estoques públicos de concorrentes, normaliza marca, modelo, versão, ano e KM e compara automaticamente com até duas Empresas Base do cliente. Não é ERP, CRM, marketplace ou sistema de vendas.
+
+## Pages
+
+- [Início](/): Visão geral da plataforma e acesso ao sistema.
