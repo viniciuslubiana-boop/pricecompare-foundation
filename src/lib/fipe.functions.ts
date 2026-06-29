@@ -115,13 +115,13 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
       .eq("base_company_id", data.base_company_id);
 
     if (error) throw new Error(error.message);
-    const list = (vehicles ?? []) as Array<{
+    const list = ((vehicles ?? []) as Array<{
       id: string;
       brand: string;
       model: string;
-      year_model: number;
+      year_model: number | string;
       fipe_code: string | null;
-    }>;
+    }>).map((v) => ({ ...v, year_model: Number(v.year_model) }));
 
     const outcomes: FipeVehicleUpdateOutcome[] = [];
     let matched = 0;
