@@ -12,6 +12,11 @@ import {
 import { matchInventoryAgainstCompetitor, statusFromScore } from "../matching/comparison.matcher";
 import { decideWinner, summarize } from "../calculators/comparison.summary";
 import { intelligenceFor, emptyIntelligence } from "../calculators/comparison.market-price";
+import {
+  applyCatalogAliases,
+  loadApprovedAliases,
+  type AliasAuditEntry,
+} from "../matching/vehicle-catalog-normalizer";
 import type { ComparisonResult, ComparisonRow, ScoreBreakdown } from "../types/comparison.types";
 
 function emptyScore(): ScoreBreakdown {
@@ -24,15 +29,30 @@ export const comparisonService = {
     const target = all.find((c) => c.id === competitorId);
     if (!target) throw new Error("Concorrente não encontrado.");
 
-    const [mine, targetVehicles, marketPool] = await Promise.all([
+    const [mine, targetVehicles, marketPool, aliasMap] = await Promise.all([
       vehicleRepository.list({ baseCompanyId: baseCompanyId ?? undefined }),
       comparisonDataRepository.listCompetitorVehiclesByName(target.name),
       comparisonDataRepository.listMarketPool(),
+      loadApprovedAliases().catch(() => new Map()),
     ]);
 
+    // Catálogo Mestre → reescreve `model` para o canônico quando houver
+    // alias APROVADO. Dados originais não são alterados; o Comparison
+    // Engine segue rígido (score mínimo 80, gating estrito).
+    const audit: AliasAuditEntry[] = [];
+    const mineCanonical = applyCatalogAliases(mine, aliasMap, audit);
+    const targetCanonical = applyCatalogAliases(targetVehicles, aliasMap, audit);
+    if (audit.length > 0) {
+      // Relatório leve em console para auditoria operacional.
+      console.info(
+        `[comparison] aliases aplicados: ${audit.length}`,
+        audit.slice(0, 20),
+      );
+    }
+
     const { matches, unmatchedMine, opportunities } = matchInventoryAgainstCompetitor(
-      mine,
-      targetVehicles,
+      mineCanonical,
+      targetCanonical,
     );
 
     const rows: ComparisonRow[] = [];
