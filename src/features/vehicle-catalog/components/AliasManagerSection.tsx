@@ -55,11 +55,14 @@ export function AliasManagerSection() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Aliases vinculados ao catálogo</CardTitle>
-        <CardDescription>
-          Selecione um modelo canônico e cadastre variações para normalização.
-        </CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+        <div>
+          <CardTitle>Aliases vinculados ao catálogo</CardTitle>
+          <CardDescription>
+            Selecione um modelo canônico e cadastre variações para normalização.
+          </CardDescription>
+        </div>
+        <BulkAliasImportDialog />
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
