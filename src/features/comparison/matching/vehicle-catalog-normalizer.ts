@@ -81,8 +81,8 @@ export function applyCatalogAlias<T extends MyVehicle | CompetitorVehicle>(
   const k = keyOf(vehicle.brand, vehicle.model);
   const hit = aliases.get(k);
   if (!hit) return vehicle;
-  // Já é o canônico — nada a fazer.
-  if (normToken(vehicle.model) === normToken(hit.canonical)) return vehicle;
+  // Já é exatamente o canônico — evita clone e auditoria ruidosa.
+  if (vehicle.model.trim() === hit.canonical.trim()) return vehicle;
 
   if (audit) {
     audit.push({
