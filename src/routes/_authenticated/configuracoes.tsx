@@ -64,10 +64,6 @@ function SettingsPage() {
             <TabsTrigger value="base-companies">
               <Building2 className="h-4 w-4 mr-1.5" /> Empresas Base
             </TabsTrigger>
-            <TabsTrigger value="reference">
-              <Store className="h-4 w-4 mr-1.5" /> Loja de Referência
-            </TabsTrigger>
-            <TabsTrigger value="general">Geral</TabsTrigger>
             <TabsTrigger value="comparison">Comparação</TabsTrigger>
             <TabsTrigger value="market">Mercado</TabsTrigger>
             <TabsTrigger value="imports">Importação</TabsTrigger>
@@ -84,13 +80,8 @@ function SettingsPage() {
           <TabsContent value="base-companies">
             <BaseCompaniesSection />
           </TabsContent>
-          <TabsContent value="reference">
-            <ReferenceStoreSection value={bundle.referenceStore} />
-          </TabsContent>
-          <TabsContent value="general">
-            <GeneralSection value={bundle.general} />
-          </TabsContent>
           <TabsContent value="comparison">
+
             <ComparisonSection value={bundle.comparison} />
           </TabsContent>
           <TabsContent value="market">
