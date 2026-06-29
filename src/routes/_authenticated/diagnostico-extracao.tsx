@@ -86,9 +86,39 @@ function formatLast(raw: unknown): string {
 }
 
 function DiagnosticoExtracaoPage() {
+  const queryClient = useQueryClient();
   const [stage, setStage] = useState<StageFilter>("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["extraction-logs", "diagnostico"] });
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("extraction_logs").delete().eq("id", id);
+    if (error) {
+      toast.error("Falha ao excluir log", { description: error.message });
+      return;
+    }
+    toast.success("Log excluído");
+    await invalidate();
+  };
+
+  const handleClearAll = async () => {
+    const { error } = await supabase
+      .from("extraction_logs")
+      .delete()
+      .not("id", "is", null);
+    if (error) {
+      toast.error("Falha ao limpar logs", { description: error.message });
+      return;
+    }
+    toast.success("Histórico de extração limpo");
+    await invalidate();
+  };
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["extraction-logs", "diagnostico"],
