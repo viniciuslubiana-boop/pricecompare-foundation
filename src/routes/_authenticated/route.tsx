@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loader2 } from "lucide-react";
 
@@ -12,6 +13,7 @@ function AuthenticatedLayout() {
   const { loading, session } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useRealtimeSync();
 
   useEffect(() => {
     if (!loading && !session) {
