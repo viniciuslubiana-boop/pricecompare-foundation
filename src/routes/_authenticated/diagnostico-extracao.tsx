@@ -277,11 +277,24 @@ function DiagnosticoExtracaoPage() {
                       <td className="p-3 text-muted-foreground max-w-[320px] truncate">
                         {formatLast(l.error_log)}
                       </td>
+                      <td className="p-3 text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Excluir log"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConfirmDeleteId(l.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </td>
                     </tr>
                     {isOpen && (
                       <tr key={`${l.id}-d`} className="border-b last:border-0 bg-muted/10">
                         <td />
-                        <td colSpan={7} className="p-4 space-y-4">
+                        <td colSpan={8} className="p-4 space-y-4">
                           {errors.length === 0 ? (
                             <p className="text-sm text-muted-foreground">
                               Nenhum detalhe registrado para esta execução.
