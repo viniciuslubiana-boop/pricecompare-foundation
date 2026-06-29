@@ -120,13 +120,7 @@ async function callExternal(
       redirect: "manual",
     });
 
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: { Accept: "application/json", ...headers },
-      body: method === "POST" && body != null ? JSON.stringify(body) : undefined,
-      signal: controller.signal,
-    });
+
     const text = await res.text();
     let json: unknown = null;
     try {
