@@ -384,8 +384,8 @@ function DashboardPage() {
             <RankingCard entries={competitors.byCompetitor.slice(0, 10)} />
           </SummaryCard>
           <SummaryCard
-            title="Oportunidades por Marca"
-            description="Marcas com mais movimento na concorrência"
+            title="Marcas na Concorrência"
+            description="Volume de veículos por marca nas lojas monitoradas"
           >
             <OpportunityCard
               items={competitors.byBrand.slice(0, 6).map((b) => ({
