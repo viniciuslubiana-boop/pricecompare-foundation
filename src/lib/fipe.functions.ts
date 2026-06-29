@@ -266,5 +266,7 @@ export const fipeManualLink = createServerFn({ method: "POST" })
       })
       .eq("id", data.vehicle_id);
 
-    return result;
+    const { raw_response: _r, ...safe } = result;
+    void _r;
+    return safe;
   });
