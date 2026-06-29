@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Package, Plus, Upload, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Package, Plus, Upload, Pencil, Trash2, Loader2, Link2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
@@ -40,6 +40,9 @@ import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-format
 import { BaseCompanySelector } from "@/features/base-companies/components/BaseCompanySelector";
 import { useSelectedBaseCompany } from "@/features/base-companies/context/SelectedBaseCompanyContext";
 import { Building2 } from "lucide-react";
+import { FipeUpdateButton } from "@/features/fipe/components/FipeUpdateButton";
+import { FipeStatusBadge } from "@/features/fipe/components/FipeStatusBadge";
+import { FipeManualLinkDialog } from "@/features/fipe/components/FipeManualLinkDialog";
 
 const ALL = "__all__";
 
