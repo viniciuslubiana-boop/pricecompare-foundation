@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useActiveBaseCompanies } from "@/features/base-companies/hooks/useBaseCompanies";
-import { useCompetitors } from "@/features/competitors/hooks/useCompetitors";
+import { useCompetitorsList } from "@/features/competitors/hooks/useCompetitors";
 import type { DashboardFilters, DashboardPeriod } from "../preferences/types";
 
 interface Props {
@@ -35,7 +35,7 @@ export function DashboardFiltersBar({
   onReset,
 }: Props) {
   const { data: companies = [] } = useActiveBaseCompanies();
-  const { data: competitors = [] } = useCompetitors();
+  const { data: competitors = [] } = useCompetitorsList({});
 
   return (
     <div className="sticky top-0 z-20 -mx-4 mb-4 border-b bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
