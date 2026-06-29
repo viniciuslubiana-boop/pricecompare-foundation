@@ -149,7 +149,7 @@ describe("Comparison Engine como gatekeeper único", () => {
     // do que o Comparison Engine aprovaria.
     const queryBrand = "Toyota";
     const queryModel = "Corolla XEi";
-    const queryYear = "2024";
+    const queryYear = "2023";
 
     const normBrand = (s: string) =>
       s
