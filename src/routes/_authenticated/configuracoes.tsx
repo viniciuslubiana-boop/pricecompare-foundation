@@ -75,6 +75,9 @@ function SettingsPage() {
               <Plug className="h-4 w-4 mr-1.5" /> Integração por API
             </TabsTrigger>
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
+            <TabsTrigger value="constitution">
+              <BookOpen className="h-4 w-4 mr-1.5" /> Constituição
+            </TabsTrigger>
           </TabsList>
 
 
