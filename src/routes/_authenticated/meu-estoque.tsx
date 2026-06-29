@@ -228,9 +228,12 @@ function MeuEstoquePage() {
                   <TableHead>Ano/Modelo</TableHead>
                   <TableHead className="text-right">KM</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="text-right">FIPE</TableHead>
+                  <TableHead className="text-right">Dif. FIPE</TableHead>
+                  <TableHead>Status FIPE</TableHead>
                   <TableHead>Fornecedor</TableHead>
                   <TableHead>Origem</TableHead>
-                  <TableHead className="w-[100px] text-right">Ações</TableHead>
+                  <TableHead className="w-[120px] text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
