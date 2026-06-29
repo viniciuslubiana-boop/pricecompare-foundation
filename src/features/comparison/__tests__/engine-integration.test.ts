@@ -13,10 +13,7 @@ import {
 import { priorityFor, radarActionFor } from "../calculators/radar";
 import { strategyFor } from "../calculators/comparison.strategy";
 import { matchInventoryAgainstCompetitor } from "../matching/comparison.matcher";
-import {
-  isEquivalent,
-  modelCompactOf,
-} from "../matching/vehicle-equivalence";
+import { isEquivalent } from "../matching/vehicle-equivalence";
 import type { CompetitorVehicle, MyVehicle } from "@/types/database.types";
 
 const me = (over: Partial<MyVehicle>): MyVehicle =>
