@@ -201,6 +201,16 @@ function DiagnosticoExtracaoPage() {
             Limpar
           </Button>
         )}
+        <div className="sm:ml-auto">
+          <Button
+            variant="destructive"
+            onClick={() => setConfirmClearAll(true)}
+            disabled={!data || data.length === 0}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Limpar histórico
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
