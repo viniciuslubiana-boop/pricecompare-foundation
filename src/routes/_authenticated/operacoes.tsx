@@ -169,15 +169,6 @@ function OperationsPage() {
       actionLabel: "Ver histórico",
     },
     {
-      title: "Extrações",
-      count: totals.extractions,
-      lastUpdated: lastUpdated.extractions,
-      status: errors.extractions ? "warning" : totals.extractions ? "ok" : "empty",
-      icon: <Download className="h-4 w-4" />,
-      to: "/extrair-concorrente",
-      actionLabel: "Nova extração",
-    },
-    {
       title: "Comparações",
       count: totals.comparisons,
       lastUpdated: lastUpdated.comparisons,
@@ -306,11 +297,6 @@ function OperationsPage() {
           <Button asChild variant="outline">
             <Link to="/concorrentes">
               <Users className="h-4 w-4" /> Novo Concorrente
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/extrair-concorrente">
-              <Download className="h-4 w-4" /> Extrair Concorrente
             </Link>
           </Button>
           <Button asChild variant="outline">

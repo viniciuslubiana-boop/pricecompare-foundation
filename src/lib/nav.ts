@@ -3,7 +3,7 @@ import {
   Package,
   Upload,
   Users,
-  Download,
+  
   GitCompareArrows,
   FileBarChart,
   Settings,
@@ -34,7 +34,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Importações", url: "/importacoes", icon: Upload },
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
   { title: "Localizar Concorrentes", url: "/localizar-concorrentes", icon: MapPin },
-  { title: "Extrair Concorrente", url: "/extrair-concorrente", icon: Download },
+  
   { title: "Diagnóstico de Extração", url: "/diagnostico-extracao", icon: Stethoscope },
   { title: "Consulta Global", url: "/consulta-mercado", icon: Search },
   { title: "Central de Consulta", url: "/central-consulta", icon: Search },
