@@ -13,6 +13,7 @@ function AuthenticatedLayout() {
   const { loading, session } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useRealtimeSync();
 
   useEffect(() => {
     if (!loading && !session) {
