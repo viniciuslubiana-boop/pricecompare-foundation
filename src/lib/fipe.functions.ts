@@ -12,8 +12,10 @@ import type {
 } from "@/features/fipe/types/fipe.types";
 import {
   currentReferenceMonth,
-  isStrictFipeMatch,
+  isAcceptableFipeMatch,
+  parseYearModel,
 } from "@/features/fipe/utils/fipe-normalization";
+
 
 function getProvider(id: FipeProviderId): FipeProvider {
   switch (id) {
@@ -121,7 +123,8 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
       model: string;
       year_model: number | string;
       fipe_code: string | null;
-    }>).map((v) => ({ ...v, year_model: Number(v.year_model) }));
+    }>).map((v) => ({ ...v, year_model: parseYearModel(v.year_model) }));
+
 
     const outcomes: FipeVehicleUpdateOutcome[] = [];
     let matched = 0;
@@ -130,6 +133,20 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
 
     for (const v of list) {
       try {
+        if (!Number.isFinite(v.year_model)) {
+          unmatched++;
+          await supabase
+            .from("my_vehicles")
+            .update({ fipe_status: "nao_encontrada" })
+            .eq("id", v.id);
+          outcomes.push({
+            vehicle_id: v.id,
+            status: "nao_encontrada",
+            reason: "ano/modelo invalido",
+          });
+          continue;
+        }
+
         const result = await provider.quote({
           brand: v.brand,
           model: v.model,
@@ -147,8 +164,8 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
           continue;
         }
 
-        // Reforça o match estrito antes de persistir no veículo
-        if (!isStrictFipeMatch(result, v)) {
+        // Validação final: marca exata + ano exato + modelo compatível por tokens
+        if (!isAcceptableFipeMatch(result, v)) {
           unmatched++;
           await supabase
             .from("my_vehicles")
@@ -157,10 +174,11 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
           outcomes.push({
             vehicle_id: v.id,
             status: "nao_encontrada",
-            reason: "match nao estrito",
+            reason: "match nao aceitavel",
           });
           continue;
         }
+
 
         await persistFipeReference(supabase, result);
         await supabase
