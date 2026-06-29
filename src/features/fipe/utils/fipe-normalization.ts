@@ -8,13 +8,71 @@ const ACCENT_RE = /[\u0300-\u036f]/g;
 
 export function normalizeText(input: string | null | undefined): string {
   if (!input) return "";
-  return input
+  const separated = input
     .normalize("NFD")
     .replace(ACCENT_RE, "")
     .toLowerCase()
+    .replace(/([a-z]+)(\d+)/g, "$1 $2")
+    .replace(/(\d+(?:\.\d+)?)([a-z]+)/g, "$1 $2");
+
+  return separated
     .replace(/[^a-z0-9 ]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+const FIPE_BRAND_ALIASES: Record<string, string> = {
+  "caoa chery": "CAOA CHERY/CHERY",
+  bmw: "BMW",
+  "bmw motorrad": "BMW MOTORRAD",
+};
+
+const FIPE_MODEL_ALIASES: Record<string, string> = {
+  "honda|biz ex": "BIZ 125 EX",
+  "honda|cb 500 hornet": "CB 500F Hornet",
+  "honda|cb 300 f twister abs": "CB 300F TWISTER",
+  "honda|cb 300 f twister cbs": "CB 300F TWISTER",
+  "honda|cg 160 start": "CG 160 START",
+  "honda|cg 160 titan": "CG 160 TITAN",
+  "honda|cb 500 x": "CB 500X",
+  "honda|cb 1000 r": "CB 1000R ABS",
+  "chevrolet|onix 10 mt lt 1": "ONIX 1.0 MT LT1",
+  "caoa chery|tiggo 8 1 6 tgdi": "TIGGO 8 1.6 TGDI",
+  "caoa chery chery|tiggo 8 1 6 tgdi": "TIGGO 8 1.6 TGDI",
+  "citroen|c 3 aircross 7": "C3 AIRCROSS",
+  "bmw|x 1 s 20 i": "X1 SDRIVE20I",
+  "bmw motorrad|x 1 s 20 i": "X1 SDRIVE20I",
+  "ford|fiesta sd 1 6 lsea": "FIESTA SE 1.6",
+  "byd|dolphin mini gs ev": "DOLPHIN MINI GS",
+};
+
+export function applyFipeBrandAlias(brand: string): string {
+  return FIPE_BRAND_ALIASES[normalizeText(brand)] ?? brand;
+}
+
+export function applyFipeModelAlias(brand: string, model: string): string {
+  const brandKey = normalizeText(applyFipeBrandAlias(brand));
+  const originalBrandKey = normalizeText(brand);
+  const modelKey = normalizeText(model);
+  return (
+    FIPE_MODEL_ALIASES[`${originalBrandKey}|${modelKey}`] ??
+    FIPE_MODEL_ALIASES[`${brandKey}|${modelKey}`] ??
+    model
+  );
+}
+
+export function normalizeFipeQuery<T extends { brand: string; model: string }>(
+  query: T,
+): T & { brand_alias_applied: string | null; model_alias_applied: string | null } {
+  const brand = applyFipeBrandAlias(query.brand);
+  const model = applyFipeModelAlias(query.brand, query.model);
+  return {
+    ...query,
+    brand,
+    model,
+    brand_alias_applied: brand !== query.brand ? brand : null,
+    model_alias_applied: model !== query.model ? model : null,
+  };
 }
 
 const FUEL_MAP: Record<string, string> = {
@@ -53,6 +111,43 @@ export function tokens(input: string | null | undefined): string[] {
   return t;
 }
 
+export function tokenCoverage(fipeModel: string, queryModel: string): number {
+  const fipe = tokens(fipeModel);
+  const query = tokens(queryModel);
+  if (!query.length || !fipe.length) return 0;
+  const matched = query.filter((q) => fipe.includes(q)).length;
+  return matched / query.length;
+}
+
+function hasVersionOrDisplacementToken(model: string): boolean {
+  const modelTokens = tokens(model);
+  return modelTokens.some((t) => /\d/.test(t) || /^[a-z]{2,}\d+[a-z]*$/.test(t));
+}
+
+export function containsCompatibleVersionOrDisplacement(
+  fipeModel: string,
+  queryModel: string,
+): boolean {
+  const queryNumeric = tokens(queryModel).filter((t) => /\d/.test(t));
+  if (!queryNumeric.length) return true;
+  const fipe = tokens(fipeModel);
+  return queryNumeric.every((q) => fipe.includes(q));
+}
+
+function hasMissingAttachedSuffix(fipe: string[], query: string[]): boolean {
+  if (!query.length || fipe.length <= query.length) return false;
+  const prefixMatches = query.every((q, index) => fipe[index] === q);
+  const lastQueryToken = query[query.length - 1];
+  const firstExtraToken = fipe[query.length];
+  return prefixMatches && /\d/.test(lastQueryToken) && /^[a-z]$/.test(firstExtraToken);
+}
+
+export function requiresManualFipeVersion(brand: string, model: string): boolean {
+  const brandKey = normalizeText(brand);
+  const modelKey = normalizeText(model);
+  return brandKey === "toyota" && modelKey === "corolla" && !hasVersionOrDisplacementToken(model);
+}
+
 /**
  * Modelo é compatível quando todos os tokens da consulta aparecem no modelo FIPE.
  * Bloqueia falsos positivos óbvios (CB500 ≠ CB500X) porque os tokens precisam casar.
@@ -64,6 +159,8 @@ export function isFipeModelCompatible(
   const fipe = tokens(fipeModel);
   const query = tokens(queryModel);
   if (!query.length || !fipe.length) return false;
+  if (hasMissingAttachedSuffix(fipe, query)) return false;
+  if (!containsCompatibleVersionOrDisplacement(fipeModel, queryModel)) return false;
   return query.every((q) => fipe.includes(q));
 }
 
@@ -89,9 +186,11 @@ export function isAcceptableFipeMatch(
   fipe: { brand: string; model: string; year_model: number; fuel?: string | null },
   query: { brand: string; model: string; year_model: number; fuel?: string | null },
 ): boolean {
-  if (normalizeText(fipe.brand) !== normalizeText(query.brand)) return false;
+  const normalizedQuery = normalizeFipeQuery(query);
+  if (requiresManualFipeVersion(normalizedQuery.brand, normalizedQuery.model)) return false;
+  if (normalizeText(fipe.brand) !== normalizeText(normalizedQuery.brand)) return false;
   if (fipe.year_model !== query.year_model) return false;
-  if (!isFipeModelCompatible(fipe.model, query.model)) return false;
+  if (!isFipeModelCompatible(fipe.model, normalizedQuery.model)) return false;
   const fa = normalizeFuel(fipe.fuel);
   const fb = normalizeFuel(query.fuel);
   if (fa && fb && fa !== fb) return false;

@@ -1,9 +1,20 @@
 import type { FipeProvider } from "./fipe.provider";
-import type { FipeQuoteQuery, FipeQuoteResult } from "../types/fipe.types";
+import type {
+  FipeMatchDiagnostics,
+  FipeQuoteQuery,
+  FipeQuoteResult,
+  FipeQuoteWithDiagnostics,
+  FipeSegment,
+} from "../types/fipe.types";
 import {
+  containsCompatibleVersionOrDisplacement,
   isAcceptableFipeMatch,
   isFipeModelCompatible,
+  normalizeFipeQuery,
+  normalizeFuel,
   normalizeText,
+  requiresManualFipeVersion,
+  tokenCoverage,
   tokens,
 } from "../utils/fipe-normalization";
 
@@ -20,8 +31,7 @@ import {
 
 const BASE_URL = "https://parallelum.com.br/fipe/api/v1";
 
-type VehicleSegment = "carros" | "motos" | "caminhoes";
-const SEGMENTS: VehicleSegment[] = ["carros", "motos", "caminhoes"];
+type VehicleSegment = FipeSegment;
 const SEGMENT_TO_TYPE: Record<VehicleSegment, FipeQuoteResult["vehicle_type"]> = {
   carros: "cars",
   motos: "motorcycles",
@@ -92,59 +102,157 @@ export class ParallelumProvider implements FipeProvider {
   readonly id = "parallelum" as const;
 
   async quote(query: FipeQuoteQuery): Promise<FipeQuoteResult | null> {
-    if (!Number.isFinite(query.year_model)) return null;
+    const { result } = await this.quoteWithDiagnostics(query);
+    return result;
+  }
 
-    const segments = preferredSegmentOrder(query.brand, query.model);
-    for (const segment of segments) {
-      const result = await this.quoteInSegment(query, segment);
-      if (result) return result;
+  async quoteWithDiagnostics(query: FipeQuoteQuery): Promise<FipeQuoteWithDiagnostics> {
+    const normalizedQuery = normalizeFipeQuery(query);
+    const segments = preferredSegmentOrder(normalizedQuery.brand, normalizedQuery.model);
+    const diagnostics = this.createDiagnostics(query, normalizedQuery, segments);
+
+    if (!Number.isFinite(query.year_model)) {
+      diagnostics.rejection_reason = "ano_nao_encontrado";
+      return { result: null, diagnostics };
     }
-    return null;
+
+    if (requiresManualFipeVersion(normalizedQuery.brand, normalizedQuery.model)) {
+      diagnostics.final_status = "nao_encontrada";
+      diagnostics.rejection_reason = "modelo_nao_encontrado";
+      return { result: null, diagnostics };
+    }
+
+    for (const segment of segments) {
+      const result = await this.quoteInSegment(normalizedQuery, segment, diagnostics);
+      if (result) {
+        diagnostics.detected_type = result.vehicle_type;
+        diagnostics.segment_used = segment;
+        diagnostics.fipe_value_returned = result.fipe_value;
+        diagnostics.final_status = "encontrada";
+        diagnostics.rejection_reason = "aprovado";
+        return { result, diagnostics };
+      }
+    }
+
+    if (diagnostics.fipe_brand_found && diagnostics.rejection_reason === "segmento_incorreto") {
+      diagnostics.rejection_reason = diagnostics.fipe_candidates_found.length
+        ? "ano_nao_encontrado"
+        : "modelo_nao_encontrado";
+    }
+    return { result: null, diagnostics };
+  }
+
+  private createDiagnostics(
+    original: FipeQuoteQuery,
+    normalized: FipeQuoteQuery & {
+      brand_alias_applied: string | null;
+      model_alias_applied: string | null;
+    },
+    segments: VehicleSegment[],
+  ): FipeMatchDiagnostics {
+    return {
+      original_brand: original.brand,
+      original_model: original.model,
+      original_year_model: original.year_model,
+      normalized_brand: normalized.brand,
+      normalized_model: normalized.model,
+      detected_type: null,
+      segments_attempted: segments,
+      segment_used: null,
+      fipe_brand_found: null,
+      fipe_candidates_found: [],
+      chosen_fipe_model: null,
+      fipe_year_evaluated: null,
+      fipe_value_returned: null,
+      final_status: "nao_encontrada",
+      rejection_reason: "segmento_incorreto",
+      provider: this.id,
+      brand_alias_applied: normalized.brand_alias_applied,
+      model_alias_applied: normalized.model_alias_applied,
+    };
   }
 
   private async quoteInSegment(
     query: FipeQuoteQuery,
     segment: VehicleSegment,
+    diagnostics: FipeMatchDiagnostics,
   ): Promise<FipeQuoteResult | null> {
     // 1) Marca (exata, normalizada)
     const brands = await safeJson<BrandResp[]>(`${BASE_URL}/${segment}/marcas`);
-    if (!brands) return null;
+    if (!brands) {
+      diagnostics.rejection_reason = "erro_api";
+      return null;
+    }
     const wantedBrand = normalizeText(query.brand);
     const brand =
       brands.find((b) => normalizeText(b.nome) === wantedBrand) ??
       brands.find((b) => normalizeText(b.nome).split(" ").includes(wantedBrand));
-    if (!brand) return null;
+    if (!brand) {
+      if (!diagnostics.fipe_brand_found) diagnostics.rejection_reason = "marca_nao_encontrada";
+      return null;
+    }
+    diagnostics.segment_used = segment;
+    diagnostics.detected_type = SEGMENT_TO_TYPE[segment];
+    diagnostics.fipe_brand_found = brand.nome;
 
     // 2) Modelos — todos os tokens da consulta precisam estar no modelo FIPE
     const models = await safeJson<ModelResp>(
       `${BASE_URL}/${segment}/marcas/${brand.codigo}/modelos`,
     );
-    if (!models?.modelos?.length) return null;
+    if (!models?.modelos?.length) {
+      diagnostics.rejection_reason = "erro_api";
+      return null;
+    }
 
     const candidateModels = models.modelos
-      .filter((m) => isFipeModelCompatible(m.nome, query.model))
-      // Prefere modelo mais "curto" (menos versões/sufixos), depois ordem natural
-      .sort((a, b) => a.nome.length - b.nome.length);
+      .map((m) => ({
+        ...m,
+        coverage: tokenCoverage(m.nome, query.model),
+        compatibleVersion: containsCompatibleVersionOrDisplacement(m.nome, query.model),
+      }))
+      .filter((m) => m.coverage === 1 && m.compatibleVersion && isFipeModelCompatible(m.nome, query.model))
+      // Prefere maior cobertura de tokens, depois mais curto, depois compatibilidade versão/cilindrada.
+      .sort((a, b) => {
+        if (b.coverage !== a.coverage) return b.coverage - a.coverage;
+        if (a.nome.length !== b.nome.length) return a.nome.length - b.nome.length;
+        return Number(b.compatibleVersion) - Number(a.compatibleVersion);
+      });
 
-    if (!candidateModels.length) return null;
+    diagnostics.fipe_candidates_found = candidateModels.slice(0, 20).map((m) => m.nome);
+
+    if (!candidateModels.length) {
+      diagnostics.rejection_reason = "tokens_incompativeis";
+      return null;
+    }
 
     // 3) Para cada modelo candidato, busca anos compatíveis
     for (const model of candidateModels) {
+      diagnostics.chosen_fipe_model = model.nome;
       const years = await safeJson<YearResp[]>(
         `${BASE_URL}/${segment}/marcas/${brand.codigo}/modelos/${model.codigo}/anos`,
       );
-      if (!years?.length) continue;
+      if (!years?.length) {
+        diagnostics.rejection_reason = "erro_api";
+        continue;
+      }
 
       const yearCandidates = years.filter((y) =>
         y.codigo.startsWith(`${query.year_model}-`),
       );
-      if (!yearCandidates.length) continue;
+      if (!yearCandidates.length) {
+        diagnostics.rejection_reason = "ano_nao_encontrado";
+        continue;
+      }
 
       for (const y of yearCandidates) {
+        diagnostics.fipe_year_evaluated = y.codigo;
         const value = await safeJson<ValueResp>(
           `${BASE_URL}/${segment}/marcas/${brand.codigo}/modelos/${model.codigo}/anos/${y.codigo}`,
         );
-        if (!value) continue;
+        if (!value) {
+          diagnostics.rejection_reason = "erro_api";
+          continue;
+        }
 
         const result: FipeQuoteResult = {
           fipe_code: value.CodigoFipe,
@@ -160,7 +268,15 @@ export class ParallelumProvider implements FipeProvider {
           raw_response: value,
         };
 
+        diagnostics.fipe_value_returned = result.fipe_value;
+
         if (isAcceptableFipeMatch(result, query)) return result;
+
+        const resultFuel = normalizeFuel(result.fuel);
+        const queryFuel = normalizeFuel(query.fuel);
+        diagnostics.rejection_reason = resultFuel && queryFuel && resultFuel !== queryFuel
+          ? "combustivel_incompativel"
+          : "tokens_incompativeis";
       }
     }
     return null;
