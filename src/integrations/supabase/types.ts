@@ -1022,6 +1022,39 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_model_aliases: {
+        Row: {
+          alias: string
+          brand: string
+          canonical: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          alias: string
+          brand: string
+          canonical: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alias?: string
+          brand?: string
+          canonical?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       api_integrations_public: {
