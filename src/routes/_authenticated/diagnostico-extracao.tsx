@@ -233,7 +233,7 @@ function DiagnosticoExtracaoPage() {
                 <th className="p-3 text-right">Veículos</th>
                 <th className="p-3 text-right">Páginas</th>
                 <th className="p-3">Último erro</th>
-              </tr>
+                <th className="p-3 w-12 text-right">Ações</th>
             </thead>
             <tbody>
               {filtered.map((l) => {
