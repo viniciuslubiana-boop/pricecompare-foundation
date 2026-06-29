@@ -4,7 +4,6 @@ import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
 import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
-import { MarketUpdateButton } from "@/features/market-update";
 
 export function Topbar() {
   return (
