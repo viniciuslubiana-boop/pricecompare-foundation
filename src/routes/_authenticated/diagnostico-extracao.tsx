@@ -1,5 +1,9 @@
 import { Fragment } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,9 +86,39 @@ function formatLast(raw: unknown): string {
 }
 
 function DiagnosticoExtracaoPage() {
+  const queryClient = useQueryClient();
   const [stage, setStage] = useState<StageFilter>("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["extraction-logs", "diagnostico"] });
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("extraction_logs").delete().eq("id", id);
+    if (error) {
+      toast.error("Falha ao excluir log", { description: error.message });
+      return;
+    }
+    toast.success("Log excluído");
+    await invalidate();
+  };
+
+  const handleClearAll = async () => {
+    const { error } = await supabase
+      .from("extraction_logs")
+      .delete()
+      .not("id", "is", null);
+    if (error) {
+      toast.error("Falha ao limpar logs", { description: error.message });
+      return;
+    }
+    toast.success("Histórico de extração limpo");
+    await invalidate();
+  };
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["extraction-logs", "diagnostico"],
@@ -167,6 +201,16 @@ function DiagnosticoExtracaoPage() {
             Limpar
           </Button>
         )}
+        <div className="sm:ml-auto">
+          <Button
+            variant="destructive"
+            onClick={() => setConfirmClearAll(true)}
+            disabled={!data || data.length === 0}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Limpar histórico
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -189,6 +233,7 @@ function DiagnosticoExtracaoPage() {
                 <th className="p-3 text-right">Veículos</th>
                 <th className="p-3 text-right">Páginas</th>
                 <th className="p-3">Último erro</th>
+                <th className="p-3 w-12 text-right">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -232,11 +277,24 @@ function DiagnosticoExtracaoPage() {
                       <td className="p-3 text-muted-foreground max-w-[320px] truncate">
                         {formatLast(l.error_log)}
                       </td>
+                      <td className="p-3 text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Excluir log"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConfirmDeleteId(l.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </td>
                     </tr>
                     {isOpen && (
                       <tr key={`${l.id}-d`} className="border-b last:border-0 bg-muted/10">
                         <td />
-                        <td colSpan={7} className="p-4 space-y-4">
+                        <td colSpan={8} className="p-4 space-y-4">
                           {errors.length === 0 ? (
                             <p className="text-sm text-muted-foreground">
                               Nenhum detalhe registrado para esta execução.
@@ -312,6 +370,33 @@ function DiagnosticoExtracaoPage() {
           </table>
         </Card>
       )}
+
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onOpenChange={(o) => !o && setConfirmDeleteId(null)}
+        title="Excluir log de extração?"
+        description="Esta ação não pode ser desfeita."
+        destructive
+        confirmText="Excluir"
+        onConfirm={() => {
+          const id = confirmDeleteId;
+          setConfirmDeleteId(null);
+          if (id) void handleDelete(id);
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmClearAll}
+        onOpenChange={setConfirmClearAll}
+        title="Limpar todo o histórico?"
+        description="Todos os logs de diagnóstico serão removidos. Esta ação não pode ser desfeita."
+        destructive
+        confirmText="Limpar tudo"
+        onConfirm={() => {
+          setConfirmClearAll(false);
+          void handleClearAll();
+        }}
+      />
     </div>
   );
 }
