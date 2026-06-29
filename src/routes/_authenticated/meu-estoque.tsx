@@ -363,6 +363,12 @@ function MeuEstoquePage() {
         onConfirm={handleBulkDelete}
       />
 
+      <FipeManualLinkDialog
+        open={!!fipeLinkTarget}
+        onOpenChange={(o) => !o && setFipeLinkTarget(null)}
+        vehicle={fipeLinkTarget}
+      />
+
       {deleteMut.isPending ? (
         <div className="sr-only">
           <Loader2 className="animate-spin" />
