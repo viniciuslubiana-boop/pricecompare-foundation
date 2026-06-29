@@ -14,6 +14,7 @@ import { comparisonDataRepository } from "../repositories/comparison.repository"
 import { marketChangesRepository } from "@/features/market-update/repositories/market-changes.repository";
 import { baseCompaniesService } from "@/features/base-companies/services/base-companies.service";
 import { equivalentsFor, intelligenceFor } from "../calculators/comparison.market-price";
+import { normPhrase, normToken, yearOf } from "../matching/vehicle-equivalence";
 import type {
   MarketIntelligence,
   MyVehicle,
@@ -44,13 +45,9 @@ export interface GlobalSearchResult {
 }
 
 
-const norm = (s: string | null | undefined) => (s ?? "").toString().trim().toLowerCase();
-const firstToken = (s: string) => norm(s).split(/\s+/)[0] ?? "";
 const round2 = (n: number) => Math.round(n * 100) / 100;
-
-function yearOf(s: string | null | undefined): string | null {
-  return s?.match(/\d{4}/)?.[0] ?? null;
-}
+const modelCompact = (s: string | null | undefined) =>
+  normPhrase(s).replace(/\s+/g, "");
 
 export const globalSearchService = {
   async search(query: GlobalSearchQuery): Promise<GlobalSearchResult> {
