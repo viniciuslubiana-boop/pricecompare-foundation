@@ -56,21 +56,71 @@ const IntegrationInput = z.object({
 
 const TIMEOUT_MS = 20_000;
 
+function isPrivateOrBlockedHost(hostname: string): boolean {
+  const h = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (
+    h === "localhost" ||
+    h.endsWith(".localhost") ||
+    h.endsWith(".internal") ||
+    h.endsWith(".local")
+  )
+    return true;
+  // IPv6 loopback / link-local / unique-local
+  if (h === "::1" || h === "::" || h.startsWith("fe80:") || h.startsWith("fc") || h.startsWith("fd"))
+    return true;
+  // IPv4
+  const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) {
+    const [a, b] = [Number(m[1]), Number(m[2])];
+    if (a === 10) return true;
+    if (a === 127) return true;
+    if (a === 0) return true;
+    if (a === 169 && b === 254) return true; // link-local / cloud metadata
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
+    if (a >= 224) return true; // multicast / reserved
+  }
+  // IPv4-mapped IPv6
+  if (h.startsWith("::ffff:")) return isPrivateOrBlockedHost(h.slice(7));
+  return false;
+}
+
+function assertSafeUrl(rawUrl: string): URL {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    throw new Error("URL inválida.");
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error("Apenas URLs http(s) são permitidas.");
+  }
+  if (isPrivateOrBlockedHost(parsed.hostname)) {
+    throw new Error("URL aponta para um host interno/privado e foi bloqueada.");
+  }
+  return parsed;
+}
+
 async function callExternal(
   url: string,
   method: "GET" | "POST",
   headers: Record<string, string>,
   body: unknown | null,
 ): Promise<{ status: number; ok: boolean; json: unknown; text: string }> {
+  const safe = assertSafeUrl(url);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(url, {
+    const res = await fetch(safe.toString(), {
       method,
       headers: { Accept: "application/json", ...headers },
       body: method === "POST" && body != null ? JSON.stringify(body) : undefined,
       signal: controller.signal,
+      redirect: "manual",
     });
+
+
     const text = await res.text();
     let json: unknown = null;
     try {
