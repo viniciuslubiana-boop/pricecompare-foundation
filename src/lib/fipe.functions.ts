@@ -25,11 +25,9 @@ function getProvider(id: FipeProviderId): FipeProvider {
   }
 }
 
-async function getActiveProviderId(
-  supabase: { from: (t: string) => { select: (c: string) => { eq: (a: string, b: string) => { maybeSingle: () => Promise<{ data: { value: { active?: string } } | null }> } } } },
-): Promise<FipeProviderId> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getActiveProviderId(supabase: any): Promise<FipeProviderId> {
   try {
-    // @ts-expect-error generic shape from middleware client
     const { data } = await supabase
       .from("app_settings")
       .select("value")

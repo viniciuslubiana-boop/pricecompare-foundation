@@ -26,7 +26,7 @@ export interface FipeQuoteResult {
   reference_month: string;
   vehicle_type: "cars" | "motorcycles" | "trucks";
   provider: FipeProviderId;
-  raw_response?: unknown;
+  raw_response?: Record<string, unknown> | null;
 }
 
 /** Entrada genérica para o provedor consultar a FIPE. */
