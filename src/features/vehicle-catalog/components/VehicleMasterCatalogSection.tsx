@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/EmptyState";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -40,6 +41,9 @@ import {
   useUpdateCatalogEntry,
   useVehicleCatalog,
 } from "../hooks";
+import { AliasManagerSection } from "./AliasManagerSection";
+import { CoverageReportSection } from "./CoverageReportSection";
+import { AliasSuggestionsSection } from "./AliasSuggestionsSection";
 import type { VehicleMasterCatalogInput, VehicleMasterCatalogRow, VehicleType } from "../types";
 
 const EMPTY_FORM: VehicleMasterCatalogInput = {
