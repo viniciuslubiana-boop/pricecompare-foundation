@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +16,6 @@ import {
   FileText,
   GitCompareArrows,
   Package,
-  Plus,
   Radar,
   Target,
   TrendingDown,
@@ -141,11 +140,6 @@ function DashboardPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/comparar">
-                <Plus className="h-4 w-4" /> Nova comparação
-              </Link>
-            </Button>
           </div>
         }
       />
