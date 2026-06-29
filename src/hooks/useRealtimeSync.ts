@@ -98,8 +98,7 @@ export function useRealtimeSync() {
 
     for (const table of tables) {
       channel.on(
-        // @ts-expect-error - tipos do supabase-js para postgres_changes
-        "postgres_changes",
+        "postgres_changes" as never,
         { event: "*", schema: "public", table },
         () => {
           const keys = TABLE_TO_KEYS[table];
