@@ -370,6 +370,33 @@ function DiagnosticoExtracaoPage() {
           </table>
         </Card>
       )}
+
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onOpenChange={(o) => !o && setConfirmDeleteId(null)}
+        title="Excluir log de extração?"
+        description="Esta ação não pode ser desfeita."
+        destructive
+        confirmText="Excluir"
+        onConfirm={() => {
+          const id = confirmDeleteId;
+          setConfirmDeleteId(null);
+          if (id) void handleDelete(id);
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmClearAll}
+        onOpenChange={setConfirmClearAll}
+        title="Limpar todo o histórico?"
+        description="Todos os logs de diagnóstico serão removidos. Esta ação não pode ser desfeita."
+        destructive
+        confirmText="Limpar tudo"
+        onConfirm={() => {
+          setConfirmClearAll(false);
+          void handleClearAll();
+        }}
+      />
     </div>
   );
 }
