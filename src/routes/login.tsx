@@ -18,7 +18,22 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/login")({
   validateSearch: searchSchema,
-  head: () => ({ meta: [{ title: "Entrar · PriceCompare" }] }),
+  head: () => ({
+    meta: [
+      { title: "Entrar · PriceCompare" },
+      {
+        name: "description",
+        content: "Acesse sua conta PriceCompare para monitorar concorrentes e comparar estoque.",
+      },
+      { property: "og:title", content: "Entrar · PriceCompare" },
+      {
+        property: "og:description",
+        content: "Acesse sua conta PriceCompare para monitorar concorrentes e comparar estoque.",
+      },
+      { property: "og:url", content: "https://controledeprecos.com/login" },
+    ],
+    links: [{ rel: "canonical", href: "https://controledeprecos.com/login" }],
+  }),
   component: LoginPage,
 });
 
