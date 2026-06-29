@@ -80,13 +80,8 @@ function SettingsPage() {
           <TabsContent value="base-companies">
             <BaseCompaniesSection />
           </TabsContent>
-          <TabsContent value="reference">
-            <ReferenceStoreSection value={bundle.referenceStore} />
-          </TabsContent>
-          <TabsContent value="general">
-            <GeneralSection value={bundle.general} />
-          </TabsContent>
           <TabsContent value="comparison">
+
             <ComparisonSection value={bundle.comparison} />
           </TabsContent>
           <TabsContent value="market">
