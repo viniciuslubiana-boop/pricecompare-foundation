@@ -253,6 +253,29 @@ function MeuEstoquePage() {
                     <TableCell className="text-right">
                       {formatBRL(v.price as unknown as number)}
                     </TableCell>
+                    <TableCell className="text-right">
+                      {(() => {
+                        const fv = (v as unknown as { fipe_value: number | null }).fipe_value;
+                        return fv != null ? formatBRL(fv) : "—";
+                      })()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {(() => {
+                        const fv = (v as unknown as { fipe_value: number | null }).fipe_value;
+                        const price = v.price as unknown as number;
+                        if (fv == null || price == null) return "—";
+                        const diff = price - fv;
+                        const sign = diff > 0 ? "+" : "";
+                        const color =
+                          diff > 0 ? "text-red-600" : diff < 0 ? "text-green-600" : "";
+                        return <span className={color}>{sign}{formatBRL(diff)}</span>;
+                      })()}
+                    </TableCell>
+                    <TableCell>
+                      <FipeStatusBadge
+                        status={(v as unknown as { fipe_status: string | null }).fipe_status}
+                      />
+                    </TableCell>
                     <TableCell>{v.supplier_name ?? "—"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="capitalize">
@@ -261,6 +284,15 @@ function MeuEstoquePage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => setFipeLinkTarget(v)}
+                          aria-label="Vincular FIPE manualmente"
+                          title="Vincular FIPE manualmente"
+                        >
+                          <Link2 className="h-4 w-4" />
+                        </Button>
                         <Button
                           size="icon"
                           variant="ghost"
