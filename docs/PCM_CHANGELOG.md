@@ -1,6 +1,13 @@
 # PCM — Changelog
 
-Toda nova funcionalidade deve registrar uma entrada aqui.
+Toda nova funcionalidade deve registrar uma entrada aqui (Data · Responsável · Objetivo · Arquivos · Impacto · Pendências).
+
+## [Governança v2.0] — 2026-06-29
+- Promulgada a **Constituição Oficial PCM v2.0** — documentação completa em `/docs` substitui o antigo Prompt Mestre.
+- Documentos novos: `README.md`, `PCM_PRODUCT_VISION.md`, `PCM_ENGINES.md`, `PCM_DASHBOARD.md`, `PCM_INTEGRATIONS.md`, `PCM_SECURITY.md`, `PCM_ROADMAP.md`.
+- Documentos mantidos: `PCM_MASTER_ARCHITECTURE.md`, `PCM_BUSINESS_RULES.md`, `PCM_DATABASE.md`, `PCM_DEVELOPMENT_GUIDE.md`, `PCM_API_GUIDE.md`.
+- Toda evolução futura deve passar pelo Processo Obrigatório descrito no `README.md`.
+- Pendências catalogadas em `PCM_ROADMAP.md` (v1.1: exportação completa multi-bloco, saúde do sistema, alertas).
 
 ## [Governança] — 2026-06-28
 - Adoção oficial da **Constituição PCM** como documento mestre.
