@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/EmptyState";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -40,6 +41,9 @@ import {
   useUpdateCatalogEntry,
   useVehicleCatalog,
 } from "../hooks";
+import { AliasManagerSection } from "./AliasManagerSection";
+import { CoverageReportSection } from "./CoverageReportSection";
+import { AliasSuggestionsSection } from "./AliasSuggestionsSection";
 import type { VehicleMasterCatalogInput, VehicleMasterCatalogRow, VehicleType } from "../types";
 
 const EMPTY_FORM: VehicleMasterCatalogInput = {
@@ -98,57 +102,77 @@ export function VehicleMasterCatalogSection() {
   };
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-2">
-          <div>
-            <CardTitle>Catálogo Mestre de Veículos</CardTitle>
-            <CardDescription>
-              Referência única de normalização. Não altera o Comparison Engine — apenas melhora a qualidade da entrada.
-            </CardDescription>
-          </div>
-          <Button onClick={onNew}>
-            <Plus className="h-4 w-4" /> Novo modelo
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-3 flex items-center gap-2">
-            <div className="relative w-full max-w-xs">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar marca, modelo ou versão…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pl-8"
+    <Tabs defaultValue="catalog" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="catalog">Catálogo</TabsTrigger>
+        <TabsTrigger value="aliases">Aliases</TabsTrigger>
+        <TabsTrigger value="coverage">Cobertura</TabsTrigger>
+        <TabsTrigger value="suggestions">Sugestões</TabsTrigger>
+        <TabsTrigger value="audit">Auditoria</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="catalog" className="space-y-4">
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-2">
+            <div>
+              <CardTitle>Catálogo Mestre de Veículos</CardTitle>
+              <CardDescription>
+                Referência única de normalização. Não altera o Comparison Engine — apenas melhora a qualidade da entrada.
+              </CardDescription>
+            </div>
+            <Button onClick={onNew}>
+              <Plus className="h-4 w-4" /> Novo modelo
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-3 flex items-center gap-2">
+              <div className="relative w-full max-w-xs">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar marca, modelo ou versão…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+              <Badge variant="secondary">{filtered.length} registros</Badge>
+            </div>
+
+            {isLoading ? (
+              <div className="flex items-center justify-center py-10 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
+            ) : filtered.length === 0 ? (
+              <EmptyState
+                icon={Search}
+                title="Nenhum modelo encontrado"
+                description="Cadastre o primeiro modelo canônico para iniciar o catálogo."
               />
-            </div>
-            <Badge variant="secondary">{filtered.length} registros</Badge>
-          </div>
+            ) : (
+              <CatalogTable rows={filtered} onEdit={onEdit} />
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin" />
-            </div>
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              icon={Search}
-              title="Nenhum modelo encontrado"
-              description="Cadastre o primeiro modelo canônico para iniciar o catálogo."
-            />
-          ) : (
-            <CatalogTable rows={filtered} onEdit={onEdit} />
-          )}
-        </CardContent>
-      </Card>
+      <TabsContent value="aliases">
+        <AliasManagerSection />
+      </TabsContent>
 
-      <CatalogAuditCard />
+      <TabsContent value="coverage">
+        <CoverageReportSection />
+      </TabsContent>
 
-      <CatalogFormDialog
-        open={open}
-        onOpenChange={setOpen}
-        initial={editing}
-      />
-    </div>
+      <TabsContent value="suggestions">
+        <AliasSuggestionsSection />
+      </TabsContent>
+
+      <TabsContent value="audit">
+        <CatalogAuditCard />
+      </TabsContent>
+
+      <CatalogFormDialog open={open} onOpenChange={setOpen} initial={editing} />
+    </Tabs>
   );
 }
 
