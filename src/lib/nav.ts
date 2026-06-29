@@ -5,7 +5,7 @@ import {
   Users,
   
   GitCompareArrows,
-  FileBarChart,
+  
   Settings,
   ShieldCheck,
   Activity,
@@ -44,7 +44,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Monitor de Mercado", url: "/monitor-mercado", icon: Radar },
   { title: "Histórico de Mercado", url: "/historico-mercado", icon: History },
   { title: "Central de Movimentações", url: "/movimentacoes-mercado", icon: Radio },
-  { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
+  
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Administração", url: "/administracao", icon: ShieldCheck, adminOnly: true },
 ];

@@ -14,7 +14,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedOperacoesRouteImport } from './routes/_authenticated/operacoes'
 import { Route as AuthenticatedMovimentacoesMercadoRouteImport } from './routes/_authenticated/movimentacoes-mercado'
 import { Route as AuthenticatedMonitorMercadoRouteImport } from './routes/_authenticated/monitor-mercado'
@@ -56,11 +55,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOperacoesRoute = AuthenticatedOperacoesRouteImport.update({
@@ -189,7 +183,6 @@ export interface FileRoutesByFullPath {
   '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
-  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
@@ -213,7 +206,6 @@ export interface FileRoutesByTo {
   '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
-  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/': typeof AuthenticatedIndexRoute
   '/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
@@ -240,7 +232,6 @@ export interface FileRoutesById {
   '/_authenticated/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/_authenticated/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/_authenticated/operacoes': typeof AuthenticatedOperacoesRoute
-  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/_authenticated/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
@@ -268,7 +259,6 @@ export interface FileRouteTypes {
     | '/monitor-mercado'
     | '/movimentacoes-mercado'
     | '/operacoes'
-    | '/relatorios'
     | '/concorrente/$id'
     | '/veiculo/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -292,7 +282,6 @@ export interface FileRouteTypes {
     | '/monitor-mercado'
     | '/movimentacoes-mercado'
     | '/operacoes'
-    | '/relatorios'
     | '/'
     | '/concorrente/$id'
     | '/veiculo/$id'
@@ -318,7 +307,6 @@ export interface FileRouteTypes {
     | '/_authenticated/monitor-mercado'
     | '/_authenticated/movimentacoes-mercado'
     | '/_authenticated/operacoes'
-    | '/_authenticated/relatorios'
     | '/_authenticated/'
     | '/_authenticated/concorrente/$id'
     | '/_authenticated/veiculo/$id'
@@ -366,13 +354,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/relatorios': {
-      id: '/_authenticated/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/operacoes': {
@@ -521,7 +502,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMonitorMercadoRoute: typeof AuthenticatedMonitorMercadoRoute
   AuthenticatedMovimentacoesMercadoRoute: typeof AuthenticatedMovimentacoesMercadoRoute
   AuthenticatedOperacoesRoute: typeof AuthenticatedOperacoesRoute
-  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedConcorrenteIdRoute: typeof AuthenticatedConcorrenteIdRoute
   AuthenticatedVeiculoIdRoute: typeof AuthenticatedVeiculoIdRoute
@@ -546,7 +526,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMovimentacoesMercadoRoute:
     AuthenticatedMovimentacoesMercadoRoute,
   AuthenticatedOperacoesRoute: AuthenticatedOperacoesRoute,
-  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedConcorrenteIdRoute: AuthenticatedConcorrenteIdRoute,
   AuthenticatedVeiculoIdRoute: AuthenticatedVeiculoIdRoute,
