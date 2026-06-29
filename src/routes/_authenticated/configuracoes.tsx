@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Loader2, Plug, Store } from "lucide-react";
+import { BookOpen, Building2, Loader2, Plug, Store } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { BaseCompaniesSection } from "@/features/base-companies/components/BaseCompaniesSection";
 import { ApiIntegrationsSection } from "@/features/api-integrations/components/ApiIntegrationsSection";
+import { ConstitutionSection } from "@/features/settings/components/ConstitutionSection";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -74,6 +75,9 @@ function SettingsPage() {
               <Plug className="h-4 w-4 mr-1.5" /> Integração por API
             </TabsTrigger>
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
+            <TabsTrigger value="constitution">
+              <BookOpen className="h-4 w-4 mr-1.5" /> Constituição
+            </TabsTrigger>
           </TabsList>
 
 
@@ -100,6 +104,9 @@ function SettingsPage() {
           </TabsContent>
           <TabsContent value="reports">
             <ReportsSection value={bundle.reports} />
+          </TabsContent>
+          <TabsContent value="constitution">
+            <ConstitutionSection />
           </TabsContent>
 
         </Tabs>
