@@ -147,10 +147,6 @@ describe("Comparison Engine como gatekeeper único", () => {
     // é informado (caminho principal). O resultado deve coincidir com
     // equivalentsFor — provando que a Consulta Global não exibe nada além
     // do que o Comparison Engine aprovaria.
-    const bBrand = modelCompactOf
-      ? undefined
-      : undefined; /* evita import não usado em ambientes futuros */
-    void bBrand;
     const queryBrand = "Toyota";
     const queryModel = "Corolla XEi";
     const queryYear = "2024";
