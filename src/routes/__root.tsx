@@ -81,22 +81,53 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PriceCompare" },
+      { title: "PriceCompare — Inteligência de mercado para concessionárias" },
       {
         name: "description",
-        content: "Plataforma para concessionárias compararem seu estoque com concorrentes.",
+        content:
+          "PriceCompare monitora o mercado automotivo, compara o estoque das suas lojas com concorrentes e revela oportunidades de preço em tempo real.",
       },
-      { property: "og:title", content: "PriceCompare" },
-      { name: "twitter:title", content: "PriceCompare" },
-      { name: "description", content: "lupa encima de um mapa vendo varios carrinho e motos com $ encima" },
-      { property: "og:description", content: "lupa encima de um mapa vendo varios carrinho e motos com $ encima" },
-      { name: "twitter:description", content: "lupa encima de um mapa vendo varios carrinho e motos com $ encima" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/12aa4ea0-96cc-48f5-a0ca-e1e2e98e8c0e" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/12aa4ea0-96cc-48f5-a0ca-e1e2e98e8c0e" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:site_name", content: "PriceCompare" },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: "PriceCompare — Inteligência de mercado para concessionárias" },
+      {
+        property: "og:description",
+        content:
+          "Monitoramento de preços, ranking e oportunidades para revendas de veículos.",
+      },
+      { property: "og:url", content: "https://controledeprecos.com/" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/12aa4ea0-96cc-48f5-a0ca-e1e2e98e8c0e" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "PriceCompare — Inteligência de mercado para concessionárias" },
+      {
+        name: "twitter:description",
+        content:
+          "Monitoramento de preços, ranking e oportunidades para revendas de veículos.",
+      },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/12aa4ea0-96cc-48f5-a0ca-e1e2e98e8c0e" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "PriceCompare",
+              url: "https://controledeprecos.com/",
+              logo: "https://controledeprecos.com/favicon.ico",
+            },
+            {
+              "@type": "WebSite",
+              name: "PriceCompare",
+              url: "https://controledeprecos.com/",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
