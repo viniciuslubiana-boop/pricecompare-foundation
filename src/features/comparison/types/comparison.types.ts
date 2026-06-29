@@ -141,6 +141,8 @@ export interface RadarRow {
   market: MarketIntelligence;
   priority: CommercialPriority;
   action: RadarAction;
+  /** Veículos do mercado considerados equivalentes (mesma marca/modelo/ano). */
+  equivalents: CompetitorVehicle[];
 }
 
 export interface RadarSummary {
@@ -222,6 +224,8 @@ export interface StrategyRow {
   recommendation: StrategyRecommendation;
   /** Maior impacto possível observado nos cenários simulados (em R$) */
   maxImpact: number;
+  /** Veículos do mercado considerados equivalentes (mesma marca/modelo/ano). */
+  equivalents: CompetitorVehicle[];
 }
 
 export interface StrategySummary {

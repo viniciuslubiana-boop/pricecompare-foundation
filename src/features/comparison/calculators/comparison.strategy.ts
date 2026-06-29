@@ -196,6 +196,7 @@ export function strategyFor(
     scenarios,
     recommendation,
     maxImpact: round2(maxImpact),
+    equivalents: [],
   };
 }
 

@@ -2,3 +2,5 @@ export { useDashboard, useDashboardData, dashboardKeys } from "./hooks/useDashbo
 export { dashboardService } from "./services/dashboard.service";
 export * from "./widgets";
 export * from "./charts/DashboardCharts";
+export * from "./drilldowns";
+

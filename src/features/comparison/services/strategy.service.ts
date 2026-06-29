@@ -6,6 +6,7 @@ import { vehicleRepository } from "@/repositories/vehicle.repository";
 import { comparisonDataRepository } from "../repositories/comparison.repository";
 import {
   equivalentPricesFor,
+  equivalentsFor,
   intelligenceFor,
 } from "../calculators/comparison.market-price";
 import { strategyFor, hasRecommendation } from "../calculators/comparison.strategy";
@@ -30,7 +31,8 @@ export const strategyService = {
     const rows: StrategyRow[] = mine.map((me) => {
       const intel = intelligenceFor(me, pool);
       const prices = equivalentPricesFor(me, pool);
-      return strategyFor(me, intel, prices);
+      const eq = equivalentsFor(me, pool);
+      return { ...strategyFor(me, intel, prices), equivalents: eq };
     });
 
     const recommendedRows = rows.filter(hasRecommendation);

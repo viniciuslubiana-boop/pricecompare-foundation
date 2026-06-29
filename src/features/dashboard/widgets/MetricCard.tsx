@@ -9,6 +9,8 @@ interface Props {
   icon?: ReactNode;
   tone?: "default" | "success" | "warning" | "danger" | "primary";
   className?: string;
+  /** Quando informado, o card vira um botão acessível para abrir o drill-down. */
+  onClick?: () => void;
 }
 
 const TONE: Record<NonNullable<Props["tone"]>, string> = {
@@ -19,9 +21,39 @@ const TONE: Record<NonNullable<Props["tone"]>, string> = {
   primary: "text-[#F97316]",
 };
 
-export function MetricCard({ label, value, hint, icon, tone = "default", className }: Props) {
+export function MetricCard({
+  label,
+  value,
+  hint,
+  icon,
+  tone = "default",
+  className,
+  onClick,
+}: Props) {
+  const interactive = !!onClick;
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
+      aria-label={interactive ? `Abrir detalhes de ${label}` : undefined}
+      className={cn(
+        "overflow-hidden",
+        interactive &&
+          "cursor-pointer transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className,
+      )}
+    >
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -37,3 +69,4 @@ export function MetricCard({ label, value, hint, icon, tone = "default", classNa
     </Card>
   );
 }
+

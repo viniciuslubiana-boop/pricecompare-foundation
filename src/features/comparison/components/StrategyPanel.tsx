@@ -28,6 +28,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { DrillDownDrawer } from "@/components/DrillDownDrawer";
+import { PositionDrillDown } from "@/features/dashboard/drilldowns/PositionDrillDown";
 import { ChevronDown, ChevronRight, RefreshCw, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStrategy } from "../hooks/useStrategy";
@@ -242,6 +244,7 @@ export function StrategyPanel({ compact = false }: Props) {
 
 function StrategyRowItem({ row: r }: { row: StrategyRow }) {
   const [open, setOpen] = useState(false);
+  const [openPos, setOpenPos] = useState(false);
   const meta = RECO_META[r.recommendation.kind];
   const m = r.market;
   const hasMarket = m.competitorCount > 0;
