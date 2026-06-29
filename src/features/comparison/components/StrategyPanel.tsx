@@ -273,8 +273,23 @@ function StrategyRowItem({ row: r }: { row: StrategyRow }) {
         <TableCell className="tabular-nums">{fmtMoney(r.myVehicle.price)}</TableCell>
         <TableCell className="tabular-nums">{fmtMoney(m.min)}</TableCell>
         <TableCell className="tabular-nums">{fmtMoney(m.avg)}</TableCell>
-        <TableCell className="tabular-nums">
-          {m.rankPosition == null ? "—" : `${m.rankPosition} / ${m.competitorCount + 1}`}
+        <TableCell className="tabular-nums" onClick={(e) => e.stopPropagation()}>
+          {m.rankPosition == null ? (
+            "—"
+          ) : (
+            <Button
+              variant="link"
+              size="sm"
+              className="h-auto px-0 font-semibold tabular-nums"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenPos(true);
+              }}
+              title="Ver posição no mercado"
+            >
+              {m.rankPosition} / {m.competitorCount + 1}
+            </Button>
+          )}
         </TableCell>
         <TableCell className={cn("font-semibold tabular-nums", compTone)}>
           {hasMarket ? `${m.competitiveness}%` : "—"}
