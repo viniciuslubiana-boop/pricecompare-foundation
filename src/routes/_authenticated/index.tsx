@@ -211,30 +211,42 @@ function DashboardPage() {
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            label="Você mais barato"
+            label="Diferenciais (você mais barato)"
             value={summary.differentials}
-            hint={fmtMoney(comparison.totalSavings)}
+            hint={
+              comparison.totalSavings
+                ? `Economia agregada ${fmtMoney(comparison.totalSavings)}`
+                : "Veículos onde você está mais barato"
+            }
             tone="success"
             icon={<TrendingDown className="h-5 w-5" />}
           />
           <MetricCard
-            label="Concorrente mais barato"
+            label="Oportunidades (concorrente mais barato)"
             value={summary.opportunities}
-            hint={market.avgPriceDiff !== null ? `Δ médio ${fmtMoney(market.avgPriceDiff)}` : undefined}
+            hint={
+              market.avgPriceDiff !== null
+                ? `Δ médio mercado ${fmtMoney(market.avgPriceDiff)}`
+                : "Veículos onde o concorrente está mais barato"
+            }
             tone="danger"
             icon={<TrendingUp className="h-5 w-5" />}
           />
           <MetricCard
-            label="Oportunidades"
-            value={summary.opportunities}
-            hint="Veículos onde o concorrente está mais barato"
+            label="Empates"
+            value={comparison.ties}
+            hint="Veículos com preço equivalente"
             tone="primary"
             icon={<Target className="h-5 w-5" />}
           />
           <MetricCard
-            label="Diferenciais"
-            value={summary.differentials}
-            hint="Veículos onde você está mais barato"
+            label="Total de comparações"
+            value={comparison.total}
+            hint={
+              comparison.unmatched
+                ? `${comparison.unmatched} sem match`
+                : "Matches ativos no Comparison Engine"
+            }
             icon={<Package className="h-5 w-5" />}
           />
         </div>
