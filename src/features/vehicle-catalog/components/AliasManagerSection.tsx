@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/EmptyState";
 import {
   useAliases, useCreateAlias, useDeleteAlias, useUnlinkAlias, useVehicleCatalog,
 } from "../hooks";
+import { BulkAliasImportDialog } from "./BulkAliasImportDialog";
 
 export function AliasManagerSection() {
   const { data: catalog } = useVehicleCatalog();
