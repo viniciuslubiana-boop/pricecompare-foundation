@@ -225,8 +225,8 @@ function DashboardPage() {
             label="Oportunidades (concorrente mais barato)"
             value={summary.opportunities}
             hint={
-              market.avgPriceDiff !== null
-                ? `Δ médio mercado ${fmtMoney(market.avgPriceDiff)}`
+              comparison.avgDiff !== null
+                ? `Δ médio por comparação ${fmtMoney(comparison.avgDiff)}`
                 : "Veículos onde o concorrente está mais barato"
             }
             tone="danger"
@@ -384,8 +384,8 @@ function DashboardPage() {
             <RankingCard entries={competitors.byCompetitor.slice(0, 10)} />
           </SummaryCard>
           <SummaryCard
-            title="Oportunidades por Marca"
-            description="Marcas com mais movimento na concorrência"
+            title="Marcas na Concorrência"
+            description="Volume de veículos por marca nas lojas monitoradas"
           >
             <OpportunityCard
               items={competitors.byBrand.slice(0, 6).map((b) => ({
