@@ -56,6 +56,7 @@ function MeuEstoquePage() {
   const [toDelete, setToDelete] = useState<Vehicle | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  const [fipeLinkTarget, setFipeLinkTarget] = useState<Vehicle | null>(null);
 
   const filters = useMemo(
     () => ({ search, brand, baseCompanyId: selectedId }),
@@ -112,6 +113,7 @@ function MeuEstoquePage() {
         description="Cadastre, edite e acompanhe os veículos da sua concessionária."
         actions={
           <>
+            <FipeUpdateButton baseCompanyId={selectedId} />
             <Button asChild variant="outline">
               <Link to="/importacoes">
                 <Upload className="h-4 w-4" /> Importar arquivo
