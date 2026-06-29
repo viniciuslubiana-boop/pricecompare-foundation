@@ -24,6 +24,10 @@ import {
   Users,
   Sparkles,
   Wallet,
+  Gauge,
+  ArrowUpRight,
+  ArrowDownRight,
+  HelpCircle,
 } from "lucide-react";
 import {
   useDashboard,
@@ -109,9 +113,11 @@ function DashboardPage() {
     );
   }
 
-  const { summary, comparison, market, distribution, competitiveness, insights, competitors } =
+  const { summary, comparison, market, distribution, competitiveness, insights, competitors, fipe } =
     data;
   const ctone = competitivenessTone(competitiveness.level);
+  const fipeDiffPct =
+    fipe.avgDiffPercent === null ? "—" : `${fipe.avgDiffPercent > 0 ? "+" : ""}${fipe.avgDiffPercent.toFixed(1)}%`;
 
   return (
     <div>
