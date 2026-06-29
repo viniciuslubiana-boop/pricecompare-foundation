@@ -225,8 +225,8 @@ function DashboardPage() {
             label="Oportunidades (concorrente mais barato)"
             value={summary.opportunities}
             hint={
-              market.avgPriceDiff !== null
-                ? `Δ médio mercado ${fmtMoney(market.avgPriceDiff)}`
+              comparison.avgDiff !== null
+                ? `Δ médio por comparação ${fmtMoney(comparison.avgDiff)}`
                 : "Veículos onde o concorrente está mais barato"
             }
             tone="danger"
