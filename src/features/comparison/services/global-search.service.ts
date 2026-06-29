@@ -198,8 +198,8 @@ export const globalSearchService = {
       for (const ch of changes) {
         if (ch.change_type !== "price") continue;
         if (!competitorNames.has(ch.competitor_name)) continue;
-        if (norm(ch.brand) !== bBrand) continue;
-        if (firstToken(ch.model ?? "") !== bModelRoot) continue;
+        if (normToken(ch.brand) !== bBrand) continue;
+        if (modelCompact(ch.model ?? "") !== bModelCompact) continue;
         if (yearTerm) {
           const chYear = yearOf(ch.year_model);
           if (!chYear || chYear !== yearTerm) continue;
