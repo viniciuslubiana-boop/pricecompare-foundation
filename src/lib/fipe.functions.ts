@@ -6,6 +6,7 @@ import { CommercialProvider } from "@/features/fipe/providers/commercial.provide
 import type { FipeProvider } from "@/features/fipe/providers/fipe.provider";
 import type {
   FipeProviderId,
+  FipeMatchDiagnostics,
   FipeQuoteResult,
   FipeUpdateRunResult,
   FipeVehicleUpdateOutcome,
@@ -49,24 +50,68 @@ async function persistFipeReference(
   result: FipeQuoteResult,
 ) {
   if (!result.fipe_code) return;
-  await supabase
+  const payload = {
+    vehicle_type: result.vehicle_type,
+    brand: result.brand,
+    model: result.model,
+    version: result.version,
+    year_model: result.year_model,
+    fuel: result.fuel,
+    fipe_code: result.fipe_code,
+    fipe_value: result.fipe_value,
+    reference_month: result.reference_month,
+    provider: result.provider,
+    raw_response: result.raw_response ?? null,
+  };
+
+  const { data: existing } = await supabase
     .from("fipe_references")
-    .upsert(
-      {
-        vehicle_type: result.vehicle_type,
-        brand: result.brand,
-        model: result.model,
-        version: result.version,
-        year_model: result.year_model,
-        fuel: result.fuel,
-        fipe_code: result.fipe_code,
-        fipe_value: result.fipe_value,
-        reference_month: result.reference_month,
-        provider: result.provider,
-        raw_response: result.raw_response ?? null,
-      },
-      { onConflict: "fipe_code,year_model,reference_month" },
-    );
+    .select("id")
+    .eq("fipe_code", result.fipe_code)
+    .eq("year_model", result.year_model)
+    .eq("reference_month", result.reference_month)
+    .maybeSingle();
+
+  if (existing?.id) {
+    await supabase.from("fipe_references").update(payload).eq("id", existing.id);
+    return;
+  }
+
+  await supabase.from("fipe_references").insert(payload);
+}
+
+function summarizeOutcomeReasons(outcomes: FipeVehicleUpdateOutcome[]) {
+  return outcomes.reduce<Record<string, number>>((acc, outcome) => {
+    const reason = outcome.diagnostics?.rejection_reason ?? outcome.reason ?? "sem_motivo";
+    acc[reason] = (acc[reason] ?? 0) + 1;
+    return acc;
+  }, {});
+}
+
+function invalidYearDiagnostics(v: {
+  id: string;
+  brand: string;
+  model: string;
+  original_year_model: number | string | null;
+}, provider: FipeProviderId): FipeMatchDiagnostics {
+  return {
+    original_brand: v.brand,
+    original_model: v.model,
+    original_year_model: v.original_year_model,
+    normalized_brand: v.brand,
+    normalized_model: v.model,
+    detected_type: null,
+    segments_attempted: [],
+    segment_used: null,
+    fipe_brand_found: null,
+    fipe_candidates_found: [],
+    chosen_fipe_model: null,
+    fipe_year_evaluated: null,
+    fipe_value_returned: null,
+    final_status: "nao_encontrada",
+    rejection_reason: "ano_nao_encontrado",
+    provider,
+  };
 }
 
 /** Cotação avulsa (usada no diálogo de vinculação manual). */
@@ -123,7 +168,11 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
       model: string;
       year_model: number | string;
       fipe_code: string | null;
-    }>).map((v) => ({ ...v, year_model: parseYearModel(v.year_model) }));
+    }>).map((v) => ({
+      ...v,
+      original_year_model: v.year_model,
+      year_model: parseYearModel(v.year_model),
+    }));
 
 
     const outcomes: FipeVehicleUpdateOutcome[] = [];
@@ -143,16 +192,21 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
             vehicle_id: v.id,
             status: "nao_encontrada",
             reason: "ano/modelo invalido",
+            diagnostics: invalidYearDiagnostics(v, providerId),
           });
           continue;
         }
 
-        const result = await provider.quote({
+        const quoteInput = {
           brand: v.brand,
           model: v.model,
           year_model: v.year_model,
           fipe_code: v.fipe_code,
-        });
+        };
+        const quoted = provider.quoteWithDiagnostics
+          ? await provider.quoteWithDiagnostics(quoteInput)
+          : { result: await provider.quote(quoteInput), diagnostics: undefined };
+        const result = quoted.result;
 
         if (!result) {
           unmatched++;
@@ -160,7 +214,12 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
             .from("my_vehicles")
             .update({ fipe_status: "nao_encontrada" })
             .eq("id", v.id);
-          outcomes.push({ vehicle_id: v.id, status: "nao_encontrada" });
+          outcomes.push({
+            vehicle_id: v.id,
+            status: "nao_encontrada",
+            reason: quoted.diagnostics?.rejection_reason,
+            diagnostics: quoted.diagnostics,
+          });
           continue;
         }
 
@@ -175,6 +234,13 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
             vehicle_id: v.id,
             status: "nao_encontrada",
             reason: "match nao aceitavel",
+            diagnostics: quoted.diagnostics
+              ? {
+                  ...quoted.diagnostics,
+                  final_status: "nao_encontrada",
+                  rejection_reason: "tokens_incompativeis",
+                }
+              : undefined,
           });
           continue;
         }
@@ -200,6 +266,7 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
           fipe_value: result.fipe_value,
           fipe_code: result.fipe_code,
           reference_month: result.reference_month,
+          diagnostics: quoted.diagnostics,
         });
       } catch (e) {
         errors++;
@@ -207,6 +274,24 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
           vehicle_id: v.id,
           status: "nao_encontrada",
           reason: e instanceof Error ? e.message : "erro",
+          diagnostics: {
+            original_brand: v.brand,
+            original_model: v.model,
+            original_year_model: v.original_year_model,
+            normalized_brand: v.brand,
+            normalized_model: v.model,
+            detected_type: null,
+            segments_attempted: [],
+            segment_used: null,
+            fipe_brand_found: null,
+            fipe_candidates_found: [],
+            chosen_fipe_model: null,
+            fipe_year_evaluated: null,
+            fipe_value_returned: null,
+            final_status: "nao_encontrada",
+            rejection_reason: "erro_api",
+            provider: providerId,
+          },
         });
       }
     }
@@ -223,7 +308,11 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
         errors,
         status: errors > 0 ? "partial" : "success",
         message: `${matched} encontrados / ${unmatched} não encontrados / ${errors} erros`,
-        details: { reference_month: refMonth },
+        details: {
+          reference_month: refMonth,
+          outcomes,
+          rejection_summary: summarizeOutcomeReasons(outcomes),
+        },
       })
       .select("id")
       .single();
