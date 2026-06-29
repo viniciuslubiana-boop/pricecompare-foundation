@@ -1022,6 +1022,60 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_master_catalog: {
+        Row: {
+          active: boolean
+          brand: string
+          canonical_model: string
+          canonical_version: string | null
+          created_at: string
+          created_by: string | null
+          displacement: string | null
+          end_year: number | null
+          fuel: string | null
+          id: string
+          notes: string | null
+          start_year: number | null
+          transmission: string | null
+          updated_at: string
+          vehicle_type: string
+        }
+        Insert: {
+          active?: boolean
+          brand: string
+          canonical_model: string
+          canonical_version?: string | null
+          created_at?: string
+          created_by?: string | null
+          displacement?: string | null
+          end_year?: number | null
+          fuel?: string | null
+          id?: string
+          notes?: string | null
+          start_year?: number | null
+          transmission?: string | null
+          updated_at?: string
+          vehicle_type?: string
+        }
+        Update: {
+          active?: boolean
+          brand?: string
+          canonical_model?: string
+          canonical_version?: string | null
+          created_at?: string
+          created_by?: string | null
+          displacement?: string | null
+          end_year?: number | null
+          fuel?: string | null
+          id?: string
+          notes?: string | null
+          start_year?: number | null
+          transmission?: string | null
+          updated_at?: string
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
       vehicle_model_aliases: {
         Row: {
           alias: string
@@ -1030,6 +1084,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          master_catalog_id: string | null
           notes: string | null
           updated_at: string
         }
@@ -1040,6 +1095,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          master_catalog_id?: string | null
           notes?: string | null
           updated_at?: string
         }
@@ -1050,10 +1106,19 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          master_catalog_id?: string | null
           notes?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_model_aliases_master_catalog_id_fkey"
+            columns: ["master_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_master_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
