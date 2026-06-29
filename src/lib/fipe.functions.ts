@@ -87,7 +87,10 @@ export const fipeQuote = createServerFn({ method: "POST" })
     const provider = getProvider(providerId);
     const result = await provider.quote(data);
     if (result) await persistFipeReference(supabase, result);
-    return result;
+    if (!result) return null;
+    const { raw_response: _r, ...safe } = result;
+    void _r;
+    return safe;
   });
 
 /** Atualização em lote da Empresa Base. */
