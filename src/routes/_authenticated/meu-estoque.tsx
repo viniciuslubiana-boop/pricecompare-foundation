@@ -366,7 +366,16 @@ function MeuEstoquePage() {
       <FipeManualLinkDialog
         open={!!fipeLinkTarget}
         onOpenChange={(o) => !o && setFipeLinkTarget(null)}
-        vehicle={fipeLinkTarget}
+        vehicle={
+          fipeLinkTarget
+            ? {
+                id: fipeLinkTarget.id,
+                brand: fipeLinkTarget.brand,
+                model: fipeLinkTarget.model,
+                year_model: Number(fipeLinkTarget.year_model),
+              }
+            : null
+        }
       />
 
       {deleteMut.isPending ? (
