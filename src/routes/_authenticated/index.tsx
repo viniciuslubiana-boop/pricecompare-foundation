@@ -327,6 +327,54 @@ function DashboardPage() {
         </div>
       </DashboardBlock>
 
+      {/* FIPE */}
+      <DashboardBlock
+        id="fipe"
+        title="Tabela FIPE"
+        description="Correlação entre o seu preço e a referência FIPE."
+        collapsed={isCollapsed("fipe")}
+        onToggleCollapsed={() => toggleCollapsed("fipe")}
+        favorite={isFavorite("fipe")}
+        onToggleFavorite={() => toggleFavorite("fipe")}
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard
+            label="Acima da FIPE"
+            value={fipe.aboveFipe}
+            hint={`${fipe.withFipe} veículos com FIPE vinculada`}
+            tone="warning"
+            icon={<ArrowUpRight className="h-5 w-5" />}
+          />
+          <MetricCard
+            label="Abaixo da FIPE"
+            value={fipe.belowFipe}
+            hint="Preço de venda menor que a referência FIPE"
+            tone="success"
+            icon={<ArrowDownRight className="h-5 w-5" />}
+          />
+          <MetricCard
+            label="Diferença média"
+            value={fmtMoney(fipe.avgDiff)}
+            hint={`${fipeDiffPct} em relação à FIPE`}
+            tone={
+              fipe.avgDiff === null
+                ? "default"
+                : fipe.avgDiff > 0
+                  ? "warning"
+                  : "success"
+            }
+            icon={<Gauge className="h-5 w-5" />}
+          />
+          <MetricCard
+            label="Sem FIPE"
+            value={fipe.withoutFipe}
+            hint="Veículos não vinculados ou não encontrados"
+            tone={fipe.withoutFipe > 0 ? "danger" : "default"}
+            icon={<HelpCircle className="h-5 w-5" />}
+          />
+        </div>
+      </DashboardBlock>
+
       {/* MERCADO */}
       <DashboardBlock
         id="mercado"
