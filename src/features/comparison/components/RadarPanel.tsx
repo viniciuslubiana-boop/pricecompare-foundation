@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -6,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/SearchInput";
 import { EmptyState } from "@/components/EmptyState";
+import { DrillDownDrawer } from "@/components/DrillDownDrawer";
+import { PositionDrillDown } from "@/features/dashboard/drilldowns/PositionDrillDown";
 import { ErrorState } from "@/components/ErrorState";
 import {
   Select,
@@ -249,6 +252,7 @@ export function RadarPanel({ compact = false }: Props) {
 }
 
 function RadarRowItem({ row: r }: { row: RadarRow }) {
+  const [openPos, setOpenPos] = useState(false);
   const meta = PRIORITY_META[r.priority];
   const m = r.market;
   const hasMarket = m.competitorCount > 0;
@@ -260,38 +264,64 @@ function RadarRowItem({ row: r }: { row: RadarRow }) {
         ? "text-warning"
         : "text-destructive";
   return (
-    <TableRow>
-      <TableCell>
-        <Badge variant="outline" className={cn("font-medium", meta.tone)}>
-          <span className="mr-1">{meta.dot}</span>
-          {meta.label}
-        </Badge>
-      </TableCell>
-      <TableCell className="font-medium">{r.myVehicle.brand}</TableCell>
-      <TableCell>{r.myVehicle.model}</TableCell>
-      <TableCell>{r.myVehicle.year_model ?? "—"}</TableCell>
-      <TableCell className="tabular-nums">{fmtMoney(r.myVehicle.price)}</TableCell>
-      <TableCell className="tabular-nums">{fmtMoney(m.min)}</TableCell>
-      <TableCell className="tabular-nums">{fmtMoney(m.avg)}</TableCell>
-      <TableCell
-        className={cn(
-          "tabular-nums",
-          m.diffFromMin != null && m.diffFromMin > 0 && "text-destructive",
-          m.diffFromMin != null && m.diffFromMin <= 0 && "text-success",
-        )}
+    <>
+      <TableRow>
+        <TableCell>
+          <Badge variant="outline" className={cn("font-medium", meta.tone)}>
+            <span className="mr-1">{meta.dot}</span>
+            {meta.label}
+          </Badge>
+        </TableCell>
+        <TableCell className="font-medium">{r.myVehicle.brand}</TableCell>
+        <TableCell>{r.myVehicle.model}</TableCell>
+        <TableCell>{r.myVehicle.year_model ?? "—"}</TableCell>
+        <TableCell className="tabular-nums">{fmtMoney(r.myVehicle.price)}</TableCell>
+        <TableCell className="tabular-nums">{fmtMoney(m.min)}</TableCell>
+        <TableCell className="tabular-nums">{fmtMoney(m.avg)}</TableCell>
+        <TableCell
+          className={cn(
+            "tabular-nums",
+            m.diffFromMin != null && m.diffFromMin > 0 && "text-destructive",
+            m.diffFromMin != null && m.diffFromMin <= 0 && "text-success",
+          )}
+        >
+          {m.diffFromMin == null ? "—" : fmtMoney(m.diffFromMin)}
+        </TableCell>
+        <TableCell className="tabular-nums">
+          {m.rankPosition == null ? (
+            "—"
+          ) : (
+            <Button
+              variant="link"
+              size="sm"
+              className="h-auto px-0 font-semibold tabular-nums"
+              onClick={() => setOpenPos(true)}
+              title="Ver posição no mercado"
+            >
+              {m.rankPosition} / {m.competitorCount + 1}
+            </Button>
+          )}
+        </TableCell>
+        <TableCell className={cn("font-semibold tabular-nums", compTone)}>
+          {hasMarket ? `${m.competitiveness}%` : "—"}
+        </TableCell>
+        <TableCell className={cn("text-xs font-medium", ACTION_TONE[r.action.kind])}>
+          {r.action.label}
+        </TableCell>
+      </TableRow>
+      <DrillDownDrawer
+        open={openPos}
+        onOpenChange={setOpenPos}
+        title={`Posição no mercado · ${r.myVehicle.brand} ${r.myVehicle.model}`}
+        description="Meu veículo e todos os concorrentes equivalentes considerados na comparação."
       >
-        {m.diffFromMin == null ? "—" : fmtMoney(m.diffFromMin)}
-      </TableCell>
-      <TableCell className="tabular-nums">
-        {m.rankPosition == null ? "—" : `${m.rankPosition} / ${m.competitorCount + 1}`}
-      </TableCell>
-      <TableCell className={cn("font-semibold tabular-nums", compTone)}>
-        {hasMarket ? `${m.competitiveness}%` : "—"}
-      </TableCell>
-      <TableCell className={cn("text-xs font-medium", ACTION_TONE[r.action.kind])}>
-        {r.action.label}
-      </TableCell>
-    </TableRow>
+        <PositionDrillDown
+          myVehicle={r.myVehicle}
+          market={r.market}
+          equivalents={r.equivalents}
+        />
+      </DrillDownDrawer>
+    </>
   );
 }
 

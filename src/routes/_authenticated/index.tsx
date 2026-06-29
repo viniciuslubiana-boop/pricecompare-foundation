@@ -27,7 +27,10 @@ import {
   RankingBarChart,
   PriceDistributionChart,
   ComparisonStatusChart,
+  InventoryDrillDown,
+  CompetitorsDrillDown,
 } from "@/features/dashboard";
+import { DrillDownDrawer } from "@/components/DrillDownDrawer";
 import { MarketUpdateButton } from "@/features/market-update";
 import { RadarPanel } from "@/features/comparison/components/RadarPanel";
 import { StrategyPanel } from "@/features/comparison/components/StrategyPanel";
@@ -71,6 +74,7 @@ function DashboardPage() {
   const [companyFilter, setCompanyFilter] = useState<string>("__all__");
   const baseCompanyId = companyFilter === "__all__" ? null : companyFilter;
   const { data, isLoading, isError, error, refetch } = useDashboard(baseCompanyId);
+  const [drill, setDrill] = useState<null | "inventory" | "competitors">(null);
 
   if (isLoading) {
     return (
@@ -139,6 +143,24 @@ function DashboardPage() {
         }
       />
 
+      {/* Monitoramento (drill-down) */}
+      <div className="mb-4 grid gap-4 sm:grid-cols-2">
+        <MetricCard
+          label="Veículos monitorados"
+          value={summary.totalMyVehicles}
+          hint="Clique para ver a lista completa"
+          icon={<Package className="h-5 w-5" />}
+          onClick={() => setDrill("inventory")}
+        />
+        <MetricCard
+          label="Concorrentes monitorados"
+          value={summary.totalCompetitors}
+          hint={`${summary.totalCompetitorVehicles} veículos de mercado · clique para detalhar`}
+          icon={<Users className="h-5 w-5" />}
+          onClick={() => setDrill("competitors")}
+        />
+      </div>
+
       {/* Cards principais */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <MetricCard
@@ -184,6 +206,24 @@ function DashboardPage() {
           icon={<GitCompareArrows className="h-5 w-5" />}
         />
       </div>
+
+      {/* Drawers de drill-down */}
+      <DrillDownDrawer
+        open={drill === "inventory"}
+        onOpenChange={(o) => setDrill(o ? "inventory" : null)}
+        title="Veículos monitorados"
+        description="Lista completa do estoque consumindo o Inventory Engine. Sem novos cálculos."
+      >
+        <InventoryDrillDown baseCompanyId={baseCompanyId} />
+      </DrillDownDrawer>
+      <DrillDownDrawer
+        open={drill === "competitors"}
+        onOpenChange={(o) => setDrill(o ? "competitors" : null)}
+        title="Concorrentes monitorados"
+        description="Lojas monitoradas e volume de veículos por concorrente."
+      >
+        <CompetitorsDrillDown />
+      </DrillDownDrawer>
 
       {/* Competitividade detalhada + Insights */}
       <div className="mt-6 grid gap-4 lg:grid-cols-3">

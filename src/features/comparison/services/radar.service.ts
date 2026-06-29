@@ -4,7 +4,7 @@
  */
 import { vehicleRepository } from "@/repositories/vehicle.repository";
 import { comparisonDataRepository } from "../repositories/comparison.repository";
-import { intelligenceFor } from "../calculators/comparison.market-price";
+import { equivalentsFor, intelligenceFor } from "../calculators/comparison.market-price";
 import {
   priorityFor,
   radarActionFor,
@@ -30,6 +30,7 @@ export const radarService = {
       : fullPool;
 
     const rows: RadarRow[] = mine.map((me) => {
+      const eq = equivalentsFor(me, pool);
       const market = intelligenceFor(me, pool);
       const priority = priorityFor(market);
       const action = radarActionFor(market, priority);
@@ -39,6 +40,7 @@ export const radarService = {
         market,
         priority,
         action,
+        equivalents: eq,
       };
     });
 
