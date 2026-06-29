@@ -16,7 +16,6 @@ import {
   FileText,
   GitCompareArrows,
   Package,
-  Plus,
   Radar,
   Target,
   TrendingDown,
