@@ -300,11 +300,6 @@ function OperationsPage() {
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/extrair-concorrente">
-              <Download className="h-4 w-4" /> Extrair Concorrente
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
             <Link to="/comparar">
               <GitCompareArrows className="h-4 w-4" /> Comparar Mercado
             </Link>
