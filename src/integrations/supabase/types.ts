@@ -832,6 +832,53 @@ export type Database = {
         }
         Relationships: []
       }
+      user_dashboard_preferences: {
+        Row: {
+          base_company_id: string | null
+          collapsed: Json
+          created_at: string
+          favorites: Json
+          filters: Json
+          hidden: Json
+          id: string
+          layout: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_company_id?: string | null
+          collapsed?: Json
+          created_at?: string
+          favorites?: Json
+          filters?: Json
+          hidden?: Json
+          id?: string
+          layout?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_company_id?: string | null
+          collapsed?: Json
+          created_at?: string
+          favorites?: Json
+          filters?: Json
+          hidden?: Json
+          id?: string
+          layout?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_dashboard_preferences_base_company_id_fkey"
+            columns: ["base_company_id"]
+            isOneToOne: false
+            referencedRelation: "base_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
