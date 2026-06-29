@@ -141,11 +141,6 @@ function DashboardPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/comparar">
-                <Plus className="h-4 w-4" /> Nova comparação
-              </Link>
-            </Button>
           </div>
         }
       />
