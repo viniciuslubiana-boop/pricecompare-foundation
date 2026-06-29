@@ -354,6 +354,18 @@ function StrategyRowItem({ row: r }: { row: StrategyRow }) {
           </Collapsible>
         </TableCell>
       </TableRow>
+      <DrillDownDrawer
+        open={openPos}
+        onOpenChange={setOpenPos}
+        title={`Posição no mercado · ${r.myVehicle.brand} ${r.myVehicle.model}`}
+        description="Meu veículo e todos os concorrentes equivalentes considerados na estratégia."
+      >
+        <PositionDrillDown
+          myVehicle={r.myVehicle}
+          market={r.market}
+          equivalents={r.equivalents}
+        />
+      </DrillDownDrawer>
     </>
   );
 }
