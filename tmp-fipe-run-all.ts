@@ -40,23 +40,31 @@ function invalidYearDiagnostics(v: any): FipeMatchDiagnostics {
 
 async function persistFipeReference(result: FipeQuoteResult) {
   if (!result.fipe_code) return;
-  const { error } = await supabase.from('fipe_references').upsert(
-    {
-      vehicle_type: result.vehicle_type,
-      brand: result.brand,
-      model: result.model,
-      version: result.version,
-      year_model: result.year_model,
-      fuel: result.fuel,
-      fipe_code: result.fipe_code,
-      fipe_value: result.fipe_value,
-      reference_month: result.reference_month,
-      provider: result.provider,
-      raw_response: result.raw_response ?? null,
-    },
-    { onConflict: 'fipe_code,year_model,reference_month' },
-  );
-  if (error) throw error;
+  const payload = {
+    vehicle_type: result.vehicle_type,
+    brand: result.brand,
+    model: result.model,
+    version: result.version,
+    year_model: result.year_model,
+    fuel: result.fuel,
+    fipe_code: result.fipe_code,
+    fipe_value: result.fipe_value,
+    reference_month: result.reference_month,
+    provider: result.provider,
+    raw_response: result.raw_response ?? null,
+  };
+  const { data: existing, error: lookupError } = await supabase
+    .from('fipe_references')
+    .select('id')
+    .eq('fipe_code', result.fipe_code)
+    .eq('year_model', result.year_model)
+    .eq('reference_month', result.reference_month)
+    .maybeSingle();
+  if (lookupError) throw lookupError;
+  const write = existing?.id
+    ? await supabase.from('fipe_references').update(payload).eq('id', existing.id)
+    : await supabase.from('fipe_references').insert(payload);
+  if (write.error) throw write.error;
 }
 
 async function runBase(baseCompanyId: string) {
