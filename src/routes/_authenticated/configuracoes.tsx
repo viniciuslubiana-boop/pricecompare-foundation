@@ -105,6 +105,9 @@ function SettingsPage() {
           <TabsContent value="reports">
             <ReportsSection value={bundle.reports} />
           </TabsContent>
+          <TabsContent value="constitution">
+            <ConstitutionSection />
+          </TabsContent>
 
         </Tabs>
       )}
