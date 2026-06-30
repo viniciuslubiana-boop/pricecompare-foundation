@@ -29,7 +29,6 @@ async function loadDashboard(baseCompanyId?: string | null) {
   const market = marketStatisticsService.compute(snap.myVehicles, snap.competitorVehicles);
   const distribution = computePriceDistribution(snap.myVehicles, snap.competitorVehicles);
   const competitiveness = deriveCompetitiveness(comparison);
-  const fipe = computeFipeIndicators(snap.myVehicles);
 
   const summary = {
     totalMyVehicles: inventory.total,
