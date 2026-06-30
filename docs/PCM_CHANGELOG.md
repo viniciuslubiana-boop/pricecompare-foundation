@@ -2,6 +2,29 @@
 
 Toda nova funcionalidade deve registrar uma entrada aqui (Data · Responsável · Objetivo · Arquivos · Impacto · Pendências).
 
+## [PRD 001 — Market Acquisition Engine — CONCLUÍDO] — 2026-06-30
+- **Status:** homologado em produção. MAE passa a ser o **fluxo oficial** de sincronização de estoques de Empresas Base e Concorrentes (substitui orquestrações ad-hoc anteriores do Extraction Engine para sincronização periódica).
+- **Sprints entregues:** 001–013 (Foundation → Site Discovery → SSS → HIE → Source Score → AI Normalizer → Recovery & Security → Homologação → Precision Mode → Extractor Resilience → Ajustes Finos pós-homologação).
+- **Funcionalidades oficialmente entregues:**
+  - Descoberta automática de rota de inventário (Site Discovery + candidate URLs).
+  - **Inventory Score** (estimativa heurística de veículos por rota).
+  - **HTML Score** (qualidade técnica do HTML; com piso pós-validação real).
+  - **Source Score** (0–100) combinando cobertura, qualidade, performance, estabilidade e HTML.
+  - Detecção HTML (cards, paginação, load-more, infinite scroll, structured data, embedded JSON).
+  - **Firecrawl Actions** (scroll/click/wait) para conteúdos dinâmicos.
+  - **IA Normalizadora** (Lovable AI Gateway — Gemini) com schema rígido.
+  - **Confidence por campo** + **fieldCoverage** (brand, model, year, price, km, link, image).
+  - Deduplicação contra estoque vigente (Inventory Engine).
+  - **Salvamento por destino** (Empresa Base via Inventory Engine · Concorrente via `competitor_vehicles`).
+  - **Pós-processamento** automático (Comparison + Analytics + invalidação de cache Dashboard) com alerta de "sem equivalência rígida".
+  - **Proteção contra queda brusca** (Data Protection Guard, >5 itens).
+  - **Override admin** (server-side, autorizado via `has_role`).
+  - **Diagnóstico ao vivo** (`/diagnostico-html`) com telemetria de IA.
+  - **Aprendizado por fonte** (`market_source_scores` — histórico de execuções, success rate, média de veículos).
+- **Pendências (não bloqueantes):** persistir `fieldCoverage` em coluna dedicada de `html_intelligence_runs` (hoje vai no JSON `technical_preview`); re-sincronizar concorrentes antigos para aplicar aliases de marca no banco; evoluir estimador `html-score` para liberar pisos ≥ 80.
+
+
+
 ## [Governança v2.0] — 2026-06-29
 - Promulgada a **Constituição Oficial PCM v2.0** — documentação completa em `/docs` substitui o antigo Prompt Mestre.
 - Documentos novos: `README.md`, `PCM_PRODUCT_VISION.md`, `PCM_ENGINES.md`, `PCM_DASHBOARD.md`, `PCM_INTEGRATIONS.md`, `PCM_SECURITY.md`, `PCM_ROADMAP.md`.
