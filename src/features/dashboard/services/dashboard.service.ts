@@ -52,7 +52,6 @@ async function loadDashboard(baseCompanyId?: string | null) {
     market,
     distribution,
     competitiveness,
-    fipe,
     insights,
   };
 }
