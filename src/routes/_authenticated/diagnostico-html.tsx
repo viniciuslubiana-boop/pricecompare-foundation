@@ -319,59 +319,67 @@ function DiagnosticoHtmlPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {chosen && (
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <Badge variant={scoreBadgeVariant(chosen.breakdown?.score ?? 0)}>
-                  Score {chosen.breakdown?.score ?? 0}
-                </Badge>
-                <span className="text-muted-foreground">
-                  {chosen.vehiclesEstimated} veículos estimados • {chosen.htmlLength.toLocaleString("pt-BR")} bytes
-                </span>
-                <a
-                  href={chosen.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  abrir página
-                </a>
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <Badge variant="default">
+                    Inventory {chosen.inventoryScore?.score ?? 0}
+                  </Badge>
+                  <Badge variant={scoreBadgeVariant(chosen.breakdown?.score ?? 0)}>
+                    HTML {chosen.breakdown?.score ?? 0}
+                  </Badge>
+                  {chosen.priorityBoost && <Badge variant="secondary">URL informada</Badge>}
+                  <span className="text-muted-foreground">
+                    {chosen.vehiclesEstimated} veículos estimados • {chosen.htmlLength.toLocaleString("pt-BR")} bytes
+                  </span>
+                  <a href={chosen.url} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                    abrir página
+                  </a>
+                </div>
+                {data.result.chosenReason && (
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium">Motivo da escolha:</span> {data.result.chosenReason}
+                  </p>
+                )}
               </div>
             )}
+
 
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Rota</TableHead>
                   <TableHead className="text-right">Status</TableHead>
-                  <TableHead className="text-right">Score</TableHead>
+                  <TableHead className="text-right">Inv.</TableHead>
+                  <TableHead className="text-right">HTML</TableHead>
                   <TableHead className="text-right">Veículos</TableHead>
                   <TableHead className="text-right">Preços</TableHead>
                   <TableHead className="text-right">Cards</TableHead>
-                  <TableHead className="text-right">Bytes</TableHead>
-                  <TableHead>Erro</TableHead>
+                  <TableHead>Motivo / Erro</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {candidates.map((c: InventoryRouteCandidate) => (
                   <TableRow key={c.url}>
-                    <TableCell className="font-mono text-xs">{c.path}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {c.path}
+                      {c.priorityBoost && <Badge variant="secondary" className="ml-1">user</Badge>}
+                    </TableCell>
                     <TableCell className="text-right">{c.status ?? "—"}</TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant={scoreBadgeVariant(c.inventoryScore?.score ?? 0)}>
+                        {c.inventoryScore?.score ?? 0}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Badge variant={scoreBadgeVariant(c.breakdown?.score ?? 0)}>
                         {c.breakdown?.score ?? 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">{c.vehiclesEstimated}</TableCell>
-                    <TableCell className="text-right">
-                      {c.breakdown?.priceHits ?? 0}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {c.breakdown?.cardLikeContainers ?? 0}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {c.htmlLength.toLocaleString("pt-BR")}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-[160px] truncate">
-                      {c.error ?? "—"}
+                    <TableCell className="text-right">{c.breakdown?.priceHits ?? 0}</TableCell>
+                    <TableCell className="text-right">{c.breakdown?.cardLikeContainers ?? 0}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground max-w-[220px] truncate">
+                      {c.error ?? c.rejectionReason ?? "—"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -380,6 +388,7 @@ function DiagnosticoHtmlPage() {
           </CardContent>
         </Card>
       )}
+
 
       {data?.preview && (
         <Card>
@@ -428,6 +437,38 @@ function DiagnosticoHtmlPage() {
                   : "não"}
               </span>
             </div>
+
+            {data.preview.quality && (
+              <div className="rounded-md border bg-muted/30 p-3 space-y-2">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <Badge variant={scoreBadgeVariant(data.preview.quality.qualityScore)}>
+                    Extractor Quality {data.preview.quality.qualityScore}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {data.preview.quality.total} itens avaliados
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-2 text-xs">
+                  <div>Preço: <b>{data.preview.quality.pctPrice}%</b></div>
+                  <div>Ano: <b>{data.preview.quality.pctYear}%</b></div>
+                  <div>KM: <b>{data.preview.quality.pctKm}%</b></div>
+                  <div>Título: <b>{data.preview.quality.pctTitle}%</b></div>
+                  <div>Link: <b>{data.preview.quality.pctLink}%</b></div>
+                  <div>Imagem: <b>{data.preview.quality.pctImage}%</b></div>
+                </div>
+                {data.preview.quality.missingFields.length > 0 && (
+                  <p className="text-xs text-destructive">
+                    Campos críticos ausentes: {data.preview.quality.missingFields.join(", ")}
+                  </p>
+                )}
+                {data.preview.quality.recommendations.length > 0 && (
+                  <ul className="text-xs text-muted-foreground list-disc pl-4">
+                    {data.preview.quality.recommendations.map((r, i) => <li key={i}>{r}</li>)}
+                  </ul>
+                )}
+              </div>
+            )}
+
 
             <Table>
               <TableHeader>
@@ -494,8 +535,29 @@ function DiagnosticoHtmlPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <Badge variant={data.normalization.aiUsed ? "default" : "destructive"}>
-                {data.normalization.aiUsed ? `IA ${data.normalization.aiModel}` : "IA indisponível"}
+              {(() => {
+                const t = data.normalization.telemetry;
+                const labels: Record<typeof t.status, string> = {
+                  idle: "Aguardando",
+                  sending: "Enviando",
+                  processing: "Processando",
+                  success: "Sucesso",
+                  timeout: "Timeout",
+                  gateway_error: "Erro de gateway",
+                  invalid_json: "JSON inválido",
+                  empty_response: "Resposta vazia",
+                  validation_failed: "Validação falhou",
+                  missing_key: "Sem credencial",
+                };
+                const ok = t.status === "success";
+                return (
+                  <Badge variant={ok ? "default" : "destructive"}>
+                    Status IA: {labels[t.status] ?? t.status}
+                  </Badge>
+                );
+              })()}
+              <Badge variant={data.normalization.aiUsed ? "default" : "outline"}>
+                {data.normalization.aiUsed ? `Modelo ${data.normalization.aiModel}` : "IA não utilizada"}
               </Badge>
               <Badge variant="secondary">Confiança média {data.normalization.confidenceAvg}</Badge>
               <Badge variant="outline">Aprovados {data.normalization.statusCounts.approved}</Badge>
@@ -503,15 +565,19 @@ function DiagnosticoHtmlPage() {
               <Badge variant="outline">Inválidos {data.normalization.statusCounts.invalid}</Badge>
               <Badge variant="outline">Duplicados {data.normalization.statusCounts.duplicated}</Badge>
               <span className="text-muted-foreground">
-                {data.normalization.aiTokens} tokens • {data.normalization.aiDurationMs} ms
+                {data.normalization.aiTokens} tokens • {data.normalization.aiDurationMs} ms •{" "}
+                {data.normalization.telemetry.itemsSent} itens • {Math.round(data.normalization.telemetry.payloadBytes / 1024)} kB enviados
               </span>
             </div>
 
-            {data.normalization.errors.length > 0 && (
+            {(data.normalization.errors.length > 0 || data.normalization.telemetry.errorDetail) && (
               <p className="text-xs text-destructive">
-                {data.normalization.errors.join(" • ")}
+                {[data.normalization.telemetry.errorDetail, ...data.normalization.errors]
+                  .filter(Boolean)
+                  .join(" • ")}
               </p>
             )}
+
 
             <Table>
               <TableHeader>

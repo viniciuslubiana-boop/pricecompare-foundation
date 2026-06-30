@@ -19,6 +19,7 @@ import {
   type RecoveryInfo,
 } from "@/features/html-intelligence";
 import type {
+  AiTelemetry,
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
   NormalizationStatus,
@@ -28,6 +29,7 @@ import type {
   SourceScoreBreakdown,
   TechnicalPreview,
 } from "@/features/html-intelligence";
+
 
 
 
@@ -52,7 +54,10 @@ export interface NormalizationPayload {
   aiTokens: number;
   aiDurationMs: number;
   errors: string[];
+  /** Sprint 011 — telemetria detalhada (status da IA, payload, etc). */
+  telemetry: AiTelemetry;
 }
+
 
 export interface DiscoverRoutesPayload {
   result: RouteDiscoveryResult;
@@ -185,7 +190,9 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         aiTokens: ai.aiTokens,
         aiDurationMs: ai.aiDurationMs,
         errors: ai.errors,
+        telemetry: ai.telemetry,
       };
+
     }
 
     // ── Sprint 008: aprendizado + recuperação + queda brusca ──

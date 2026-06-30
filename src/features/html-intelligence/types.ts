@@ -15,6 +15,19 @@ export interface HtmlScoreBreakdown {
   score: number;
 }
 
+export interface InventoryScoreSummary {
+  score: number;
+  realCardSignals: number;
+  vehicleLinkHits: number;
+  inventoryTermHits: number;
+  institutionalNoise: number;
+  repeatedStructure: number;
+  pathBonus: number;
+  homePenalty: number;
+  priorityBoost: boolean;
+  reasons: string[];
+}
+
 export interface InventoryRouteCandidate {
   path: string;
   url: string;
@@ -24,6 +37,12 @@ export interface InventoryRouteCandidate {
   breakdown: HtmlScoreBreakdown | null;
   vehiclesEstimated: number;
   error?: string | null;
+  /** Sprint 011 — score específico de "página real de estoque". */
+  inventoryScore?: InventoryScoreSummary | null;
+  /** Sprint 011 — true quando a URL veio do usuário. */
+  priorityBoost?: boolean;
+  /** Sprint 011 — quando a rota foi rejeitada pelo ranking, o motivo. */
+  rejectionReason?: string | null;
 }
 
 export interface RouteDiscoveryResult {
@@ -31,7 +50,10 @@ export interface RouteDiscoveryResult {
   chosen: InventoryRouteCandidate | null;
   candidates: InventoryRouteCandidate[];
   processingMs: number;
+  /** Sprint 011 — explicação textual da escolha final. */
+  chosenReason?: string | null;
 }
+
 
 // ── Mini-Sprint 4B ────────────────────────────────────────────
 export type RawItemSource = "HTML" | "JSON" | "STRUCTURED_DATA";
@@ -76,6 +98,19 @@ export interface EmbeddedJsonResult {
   items: RawVehicleItem[];
 }
 
+export interface ExtractorQualitySummary {
+  total: number;
+  pctPrice: number;
+  pctYear: number;
+  pctKm: number;
+  pctTitle: number;
+  pctLink: number;
+  pctImage: number;
+  qualityScore: number;
+  missingFields: string[];
+  recommendations: string[];
+}
+
 export interface TechnicalPreview {
   routeUrl: string;
   cardsDetected: number;
@@ -94,7 +129,10 @@ export interface TechnicalPreview {
   preview: RawVehicleItem[];
   rawBefore: number;
   rawAfter: number;
+  /** Sprint 011 — qualidade dos itens brutos por campo. */
+  quality?: ExtractorQualitySummary | null;
 }
+
 
 export interface HtmlIntelligenceRunRow {
   id: string;
@@ -150,6 +188,29 @@ export interface NormalizedVehiclePreview {
   observations: string[];
 }
 
+/** Sprint 011 — Estados de telemetria da IA. Nunca deixar a UI sem feedback. */
+export type AiStatus =
+  | "idle"
+  | "sending"
+  | "processing"
+  | "success"
+  | "timeout"
+  | "gateway_error"
+  | "invalid_json"
+  | "empty_response"
+  | "validation_failed"
+  | "missing_key";
+
+export interface AiTelemetry {
+  status: AiStatus;
+  itemsSent: number;
+  payloadBytes: number;
+  responseBytes: number;
+  startedAt: number;
+  finishedAt: number;
+  errorDetail: string | null;
+}
+
 export interface AiNormalizationOutcome {
   items: NormalizedVehiclePreview[];
   aiUsed: boolean;
@@ -157,7 +218,10 @@ export interface AiNormalizationOutcome {
   aiTokens: number;
   aiDurationMs: number;
   errors: string[];
+  /** Sprint 011 — telemetria detalhada da chamada à IA. */
+  telemetry: AiTelemetry;
 }
+
 
 export interface PostNormalizationResult {
   items: NormalizedVehiclePreview[];

@@ -1,13 +1,15 @@
 // HTML Intelligence Engine — orquestrador puro (sem I/O Supabase).
 // Mini-Sprint 4A: descoberta de rotas + HTML Score.
-// A persistência é responsabilidade do server function que chama este motor.
+// Sprint 011: Inventory Score + ranking corrigido + URL informada priorizada.
 
 import { buildCandidateUrls } from "../utils/route-candidates";
 import { estimateVehiclesFromBreakdown, scoreHtml } from "../utils/html-score";
+import { scoreInventory } from "../utils/inventory-score";
 import type { InventoryRouteCandidate, RouteDiscoveryResult } from "../types";
 
 const FETCH_TIMEOUT_MS = 10_000;
 const MAX_PARALLEL = 4;
+
 
 function isPrivateOrBlockedHost(hostname: string): boolean {
   const h = hostname.toLowerCase();
@@ -52,6 +54,7 @@ export function assertSafeUrl(rawUrl: string): URL {
 async function fetchCandidate(
   path: string,
   url: string,
+  userProvided: boolean,
 ): Promise<InventoryRouteCandidate> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -68,37 +71,28 @@ async function fetchCandidate(
     const text = await res.text();
     if (!res.ok) {
       return {
-        path,
-        url,
-        status: res.status,
-        reachable: false,
-        htmlLength: text.length,
-        breakdown: null,
-        vehiclesEstimated: 0,
-        error: `HTTP ${res.status}`,
+        path, url, status: res.status, reachable: false, htmlLength: text.length,
+        breakdown: null, vehiclesEstimated: 0, error: `HTTP ${res.status}`,
+        inventoryScore: null, priorityBoost: userProvided, rejectionReason: null,
       };
     }
     const breakdown = scoreHtml(text);
+    const inv = scoreInventory({ html: text, path, isUserProvided: userProvided });
     return {
-      path,
-      url,
-      status: res.status,
-      reachable: true,
-      htmlLength: text.length,
+      path, url, status: res.status, reachable: true, htmlLength: text.length,
       breakdown,
       vehiclesEstimated: estimateVehiclesFromBreakdown(breakdown),
       error: null,
+      inventoryScore: inv,
+      priorityBoost: userProvided,
+      rejectionReason: null,
     };
   } catch (e) {
     return {
-      path,
-      url,
-      status: null,
-      reachable: false,
-      htmlLength: 0,
-      breakdown: null,
-      vehiclesEstimated: 0,
+      path, url, status: null, reachable: false, htmlLength: 0,
+      breakdown: null, vehiclesEstimated: 0,
       error: e instanceof Error ? e.message : "Erro de rede",
+      inventoryScore: null, priorityBoost: userProvided, rejectionReason: null,
     };
   } finally {
     clearTimeout(timer);
@@ -126,7 +120,8 @@ async function runWithConcurrency<T, R>(
 
 /**
  * Descobre a melhor rota de estoque para uma URL base.
- * Não persiste nada — apenas devolve o resultado.
+ * Sprint 011 — Ranking: Inventory Score primeiro, depois veículos estimados,
+ * depois HTML Score. URL informada pelo usuário recebe boost se tiver sinais reais.
  */
 export async function discoverInventoryRoutes(
   rawUrl: string,
@@ -137,23 +132,61 @@ export async function discoverInventoryRoutes(
 
   const results = await runWithConcurrency(
     candidates,
-    (c) => fetchCandidate(c.path, c.url),
+    (c) => fetchCandidate(c.path, c.url, c.userProvided),
     MAX_PARALLEL,
   );
 
+  // Ranking Sprint 011: Inventory Score domina.
   const ranked = [...results].sort((a, b) => {
-    const sa = a.breakdown?.score ?? -1;
-    const sb = b.breakdown?.score ?? -1;
-    if (sb !== sa) return sb - sa;
-    return b.vehiclesEstimated - a.vehiclesEstimated;
+    // Prioriza URL do usuário SE tiver sinais reais (inventoryScore >= 25).
+    const aBoost = a.priorityBoost && (a.inventoryScore?.score ?? 0) >= 25 ? 30 : 0;
+    const bBoost = b.priorityBoost && (b.inventoryScore?.score ?? 0) >= 25 ? 30 : 0;
+    const ia = (a.inventoryScore?.score ?? 0) + aBoost;
+    const ib = (b.inventoryScore?.score ?? 0) + bBoost;
+    if (ib !== ia) return ib - ia;
+    if (b.vehiclesEstimated !== a.vehiclesEstimated) return b.vehiclesEstimated - a.vehiclesEstimated;
+    const ha = a.breakdown?.score ?? 0;
+    const hb = b.breakdown?.score ?? 0;
+    return hb - ha;
   });
 
-  const chosen = ranked.find((r) => r.reachable && (r.breakdown?.score ?? 0) > 0) ?? null;
+  const chosen = ranked.find(
+    (r) => r.reachable && ((r.inventoryScore?.score ?? 0) > 0 || (r.breakdown?.score ?? 0) > 0),
+  ) ?? null;
+
+  // Anota motivos de rejeição (apenas para rotas reachable que não venceram).
+  for (const r of ranked) {
+    if (!chosen || r.url === chosen.url) continue;
+    if (!r.reachable) continue;
+    const myInv = r.inventoryScore?.score ?? 0;
+    const winInv = chosen.inventoryScore?.score ?? 0;
+    if (winInv > myInv) {
+      r.rejectionReason = `Inventory Score ${myInv} < vencedor ${winInv}`;
+    } else if (r.vehiclesEstimated < chosen.vehiclesEstimated) {
+      r.rejectionReason = `menos veículos estimados (${r.vehiclesEstimated} vs ${chosen.vehiclesEstimated})`;
+    } else if ((r.breakdown?.score ?? 0) < (chosen.breakdown?.score ?? 0)) {
+      r.rejectionReason = `HTML Score inferior`;
+    } else {
+      r.rejectionReason = "desempate por critério secundário";
+    }
+  }
+
+  const chosenReason = chosen
+    ? [
+        `Inventory Score ${chosen.inventoryScore?.score ?? 0}`,
+        `HTML Score ${chosen.breakdown?.score ?? 0}`,
+        `${chosen.vehiclesEstimated} veículos estimados`,
+        chosen.priorityBoost ? "URL informada pelo usuário" : null,
+        ...(chosen.inventoryScore?.reasons ?? []),
+      ].filter(Boolean).join(" • ")
+    : "Nenhuma rota atingiu sinais mínimos de estoque.";
 
   return {
     baseUrl: safe.toString(),
     chosen,
     candidates: ranked,
     processingMs: Date.now() - startedAt,
+    chosenReason,
   };
 }
+
