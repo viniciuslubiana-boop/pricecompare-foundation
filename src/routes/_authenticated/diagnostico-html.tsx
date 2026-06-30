@@ -296,6 +296,10 @@ function DiagnosticoHtmlPage() {
               </p>
             )}
           </CardContent>
+        </Card>
+      )}
+
+
 
 
       {data && !data.rateLimited && (
