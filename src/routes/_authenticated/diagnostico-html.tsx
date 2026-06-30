@@ -61,13 +61,26 @@ function scoreBadgeVariant(score: number): "default" | "secondary" | "outline" |
 
 function DiagnosticoHtmlPage() {
   const [url, setUrl] = useState("");
+  const [companyType, setCompanyType] = useState<"base_company" | "competitor">("competitor");
+  const [companyId, setCompanyId] = useState<string>("");
+  const [duplicateStrategy, setDuplicateStrategy] = useState<"ignore" | "update" | "new">("update");
+  const [includeReview, setIncludeReview] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [saveResult, setSaveResult] = useState<SaveStockResult | null>(null);
   const queryClient = useQueryClient();
   const discoverFn = useServerFn(discoverInventoryRoute);
   const listFn = useServerFn(listHtmlIntelligenceRuns);
+  const targetsFn = useServerFn(listSaveTargets);
+  const saveFn = useServerFn(saveSynchronizedStock);
 
   const history = useQuery({
     queryKey: ["html-intelligence-runs"],
     queryFn: () => listFn(),
+  });
+
+  const targets = useQuery({
+    queryKey: ["save-stock-targets"],
+    queryFn: () => targetsFn(),
   });
 
   const discover = useMutation({
@@ -75,6 +88,23 @@ function DiagnosticoHtmlPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["html-intelligence-runs"] });
     },
+  });
+
+  const save = useMutation({
+    mutationFn: (input: Parameters<typeof saveFn>[0]["data"]) => saveFn({ data: input }),
+    onSuccess: (res) => {
+      setSaveResult(res);
+      queryClient.invalidateQueries({ queryKey: ["my-vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["competitor-vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["comparisons"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      if (res.errors.length === 0) {
+        toast.success(`Estoque sincronizado: ${res.totalSaved} novos, ${res.totalUpdated} atualizados`);
+      } else {
+        toast.warning(`Salvo com avisos: ${res.errors.length} erro(s)`);
+      }
+    },
+    onError: (e: Error) => toast.error("Falha ao salvar", { description: e.message }),
   });
 
   function handleSubmit(e: React.FormEvent) {
