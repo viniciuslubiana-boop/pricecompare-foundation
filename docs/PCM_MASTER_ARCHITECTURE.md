@@ -7,9 +7,11 @@ NÃO é ERP, CRM, DMS, financeiro, oficina, marketplace ou sistema de vendas.
 ## Engines Oficiais (não criar novos sem necessidade)
 1. **Inventory Engine** — `src/features/inventory/` — estoque das Empresas Base.
 2. **Competitor Engine** — `src/features/competitors/` — cadastro/normalização de concorrentes.
-3. **Extraction Engine** — `src/features/extraction/` — coleta de anúncios públicos (Firecrawl + IA).
+3. **Extraction Engine** — `src/features/extraction/` — coleta de anúncios públicos (Firecrawl + IA) — uso pontual.
 4. **Comparison Engine** — `src/features/comparison/` — comparação Empresa Base ↔ Mercado.
 5. **Analytics Engine** — `src/features/analytics/` — métricas, rankings, histórico.
+6. **Market Acquisition Engine (MAE)** — `src/features/html-intelligence/` + `src/lib/html-intelligence.functions.ts` — **fluxo oficial** de sincronização de estoques (Empresas Base e Concorrentes). Desde 2026-06-30 (PRD 001 concluído), substitui chamadas ad-hoc ao Extraction Engine para sincronização periódica.
+
 
 ## Regras Arquiteturais
 - Toda regra de negócio vive nos Engines.
