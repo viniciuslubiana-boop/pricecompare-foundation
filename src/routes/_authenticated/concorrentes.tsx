@@ -167,6 +167,7 @@ function ConcorrentesPage() {
             onToggleOne={toggleOne}
             onToggleAll={toggleAll}
           />
+          <CompetitorsStockOverview competitors={rows} />
         </>
       )}
 
