@@ -23,12 +23,26 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
-import { FileSearch, Loader2 } from "lucide-react";
+import { FileSearch, Loader2, Save } from "lucide-react";
 import {
   discoverInventoryRoute,
   listHtmlIntelligenceRuns,
   type DiscoverRoutesPayload,
 } from "@/lib/html-intelligence.functions";
+import {
+  saveSynchronizedStock,
+  listSaveTargets,
+  type SaveStockResult,
+} from "@/lib/save-stock.functions";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import type {
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
