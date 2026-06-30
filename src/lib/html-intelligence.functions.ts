@@ -9,11 +9,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   applyPostNormalization,
   computeSourceScore,
+  deriveRecoveryInfo,
+  detectSuddenDrop,
   discoverInventoryRoutes,
   runAiNormalization,
   runTechnicalPreview,
   type AliasEntry,
   type CatalogEntry,
+  type RecoveryInfo,
 } from "@/features/html-intelligence";
 import type {
   HtmlIntelligenceRunRow,
@@ -25,6 +28,7 @@ import type {
   SourceScoreBreakdown,
   TechnicalPreview,
 } from "@/features/html-intelligence";
+
 
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -58,7 +62,12 @@ export interface DiscoverRoutesPayload {
   normalization: NormalizationPayload | null;
   rateLimited: boolean;
   rateLimitMessage: string | null;
+  recovery: RecoveryInfo | null;
+  suspectedDrop: boolean;
+  suddenDropReason: string | null;
+  priorAvgVehicles: number;
 }
+
 
 
 export const discoverInventoryRoute = createServerFn({ method: "POST" })
