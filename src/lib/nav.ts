@@ -17,6 +17,7 @@ import {
   MapPin,
   History,
   Stethoscope,
+  Gauge,
   type LucideIcon,
 } from "lucide-react";
 
