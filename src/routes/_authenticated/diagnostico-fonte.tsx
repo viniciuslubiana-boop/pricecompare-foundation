@@ -118,19 +118,34 @@ function DiagnosticoFontePage() {
                     <Badge>{select.data.chosen.method}</Badge>
                     <Badge variant="secondary">{select.data.technology}</Badge>
                     <span className="text-muted-foreground">
-                      confiança {select.data.chosen.confidence.toFixed(0)}% • prioridade {select.data.chosen.priority}
+                      confiança {select.data.chosen.confidence.toFixed(0)}% • prioridade {select.data.chosen.priority} • motivo: {select.data.chosen.reason}
                     </span>
+                    {select.data.usedHistory && (
+                      <Badge variant="outline">histórico aplicado</Badge>
+                    )}
                   </div>
                   {select.data.fallbackChain.length > 0 && (
                     <div className="text-muted-foreground">
-                      Fallback:{" "}
+                      Métodos rejeitados / fallback:{" "}
                       {select.data.fallbackChain
                         .map((c) => `${c.method} (${c.confidence.toFixed(0)}%)`)
                         .join(" → ")}
                     </div>
                   )}
+                  {select.data.scores && select.data.scores.length > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      Scores conhecidos:{" "}
+                      {select.data.scores
+                        .map(
+                          (s) =>
+                            `${s.method} ${Math.round(s.score)} (sucesso ${Math.round(s.successRate * 100)}%, ${s.executions} exec)`,
+                        )
+                        .join(" • ")}
+                    </div>
+                  )}
                 </div>
               )}
+
             </div>
           </form>
         </CardContent>

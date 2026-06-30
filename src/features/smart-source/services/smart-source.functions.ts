@@ -82,8 +82,70 @@ export const selectSource = createServerFn({ method: "POST" })
     const technology = await resolveTechnology(context.supabase, data.url, data.technology);
     const profiles = await loadProfiles(context.supabase, technology);
     const { chosen, fallbackChain } = pickBest(technology, profiles);
-    return { url: data.url, technology, chosen, fallbackChain };
+
+    // 4C: consulta market_source_scores e prioriza método com maior source_score
+    const { data: scores } = await context.supabase
+      .from("market_source_scores")
+      .select("source_method, source_score, success_rate, executions_total")
+      .eq("url", data.url)
+      .order("source_score", { ascending: false });
+
+    let finalChosen = chosen;
+    let finalChain = fallbackChain;
+    let usedHistory = false;
+    let reason: string | undefined;
+
+    if (scores && scores.length > 0) {
+      const best = scores[0];
+      // Só sobrescreve se score for relevante (>= 50) e tiver ao menos 1 execução
+      if (best.source_score >= 50 && best.executions_total >= 1) {
+        const all = [chosen, ...fallbackChain];
+        const match = all.find((c) => c.method === best.source_method);
+        if (match && match !== chosen) {
+          finalChain = all.filter((c) => c !== match);
+          finalChosen = {
+            ...match,
+            reason: `histórico (score ${Math.round(best.source_score)}, sucesso ${Math.round(best.success_rate * 100)}%)`,
+          };
+          usedHistory = true;
+          reason = "histórico de execuções";
+        } else if (match === chosen) {
+          finalChosen = {
+            ...chosen,
+            reason: `perfil + histórico (score ${Math.round(best.source_score)})`,
+          };
+          usedHistory = true;
+        }
+      }
+      // Penaliza métodos com source_score < 20 (move para o fim)
+      const bad = new Set(
+        scores.filter((s) => s.source_score < 20).map((s) => s.source_method as string),
+      );
+      if (bad.size > 0) {
+        finalChain = [...finalChain].sort((a, b) => {
+          const aBad = bad.has(a.method) ? 1 : 0;
+          const bBad = bad.has(b.method) ? 1 : 0;
+          return aBad - bBad;
+        });
+      }
+    }
+
+    return {
+      url: data.url,
+      technology,
+      chosen: finalChosen,
+      fallbackChain: finalChain,
+      usedHistory,
+      reason,
+      scores: (scores ?? []).map((s) => ({
+        method: s.source_method as string,
+        score: Number(s.source_score),
+        successRate: Number(s.success_rate),
+        executions: s.executions_total,
+      })),
+    };
   });
+
 
 export const recordSourceExecution = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

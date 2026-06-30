@@ -1,11 +1,13 @@
 // HTML Intelligence — server functions
 // Mini-Sprint 4A: descoberta de rotas + persistência do run.
 // Mini-Sprint 4B: prévia técnica + detectores + Firecrawl actions.
+// Mini-Sprint 4C: Source Score + rate limit + aprendizado.
 
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
+  computeSourceScore,
   discoverInventoryRoutes,
   runTechnicalPreview,
 } from "@/features/html-intelligence";
@@ -13,19 +15,29 @@ import type {
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
   RouteDiscoveryResult,
+  SourceScoreBreakdown,
   TechnicalPreview,
 } from "@/features/html-intelligence";
+
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const SOURCE_METHOD_HTML = "HTML";
 
 const inputSchema = z.object({
   url: z.string().min(1),
   persist: z.boolean().optional(),
   withPreview: z.boolean().optional(),
+  companyId: z.string().uuid().nullable().optional(),
+  companyType: z.enum(["base_company", "competitor"]).optional(),
+  force: z.boolean().optional(),
 });
 
 export interface DiscoverRoutesPayload {
   result: RouteDiscoveryResult;
   preview: TechnicalPreview | null;
   runId: string | null;
+  score: SourceScoreBreakdown | null;
+  rateLimited: boolean;
+  rateLimitMessage: string | null;
 }
 
 export const discoverInventoryRoute = createServerFn({ method: "POST" })
@@ -35,6 +47,31 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const persist = data.persist ?? true;
     const withPreview = data.withPreview ?? true;
+    const companyType = data.companyType ?? "competitor";
+    const force = data.force ?? false;
+
+    // ── Rate limit simples ───────────────────────────────────
+    if (!force) {
+      const since = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+      const { data: recent } = await supabase
+        .from("html_intelligence_runs")
+        .select("id, created_at")
+        .eq("base_url", data.url)
+        .gte("created_at", since)
+        .limit(1)
+        .maybeSingle();
+      if (recent) {
+        return {
+          result: { baseUrl: data.url, chosen: null, candidates: [], processingMs: 0 },
+          preview: null,
+          runId: null,
+          score: null,
+          rateLimited: true,
+          rateLimitMessage:
+            "Execução recente detectada para esta URL. Aguarde 60 segundos ou marque 'forçar reexecução'.",
+        };
+      }
+    }
 
     let result: RouteDiscoveryResult;
     let errorMessage: string | null = null;
@@ -55,9 +92,33 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
       }
     }
 
+    // ── Carrega score anterior p/ estabilidade ───────────────
+    const { data: priorRow } = await supabase
+      .from("market_source_scores")
+      .select("executions_total, executions_success, vehicles_estimated")
+      .eq("url", data.url)
+      .eq("source_method", SOURCE_METHOD_HTML)
+      .maybeSingle();
+
+    const success = (preview?.rawAfter ?? 0) > 0;
+
+    const score = computeSourceScore({
+      htmlBreakdown: result.chosen?.breakdown ?? null,
+      preview,
+      vehiclesEstimated: result.chosen?.vehiclesEstimated ?? 0,
+      prior: priorRow
+        ? {
+            executionsTotal: priorRow.executions_total,
+            executionsSuccess: priorRow.executions_success,
+            avgVehicles: priorRow.vehicles_estimated,
+          }
+        : null,
+      fallbackUsed: preview?.actionsUsed ?? false,
+    });
+
     let runId: string | null = null;
     if (persist) {
-      const { data: row, error } = await supabase
+      const { data: row } = await supabase
         .from("html_intelligence_runs")
         .insert({
           base_url: result.baseUrl,
@@ -79,10 +140,61 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         })
         .select("id")
         .single();
-      if (!error) runId = row?.id ?? null;
+      runId = row?.id ?? null;
+
+      // Upsert score
+      const nextTotal = (priorRow?.executions_total ?? 0) + 1;
+      const nextSuccess = (priorRow?.executions_success ?? 0) + (success ? 1 : 0);
+
+      await supabase.from("market_source_scores").upsert(
+        {
+          company_id: data.companyId ?? null,
+          company_type: companyType,
+          url: data.url,
+          source_method: SOURCE_METHOD_HTML,
+          route_url: result.chosen?.url ?? null,
+          html_score: score.htmlScore,
+          source_score: score.sourceScore,
+          coverage_score: score.coverageScore,
+          quality_score: score.qualityScore,
+          performance_score: score.performanceScore,
+          stability_score: score.stabilityScore,
+          success_rate: nextTotal > 0 ? nextSuccess / nextTotal : 0,
+          raw_items_found: preview?.rawAfter ?? 0,
+          vehicles_estimated: result.chosen?.vehiclesEstimated ?? 0,
+          actions_used: preview?.actionsUsed ?? false,
+          fallback_used: preview?.actionsUsed ?? false,
+          executions_total: nextTotal,
+          executions_success: nextSuccess,
+          last_success_at: success ? new Date().toISOString() : (priorRow ? undefined : null),
+          last_failure_at: !success ? new Date().toISOString() : (priorRow ? undefined : null),
+        },
+        { onConflict: "url,source_method" },
+      );
+
+      // Aprendizado SSS: registra histórico
+      await supabase.from("market_source_history").insert({
+        company_id: data.companyId ?? null,
+        company_type: companyType,
+        url: data.url,
+        method_used: SOURCE_METHOD_HTML,
+        confidence: score.sourceScore,
+        vehicles_found: preview?.rawAfter ?? 0,
+        execution_time_ms: preview?.processingMs ?? result.processingMs,
+        success,
+        fallback_used: preview?.actionsUsed ?? false,
+        fallback_chain: null,
+      });
     }
 
-    return { result, preview, runId };
+    return {
+      result,
+      preview,
+      runId,
+      score,
+      rateLimited: false,
+      rateLimitMessage: null,
+    };
   });
 
 export const listHtmlIntelligenceRuns = createServerFn({ method: "GET" })
@@ -99,4 +211,56 @@ export const listHtmlIntelligenceRuns = createServerFn({ method: "GET" })
       ...r,
       candidates: (r.candidates as unknown as InventoryRouteCandidate[]) ?? [],
     })) as unknown as HtmlIntelligenceRunRow[];
+  });
+
+// ── Source Scores (4C) ───────────────────────────────────────
+export interface SourceScoreRow {
+  id: string;
+  company_id: string | null;
+  company_type: string;
+  url: string;
+  source_method: string;
+  route_url: string | null;
+  html_score: number;
+  source_score: number;
+  coverage_score: number;
+  quality_score: number;
+  performance_score: number;
+  stability_score: number;
+  success_rate: number;
+  raw_items_found: number;
+  vehicles_estimated: number;
+  actions_used: boolean;
+  fallback_used: boolean;
+  executions_total: number;
+  executions_success: number;
+  last_success_at: string | null;
+  last_failure_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const listSourceScores = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SourceScoreRow[]> => {
+    const { data, error } = await context.supabase
+      .from("market_source_scores")
+      .select("*")
+      .order("source_score", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return (data ?? []) as SourceScoreRow[];
+  });
+
+export const getSourceScoreForUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ url: z.string().min(1) }).parse(data))
+  .handler(async ({ data, context }): Promise<SourceScoreRow[]> => {
+    const { data: rows, error } = await context.supabase
+      .from("market_source_scores")
+      .select("*")
+      .eq("url", data.url)
+      .order("source_score", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as SourceScoreRow[];
   });
