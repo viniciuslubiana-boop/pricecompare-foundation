@@ -190,7 +190,9 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         aiTokens: ai.aiTokens,
         aiDurationMs: ai.aiDurationMs,
         errors: ai.errors,
+        telemetry: ai.telemetry,
       };
+
     }
 
     // ── Sprint 008: aprendizado + recuperação + queda brusca ──
