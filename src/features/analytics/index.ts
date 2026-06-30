@@ -3,8 +3,6 @@ export { inventoryStatisticsService } from "./services/inventory-statistics.serv
 export { competitorStatisticsService } from "./services/competitor-statistics.service";
 export { comparisonStatisticsService } from "./services/comparison-statistics.service";
 export { marketStatisticsService } from "./services/market-statistics.service";
-export { fipeStatisticsService } from "./services/fipe-statistics.service";
-export type { FipeIndicators } from "./services/fipe-statistics.service";
 export {
   useAnalytics,
   useDashboardSummary,
