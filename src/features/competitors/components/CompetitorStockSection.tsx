@@ -38,9 +38,10 @@ const fmtDate = (v: string | null | undefined) =>
 
 interface Props {
   competitorId: string;
+  competitorName?: string;
 }
 
-export function CompetitorStockSection({ competitorId }: Props) {
+export function CompetitorStockSection({ competitorId, competitorName }: Props) {
   const [search, setSearch] = useState("");
 
   const q = useQuery({
