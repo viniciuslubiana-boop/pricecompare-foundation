@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { downloadVehiclesCsv, downloadVehiclesXlsx, type ExportVehicleRow } from "@/lib/export-vehicles";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -23,7 +24,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
-import { FileSearch, Loader2, Save } from "lucide-react";
+import { Download, ExternalLink, FileSearch, FileSpreadsheet, Loader2, Save } from "lucide-react";
 import {
   discoverInventoryRoute,
   listHtmlIntelligenceRuns,
@@ -583,6 +584,45 @@ function DiagnosticoHtmlPage() {
               </p>
             )}
 
+            {data.normalization.items.length > 0 && (() => {
+              const list = companyType === "base_company"
+                ? targets.data?.baseCompanies ?? []
+                : targets.data?.competitors ?? [];
+              const storeName = list.find((c) => c.id === companyId)?.name ?? "—";
+              const tipo = companyType === "base_company" ? "Empresa Base" : "Concorrente";
+              const exportRows: ExportVehicleRow[] = data.normalization.items.map((v) => ({
+                loja: storeName,
+                tipo,
+                marca: v.brand,
+                modelo: v.model,
+                versao: v.version,
+                ano: v.year_model,
+                km: v.km,
+                preco: v.price,
+                link: v.source_url,
+                imagem: v.image_url,
+                fonte: v.source,
+                status: v.status,
+                confianca: v.confidenceAvg,
+                data_coleta: new Date().toISOString(),
+              }));
+              const base = `estoque-${(storeName === "—" ? "varredura" : storeName).toLowerCase().replace(/\s+/g, "-")}`;
+              return (
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="outline" size="sm"
+                    onClick={() => downloadVehiclesCsv(exportRows, base)}>
+                    <Download className="mr-2 size-4" /> Baixar CSV
+                  </Button>
+                  <Button type="button" variant="outline" size="sm"
+                    onClick={() => downloadVehiclesXlsx(exportRows, base)}>
+                    <FileSpreadsheet className="mr-2 size-4" /> Baixar Excel
+                  </Button>
+                </div>
+              );
+            })()}
+
+
+
 
             <Table>
               <TableHeader>
@@ -748,6 +788,21 @@ function DiagnosticoHtmlPage() {
                   {saveResult.errors.length > 0 && (
                     <div className="text-destructive mt-1">{saveResult.errors.join(" • ")}</div>
                   )}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {companyType === "base_company" ? (
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/meu-estoque">
+                          <ExternalLink className="mr-2 size-4" /> Ver no Meu Estoque
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/concorrente/$id" params={{ id: companyId }}>
+                          <ExternalLink className="mr-2 size-4" /> Ver Estoque do Concorrente
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

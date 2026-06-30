@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Package } from "lucide-react";
+import { Download, ExternalLink, FileSpreadsheet, Package } from "lucide-react";
 import { competitorVehicleRepository } from "@/features/extraction/repositories/competitor-vehicle.repository";
 import {
   Card,
@@ -22,6 +22,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { downloadVehiclesCsv, downloadVehiclesXlsx, type ExportVehicleRow } from "@/lib/export-vehicles";
 
 const fmtPrice = (v: number | null | undefined) =>
   typeof v === "number"
@@ -36,9 +38,10 @@ const fmtDate = (v: string | null | undefined) =>
 
 interface Props {
   competitorId: string;
+  competitorName?: string;
 }
 
-export function CompetitorStockSection({ competitorId }: Props) {
+export function CompetitorStockSection({ competitorId, competitorName }: Props) {
   const [search, setSearch] = useState("");
 
   const q = useQuery({
@@ -84,12 +87,70 @@ export function CompetitorStockSection({ competitorId }: Props) {
               ) : null}
             </CardDescription>
           </div>
-          <div className="w-full sm:w-72">
-            <SearchInput
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por marca, modelo, ano..."
-            />
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="w-full sm:w-72">
+              <SearchInput
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar por marca, modelo, ano..."
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!q.data || q.data.length === 0}
+              onClick={() => {
+                const base = `estoque-${(competitorName ?? "concorrente").toLowerCase().replace(/\s+/g, "-")}`;
+                const rowsExp: ExportVehicleRow[] = (q.data ?? []).map((v) => ({
+                  loja: competitorName ?? null,
+                  tipo: "Concorrente",
+                  marca: v.brand,
+                  modelo: v.model,
+                  versao: v.version,
+                  ano: v.year_model,
+                  km: v.km,
+                  preco: v.price,
+                  link: v.source_url,
+                  imagem: v.photo_url ?? null,
+                  fonte: v.source,
+                  status: null,
+                  confianca: null,
+                  data_coleta: v.updated_at ?? v.created_at,
+                }));
+                downloadVehiclesCsv(rowsExp, base);
+              }}
+            >
+              <Download className="mr-2 size-4" /> CSV
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!q.data || q.data.length === 0}
+              onClick={() => {
+                const base = `estoque-${(competitorName ?? "concorrente").toLowerCase().replace(/\s+/g, "-")}`;
+                const rowsExp: ExportVehicleRow[] = (q.data ?? []).map((v) => ({
+                  loja: competitorName ?? null,
+                  tipo: "Concorrente",
+                  marca: v.brand,
+                  modelo: v.model,
+                  versao: v.version,
+                  ano: v.year_model,
+                  km: v.km,
+                  preco: v.price,
+                  link: v.source_url,
+                  imagem: v.photo_url ?? null,
+                  fonte: v.source,
+                  status: null,
+                  confianca: null,
+                  data_coleta: v.updated_at ?? v.created_at,
+                }));
+                downloadVehiclesXlsx(rowsExp, base);
+              }}
+            >
+              <FileSpreadsheet className="mr-2 size-4" /> Excel
+            </Button>
           </div>
         </div>
       </CardHeader>
