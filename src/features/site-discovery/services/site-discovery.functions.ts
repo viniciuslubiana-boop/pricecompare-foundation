@@ -133,8 +133,8 @@ export const discoverSite = createServerFn({ method: "POST" })
         url: result.url,
         technology: result.technology satisfies DetectedTechnology,
         confidence: result.confidence,
-        html_signature: result.htmlSignature ?? null,
-        framework_signature: result.frameworkSignature ?? null,
+        html_signature: (result.htmlSignature ?? null) as never,
+        framework_signature: (result.frameworkSignature ?? null) as never,
         discovery_time_ms: result.discoveryTimeMs,
         detected_at: result.detectedAt,
       });
