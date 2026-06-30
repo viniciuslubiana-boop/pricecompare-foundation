@@ -233,7 +233,7 @@ export const saveSynchronizedStock = createServerFn({ method: "POST" })
   });
 
 async function insertLog(
-  supabase: { from: (t: string) => { insert: (v: unknown) => { select: (c: string) => { single: () => Promise<{ data: { id: string } | null }> } } } },
+  supabase: import("@supabase/supabase-js").SupabaseClient<import("@/integrations/supabase/types").Database>,
   _userId: string,
   data: z.infer<typeof inputSchema>,
   result: SaveStockResult,
