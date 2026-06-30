@@ -40,7 +40,7 @@ export function CompetitorsStockOverview({ competitors }: Props) {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <CompetitorStockSection competitorId={c.id} />
+                <CompetitorStockSection competitorId={c.id} competitorName={c.name} />
               </AccordionContent>
             </AccordionItem>
           ))}
