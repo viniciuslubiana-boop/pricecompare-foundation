@@ -349,36 +349,37 @@ function DiagnosticoHtmlPage() {
                 <TableRow>
                   <TableHead>Rota</TableHead>
                   <TableHead className="text-right">Status</TableHead>
-                  <TableHead className="text-right">Score</TableHead>
+                  <TableHead className="text-right">Inv.</TableHead>
+                  <TableHead className="text-right">HTML</TableHead>
                   <TableHead className="text-right">Veículos</TableHead>
                   <TableHead className="text-right">Preços</TableHead>
                   <TableHead className="text-right">Cards</TableHead>
-                  <TableHead className="text-right">Bytes</TableHead>
-                  <TableHead>Erro</TableHead>
+                  <TableHead>Motivo / Erro</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {candidates.map((c: InventoryRouteCandidate) => (
                   <TableRow key={c.url}>
-                    <TableCell className="font-mono text-xs">{c.path}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {c.path}
+                      {c.priorityBoost && <Badge variant="secondary" className="ml-1">user</Badge>}
+                    </TableCell>
                     <TableCell className="text-right">{c.status ?? "—"}</TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant={scoreBadgeVariant(c.inventoryScore?.score ?? 0)}>
+                        {c.inventoryScore?.score ?? 0}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Badge variant={scoreBadgeVariant(c.breakdown?.score ?? 0)}>
                         {c.breakdown?.score ?? 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">{c.vehiclesEstimated}</TableCell>
-                    <TableCell className="text-right">
-                      {c.breakdown?.priceHits ?? 0}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {c.breakdown?.cardLikeContainers ?? 0}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {c.htmlLength.toLocaleString("pt-BR")}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-[160px] truncate">
-                      {c.error ?? "—"}
+                    <TableCell className="text-right">{c.breakdown?.priceHits ?? 0}</TableCell>
+                    <TableCell className="text-right">{c.breakdown?.cardLikeContainers ?? 0}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground max-w-[220px] truncate">
+                      {c.error ?? c.rejectionReason ?? "—"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -387,6 +388,7 @@ function DiagnosticoHtmlPage() {
           </CardContent>
         </Card>
       )}
+
 
       {data?.preview && (
         <Card>
