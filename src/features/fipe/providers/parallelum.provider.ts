@@ -54,11 +54,18 @@ type ValueResp = {
   SiglaCombustivel: string;
 };
 
+/** Cache em memória por instância — reduz chamadas durante o batch. */
+const fipeCache = new Map<string, unknown>();
+
 async function safeJson<T>(url: string): Promise<T | null> {
+  const cached = fipeCache.get(url);
+  if (cached !== undefined) return cached as T;
   try {
     const res = await fetch(url, { headers: { accept: "application/json" } });
     if (!res.ok) return null;
-    return (await res.json()) as T;
+    const data = (await res.json()) as T;
+    fipeCache.set(url, data);
+    return data;
   } catch {
     return null;
   }
