@@ -88,6 +88,8 @@ export const saveSynchronizedStock = createServerFn({ method: "POST" })
       errors: [],
       logId: null,
       durationMs: 0,
+      protected: false,
+      protectionReason: null,
     };
 
     // Confirma destino
@@ -126,15 +128,7 @@ export const saveSynchronizedStock = createServerFn({ method: "POST" })
       return it.status === "approved";
     });
 
-    if (eligible.length === 0) {
-      // Mesmo sem itens, registra log
-      const log = await insertLog(supabase, userId, data, result, "partial");
-      result.logId = log;
-      result.durationMs = Date.now() - t0;
-      return result;
-    }
-
-    // Carrega existentes para dedup
+    // Carrega existentes para dedup (também usado pela proteção de dados)
     let existing: ExistingVehicleLike[] = [];
     let competitorName: string | null = null;
 
@@ -154,6 +148,37 @@ export const saveSynchronizedStock = createServerFn({ method: "POST" })
         .eq("competitor_id", data.companyId);
       existing = (rows ?? []) as ExistingVehicleLike[];
     }
+
+    // ── Sprint 008: Proteção de dados ────────────────────────
+    // 1) Drop suspeito sinalizado pela Prévia (queda brusca) bloqueia salvamento
+    //    a menos que o usuário confirme explicitamente.
+    if (data.suspectedDrop && !data.confirmSuspectedDrop) {
+      result.protected = true;
+      result.protectionReason =
+        "Queda brusca de veículos detectada — estoque anterior preservado. Confirme manualmente para sobrescrever.";
+      const log = await insertLog(supabase, userId, data, result, "partial");
+      result.logId = log;
+      result.durationMs = Date.now() - t0;
+      return result;
+    }
+    // 2) Nunca substituir estoque grande (>5) por zero elegíveis.
+    if (eligible.length === 0 && existing.length > 5) {
+      result.protected = true;
+      result.protectionReason = `Sincronização retornou 0 itens elegíveis, mas há ${existing.length} veículos no estoque atual. Estoque preservado.`;
+      const log = await insertLog(supabase, userId, data, result, "partial");
+      result.logId = log;
+      result.durationMs = Date.now() - t0;
+      return result;
+    }
+
+    if (eligible.length === 0) {
+      // Mesmo sem itens, registra log
+      const log = await insertLog(supabase, userId, data, result, "partial");
+      result.logId = log;
+      result.durationMs = Date.now() - t0;
+      return result;
+    }
+
 
     // Processa
     for (const item of eligible) {
