@@ -98,6 +98,19 @@ export interface EmbeddedJsonResult {
   items: RawVehicleItem[];
 }
 
+export interface ExtractorQualitySummary {
+  total: number;
+  pctPrice: number;
+  pctYear: number;
+  pctKm: number;
+  pctTitle: number;
+  pctLink: number;
+  pctImage: number;
+  qualityScore: number;
+  missingFields: string[];
+  recommendations: string[];
+}
+
 export interface TechnicalPreview {
   routeUrl: string;
   cardsDetected: number;
@@ -116,7 +129,10 @@ export interface TechnicalPreview {
   preview: RawVehicleItem[];
   rawBefore: number;
   rawAfter: number;
+  /** Sprint 011 — qualidade dos itens brutos por campo. */
+  quality?: ExtractorQualitySummary | null;
 }
+
 
 export interface HtmlIntelligenceRunRow {
   id: string;
