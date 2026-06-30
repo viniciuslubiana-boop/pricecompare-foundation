@@ -103,7 +103,10 @@ function DiagnosticoHtmlPage() {
     sourceUrl?: string | null;
     duplicateStrategy: "ignore" | "update" | "new";
     includeReview: boolean;
+    suspectedDrop?: boolean;
+    confirmSuspectedDrop?: boolean;
   };
+
   const save = useMutation({
     mutationFn: (input: SaveInput) => saveFn({ data: input }),
     onSuccess: async (res, vars) => {
