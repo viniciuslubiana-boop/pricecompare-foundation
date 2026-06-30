@@ -724,10 +724,11 @@ function DiagnosticoHtmlPage() {
                   sourceUrl: url || data.result.baseUrl,
                   duplicateStrategy,
                   includeReview,
-                  suspectedDrop: data.suspectedDrop ?? false,
-                  confirmSuspectedDrop: data.suspectedDrop ?? false,
+                  suspectedDrop: false,
+                  confirmSuspectedDrop: false,
                 });
               }}
+
             >
 
               Confirmar e salvar
