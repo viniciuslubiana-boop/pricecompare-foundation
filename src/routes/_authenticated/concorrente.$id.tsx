@@ -101,7 +101,7 @@ function CompetitorDetailPage() {
         </CardContent>
       </Card>
 
-      <CompetitorStockSection competitorId={c.id} />
+      <CompetitorStockSection competitorId={c.id} competitorName={c.name} />
 
       <CompetitorImportCard logs={importsQ.data ?? []} />
     </div>
