@@ -45,7 +45,9 @@ export async function runPostProcessAfterSave(
     dashboard_invalidated: false,
     status: "success",
     errors: [],
+    noEquivalenceWarning: null,
   };
+
 
   try {
     const pairs: Array<{ competitorId: string; baseCompanyId: string | null }> = [];
