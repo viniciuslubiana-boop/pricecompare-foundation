@@ -188,6 +188,29 @@ export interface NormalizedVehiclePreview {
   observations: string[];
 }
 
+/** Sprint 011 — Estados de telemetria da IA. Nunca deixar a UI sem feedback. */
+export type AiStatus =
+  | "idle"
+  | "sending"
+  | "processing"
+  | "success"
+  | "timeout"
+  | "gateway_error"
+  | "invalid_json"
+  | "empty_response"
+  | "validation_failed"
+  | "missing_key";
+
+export interface AiTelemetry {
+  status: AiStatus;
+  itemsSent: number;
+  payloadBytes: number;
+  responseBytes: number;
+  startedAt: number;
+  finishedAt: number;
+  errorDetail: string | null;
+}
+
 export interface AiNormalizationOutcome {
   items: NormalizedVehiclePreview[];
   aiUsed: boolean;
@@ -195,7 +218,10 @@ export interface AiNormalizationOutcome {
   aiTokens: number;
   aiDurationMs: number;
   errors: string[];
+  /** Sprint 011 — telemetria detalhada da chamada à IA. */
+  telemetry: AiTelemetry;
 }
+
 
 export interface PostNormalizationResult {
   items: NormalizedVehiclePreview[];
