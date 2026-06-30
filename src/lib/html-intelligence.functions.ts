@@ -54,7 +54,10 @@ export interface NormalizationPayload {
   aiTokens: number;
   aiDurationMs: number;
   errors: string[];
+  /** Sprint 011 — telemetria detalhada (status da IA, payload, etc). */
+  telemetry: AiTelemetry;
 }
+
 
 export interface DiscoverRoutesPayload {
   result: RouteDiscoveryResult;
