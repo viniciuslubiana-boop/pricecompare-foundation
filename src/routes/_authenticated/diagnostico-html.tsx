@@ -92,7 +92,7 @@ function DiagnosticoHtmlPage() {
   });
 
   type SaveInput = {
-    items: NormalizationItems;
+    items: NormalizedVehiclePreview[];
     companyType: "base_company" | "competitor";
     companyId: string;
     sourceUrl?: string | null;
