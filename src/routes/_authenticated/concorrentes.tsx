@@ -18,6 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { CompetitorForm } from "@/features/competitors/components/CompetitorForm";
 import { CompetitorTable } from "@/features/competitors/components/CompetitorTable";
+import { CompetitorsStockOverview } from "@/features/competitors/components/CompetitorsStockOverview";
 import { ImportWizard } from "@/features/imports/components/ImportWizard";
 import {
   useCompetitorsList,
@@ -166,6 +167,7 @@ function ConcorrentesPage() {
             onToggleOne={toggleOne}
             onToggleAll={toggleAll}
           />
+          <CompetitorsStockOverview competitors={rows} />
         </>
       )}
 
