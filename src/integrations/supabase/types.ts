@@ -725,6 +725,7 @@ export type Database = {
           error_message: string | null
           finished_at: string | null
           id: string
+          metadata: Json
           method: Database["public"]["Enums"]["acquisition_method"]
           started_at: string
           status: Database["public"]["Enums"]["acquisition_status"]
@@ -740,6 +741,7 @@ export type Database = {
           error_message?: string | null
           finished_at?: string | null
           id?: string
+          metadata?: Json
           method: Database["public"]["Enums"]["acquisition_method"]
           started_at?: string
           status?: Database["public"]["Enums"]["acquisition_status"]
@@ -755,6 +757,7 @@ export type Database = {
           error_message?: string | null
           finished_at?: string | null
           id?: string
+          metadata?: Json
           method?: Database["public"]["Enums"]["acquisition_method"]
           started_at?: string
           status?: Database["public"]["Enums"]["acquisition_status"]
