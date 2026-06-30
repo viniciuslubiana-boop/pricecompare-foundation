@@ -103,7 +103,10 @@ function DiagnosticoHtmlPage() {
     sourceUrl?: string | null;
     duplicateStrategy: "ignore" | "update" | "new";
     includeReview: boolean;
+    suspectedDrop?: boolean;
+    confirmSuspectedDrop?: boolean;
   };
+
   const save = useMutation({
     mutationFn: (input: SaveInput) => saveFn({ data: input }),
     onSuccess: async (res, vars) => {
@@ -252,6 +255,52 @@ function DiagnosticoHtmlPage() {
           </CardContent>
         </Card>
       )}
+
+      {data?.recovery && !data.rateLimited && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recuperação & Aprendizado</CardTitle>
+            <CardDescription>
+              Caminho executado pelo MAE para esta URL. O método final pode diferir do inicial quando há fallback automático.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline">Inicial: {data.recovery.initialMethod}</Badge>
+              <Badge variant={data.recovery.recovered ? "default" : "secondary"}>
+                Final: {data.recovery.finalMethod}
+              </Badge>
+              {data.recovery.fallbackUsed && (
+                <Badge variant="secondary">Fallback usado</Badge>
+              )}
+              {data.recovery.recovered && (
+                <Badge variant="default">Recuperado ✓</Badge>
+              )}
+              {data.suspectedDrop && (
+                <Badge variant="destructive">Queda brusca suspeita</Badge>
+              )}
+              {data.priorAvgVehicles > 0 && (
+                <Badge variant="outline">
+                  Média histórica {Math.round(data.priorAvgVehicles)}
+                </Badge>
+              )}
+            </div>
+            {data.recovery.fallbackReason && (
+              <p className="text-xs text-muted-foreground">
+                Motivo: {data.recovery.fallbackReason}
+              </p>
+            )}
+            {data.suspectedDrop && data.suddenDropReason && (
+              <p className="text-xs text-destructive">
+                ⚠ {data.suddenDropReason}. Estoque anterior preservado — confirme manualmente para sobrescrever.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+
+
 
       {data && !data.rateLimited && (
 
@@ -667,9 +716,12 @@ function DiagnosticoHtmlPage() {
                   sourceUrl: url || data.result.baseUrl,
                   duplicateStrategy,
                   includeReview,
+                  suspectedDrop: data.suspectedDrop ?? false,
+                  confirmSuspectedDrop: data.suspectedDrop ?? false,
                 });
               }}
             >
+
               Confirmar e salvar
             </AlertDialogAction>
           </AlertDialogFooter>

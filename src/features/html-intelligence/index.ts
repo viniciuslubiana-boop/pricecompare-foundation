@@ -20,4 +20,7 @@ export {
 export { runAiNormalization } from "./services/ai-normalizer.engine";
 export { applyPostNormalization } from "./utils/post-normalize";
 export type { CatalogEntry, AliasEntry } from "./utils/post-normalize";
+export { deriveRecoveryInfo, detectSuddenDrop } from "./utils/recovery";
+export type { RecoveryInfo, AcquisitionMethod, DropDetectionResult } from "./utils/recovery";
+
 

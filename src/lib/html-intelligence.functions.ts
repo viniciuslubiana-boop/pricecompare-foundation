@@ -9,11 +9,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   applyPostNormalization,
   computeSourceScore,
+  deriveRecoveryInfo,
+  detectSuddenDrop,
   discoverInventoryRoutes,
   runAiNormalization,
   runTechnicalPreview,
   type AliasEntry,
   type CatalogEntry,
+  type RecoveryInfo,
 } from "@/features/html-intelligence";
 import type {
   HtmlIntelligenceRunRow,
@@ -25,6 +28,7 @@ import type {
   SourceScoreBreakdown,
   TechnicalPreview,
 } from "@/features/html-intelligence";
+
 
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -58,7 +62,12 @@ export interface DiscoverRoutesPayload {
   normalization: NormalizationPayload | null;
   rateLimited: boolean;
   rateLimitMessage: string | null;
+  recovery: RecoveryInfo | null;
+  suspectedDrop: boolean;
+  suddenDropReason: string | null;
+  priorAvgVehicles: number;
 }
+
 
 
 export const discoverInventoryRoute = createServerFn({ method: "POST" })
@@ -91,8 +100,13 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
           rateLimited: true,
           rateLimitMessage:
             "Execução recente detectada para esta URL. Aguarde 60 segundos ou marque 'forçar reexecução'.",
+          recovery: null,
+          suspectedDrop: false,
+          suddenDropReason: null,
+          priorAvgVehicles: 0,
         };
       }
+
 
     }
 
@@ -174,6 +188,16 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
       };
     }
 
+    // ── Sprint 008: aprendizado + recuperação + queda brusca ──
+    const recovery = deriveRecoveryInfo(preview, errorMessage);
+    const currentVehicles = preview?.rawAfter ?? 0;
+    const drop = detectSuddenDrop({
+      priorAvgVehicles: priorRow?.vehicles_estimated ?? null,
+      priorExecutions: priorRow?.executions_total ?? 0,
+      currentVehicles,
+    });
+    const fallbackReason = recovery.fallbackReason ?? (drop.suspectedDrop ? drop.reason : null);
+
     let runId: string | null = null;
     if (persist) {
       const insertRow: Record<string, unknown> = {
@@ -203,6 +227,12 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         ai_tokens: normalization?.aiTokens ?? 0,
         ai_duration_ms: normalization?.aiDurationMs ?? 0,
         normalization_errors: normalization?.errors ?? [],
+        initial_method: recovery.initialMethod,
+        final_method: recovery.finalMethod,
+        fallback_reason: fallbackReason,
+        recovered: recovery.recovered,
+        suspected_drop: drop.suspectedDrop,
+        prior_avg_vehicles: drop.priorAvgVehicles,
       };
       const { data: row } = await supabase
         .from("html_intelligence_runs")
@@ -212,9 +242,12 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         .single();
       runId = row?.id ?? null;
 
-      // Upsert score
+      // Upsert score — em caso de drop suspeito, NÃO reescreve vehicles_estimated
       const nextTotal = (priorRow?.executions_total ?? 0) + 1;
       const nextSuccess = (priorRow?.executions_success ?? 0) + (success ? 1 : 0);
+      const vehiclesEstimatedToPersist = drop.suspectedDrop
+        ? (priorRow?.vehicles_estimated ?? result.chosen?.vehiclesEstimated ?? 0)
+        : (result.chosen?.vehiclesEstimated ?? 0);
 
       await supabase.from("market_source_scores").upsert(
         {
@@ -231,7 +264,7 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
           stability_score: score.stabilityScore,
           success_rate: nextTotal > 0 ? nextSuccess / nextTotal : 0,
           raw_items_found: preview?.rawAfter ?? 0,
-          vehicles_estimated: result.chosen?.vehiclesEstimated ?? 0,
+          vehicles_estimated: vehiclesEstimatedToPersist,
           actions_used: preview?.actionsUsed ?? false,
           fallback_used: preview?.actionsUsed ?? false,
           executions_total: nextTotal,
@@ -242,18 +275,20 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         { onConflict: "url,source_method" },
       );
 
-      // Aprendizado SSS: registra histórico
+      // Aprendizado SSS: registra histórico do método final
       await supabase.from("market_source_history").insert({
         company_id: data.companyId ?? null,
         company_type: companyType,
         url: data.url,
-        method_used: SOURCE_METHOD_HTML,
+        method_used: recovery.finalMethod === "STRUCTURED_DATA" ? "EMBEDDED_JSON" : recovery.finalMethod,
         confidence: score.sourceScore,
         vehicles_found: preview?.rawAfter ?? 0,
         execution_time_ms: preview?.processingMs ?? result.processingMs,
         success,
-        fallback_used: preview?.actionsUsed ?? false,
-        fallback_chain: null,
+        fallback_used: recovery.fallbackUsed,
+        fallback_chain: recovery.fallbackUsed
+          ? ([{ initial: recovery.initialMethod, final: recovery.finalMethod, reason: fallbackReason }] as never)
+          : null,
       });
     }
 
@@ -265,8 +300,13 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
       normalization,
       rateLimited: false,
       rateLimitMessage: null,
+      recovery,
+      suspectedDrop: drop.suspectedDrop,
+      suddenDropReason: drop.reason,
+      priorAvgVehicles: drop.priorAvgVehicles,
     };
   });
+
 
 
 export const listHtmlIntelligenceRuns = createServerFn({ method: "GET" })
