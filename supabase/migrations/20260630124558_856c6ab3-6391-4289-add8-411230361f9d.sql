@@ -1,0 +1,1 @@
+ALTER TABLE public.market_acquisition_logs ADD COLUMN IF NOT EXISTS metadata jsonb NOT NULL DEFAULT '{}'::jsonb;

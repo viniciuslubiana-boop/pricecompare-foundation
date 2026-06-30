@@ -32,8 +32,12 @@ import {
 import {
   saveSynchronizedStock,
   listSaveTargets,
+  logPostProcess,
   type SaveStockResult,
 } from "@/lib/save-stock.functions";
+import { runPostProcessAfterSave } from "@/features/html-intelligence/utils/post-process";
+import { analyticsKeys } from "@/features/analytics";
+import { dashboardKeys } from "@/features/dashboard/hooks/useDashboardData";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -73,6 +77,7 @@ function DiagnosticoHtmlPage() {
   const listFn = useServerFn(listHtmlIntelligenceRuns);
   const targetsFn = useServerFn(listSaveTargets);
   const saveFn = useServerFn(saveSynchronizedStock);
+  const logPostFn = useServerFn(logPostProcess);
 
   const history = useQuery({
     queryKey: ["html-intelligence-runs"],
@@ -101,16 +106,47 @@ function DiagnosticoHtmlPage() {
   };
   const save = useMutation({
     mutationFn: (input: SaveInput) => saveFn({ data: input }),
-    onSuccess: (res) => {
+    onSuccess: async (res, vars) => {
       setSaveResult(res);
       queryClient.invalidateQueries({ queryKey: ["my-vehicles"] });
       queryClient.invalidateQueries({ queryKey: ["competitor-vehicles"] });
-      queryClient.invalidateQueries({ queryKey: ["comparisons"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+
       if (res.errors.length === 0) {
         toast.success(`Estoque sincronizado: ${res.totalSaved} novos, ${res.totalUpdated} atualizados`);
       } else {
         toast.warning(`Salvo com avisos: ${res.errors.length} erro(s)`);
+      }
+
+      // Pós-processamento automático: Comparison → Analytics → Dashboard.
+      // Falhas aqui NÃO desfazem o salvamento.
+      try {
+        const post = await runPostProcessAfterSave({
+          companyType: vars.companyType,
+          companyId: vars.companyId,
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["comparisons"] });
+        queryClient.invalidateQueries({ queryKey: analyticsKeys.all });
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+        queryClient.invalidateQueries({ queryKey: ["global-search"] });
+        queryClient.invalidateQueries({ queryKey: ["market-changes"] });
+        queryClient.invalidateQueries({ queryKey: ["vehicle-360"] });
+
+        if (res.logId) {
+          await logPostFn({ data: { logId: res.logId, metadata: post } }).catch(() => null);
+        }
+
+        if (post.status === "success") {
+          toast.success("Estoque salvo e comparações atualizadas.");
+        } else if (post.status === "partial") {
+          toast.warning("Estoque salvo. Algumas comparações falharam.");
+        } else {
+          toast.error("Estoque salvo, mas houve falha ao atualizar as comparações. Verifique o diagnóstico.");
+        }
+      } catch (e) {
+        toast.error("Estoque salvo, mas houve falha ao atualizar as comparações. Verifique o diagnóstico.", {
+          description: e instanceof Error ? e.message : undefined,
+        });
       }
     },
     onError: (e: Error) => toast.error("Falha ao salvar", { description: e.message }),
