@@ -319,23 +319,30 @@ function DiagnosticoHtmlPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {chosen && (
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <Badge variant={scoreBadgeVariant(chosen.breakdown?.score ?? 0)}>
-                  Score {chosen.breakdown?.score ?? 0}
-                </Badge>
-                <span className="text-muted-foreground">
-                  {chosen.vehiclesEstimated} veículos estimados • {chosen.htmlLength.toLocaleString("pt-BR")} bytes
-                </span>
-                <a
-                  href={chosen.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  abrir página
-                </a>
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <Badge variant="default">
+                    Inventory {chosen.inventoryScore?.score ?? 0}
+                  </Badge>
+                  <Badge variant={scoreBadgeVariant(chosen.breakdown?.score ?? 0)}>
+                    HTML {chosen.breakdown?.score ?? 0}
+                  </Badge>
+                  {chosen.priorityBoost && <Badge variant="secondary">URL informada</Badge>}
+                  <span className="text-muted-foreground">
+                    {chosen.vehiclesEstimated} veículos estimados • {chosen.htmlLength.toLocaleString("pt-BR")} bytes
+                  </span>
+                  <a href={chosen.url} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                    abrir página
+                  </a>
+                </div>
+                {data.result.chosenReason && (
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium">Motivo da escolha:</span> {data.result.chosenReason}
+                  </p>
+                )}
               </div>
             )}
+
 
             <Table>
               <TableHeader>
