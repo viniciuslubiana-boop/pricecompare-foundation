@@ -26,9 +26,26 @@ export function normalizeText(input: string | null | undefined): string {
 
 const FIPE_BRAND_ALIASES: Record<string, string> = {
   chevrolet: "GM - Chevrolet",
+  "gm chevrolet": "GM - Chevrolet",
   "caoa chery": "CAOA CHERY/CHERY",
+  chery: "CAOA CHERY/CHERY",
   bmw: "BMW",
   "bmw motorrad": "BMW MOTORRAD",
+  vw: "VW - VolksWagen",
+  volkswagen: "VW - VolksWagen",
+  "mercedes benz": "Mercedes-Benz",
+  "mercedes-benz": "Mercedes-Benz",
+  fiat: "Fiat",
+  ford: "Ford",
+  hyundai: "Hyundai",
+  toyota: "Toyota",
+  honda: "Honda",
+  yamaha: "Yamaha",
+  suzuki: "Suzuki",
+  byd: "BYD",
+  renault: "Renault",
+  peugeot: "Peugeot",
+  citroen: "Citroën",
 };
 
 const FIPE_MODEL_ALIASES: Record<string, string> = {
