@@ -24,6 +24,7 @@ import { Route as AuthenticatedHistoricoMercadoRouteImport } from './routes/_aut
 import { Route as AuthenticatedEstrategiaPrecoRouteImport } from './routes/_authenticated/estrategia-preco'
 import { Route as AuthenticatedDiagnosticoSincronizacaoRouteImport } from './routes/_authenticated/diagnostico-sincronizacao'
 import { Route as AuthenticatedDiagnosticoExtracaoRouteImport } from './routes/_authenticated/diagnostico-extracao'
+import { Route as AuthenticatedDiagnosticoEmpresaRouteImport } from './routes/_authenticated/diagnostico-empresa'
 import { Route as AuthenticatedConsultaMercadoRouteImport } from './routes/_authenticated/consulta-mercado'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedConcorrentesRouteImport } from './routes/_authenticated/concorrentes'
@@ -116,6 +117,12 @@ const AuthenticatedDiagnosticoExtracaoRoute =
     path: '/diagnostico-extracao',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDiagnosticoEmpresaRoute =
+  AuthenticatedDiagnosticoEmpresaRouteImport.update({
+    id: '/diagnostico-empresa',
+    path: '/diagnostico-empresa',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedConsultaMercadoRoute =
   AuthenticatedConsultaMercadoRouteImport.update({
     id: '/consulta-mercado',
@@ -181,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/consulta-mercado': typeof AuthenticatedConsultaMercadoRoute
+  '/diagnostico-empresa': typeof AuthenticatedDiagnosticoEmpresaRoute
   '/diagnostico-extracao': typeof AuthenticatedDiagnosticoExtracaoRoute
   '/diagnostico-sincronizacao': typeof AuthenticatedDiagnosticoSincronizacaoRoute
   '/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/consulta-mercado': typeof AuthenticatedConsultaMercadoRoute
+  '/diagnostico-empresa': typeof AuthenticatedDiagnosticoEmpresaRoute
   '/diagnostico-extracao': typeof AuthenticatedDiagnosticoExtracaoRoute
   '/diagnostico-sincronizacao': typeof AuthenticatedDiagnosticoSincronizacaoRoute
   '/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/_authenticated/concorrentes': typeof AuthenticatedConcorrentesRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/consulta-mercado': typeof AuthenticatedConsultaMercadoRoute
+  '/_authenticated/diagnostico-empresa': typeof AuthenticatedDiagnosticoEmpresaRoute
   '/_authenticated/diagnostico-extracao': typeof AuthenticatedDiagnosticoExtracaoRoute
   '/_authenticated/diagnostico-sincronizacao': typeof AuthenticatedDiagnosticoSincronizacaoRoute
   '/_authenticated/estrategia-preco': typeof AuthenticatedEstrategiaPrecoRoute
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/concorrentes'
     | '/configuracoes'
     | '/consulta-mercado'
+    | '/diagnostico-empresa'
     | '/diagnostico-extracao'
     | '/diagnostico-sincronizacao'
     | '/estrategia-preco'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/concorrentes'
     | '/configuracoes'
     | '/consulta-mercado'
+    | '/diagnostico-empresa'
     | '/diagnostico-extracao'
     | '/diagnostico-sincronizacao'
     | '/estrategia-preco'
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/_authenticated/concorrentes'
     | '/_authenticated/configuracoes'
     | '/_authenticated/consulta-mercado'
+    | '/_authenticated/diagnostico-empresa'
     | '/_authenticated/diagnostico-extracao'
     | '/_authenticated/diagnostico-sincronizacao'
     | '/_authenticated/estrategia-preco'
@@ -439,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDiagnosticoExtracaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/diagnostico-empresa': {
+      id: '/_authenticated/diagnostico-empresa'
+      path: '/diagnostico-empresa'
+      fullPath: '/diagnostico-empresa'
+      preLoaderRoute: typeof AuthenticatedDiagnosticoEmpresaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/consulta-mercado': {
       id: '/_authenticated/consulta-mercado'
       path: '/consulta-mercado'
@@ -513,6 +533,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConcorrentesRoute: typeof AuthenticatedConcorrentesRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedConsultaMercadoRoute: typeof AuthenticatedConsultaMercadoRoute
+  AuthenticatedDiagnosticoEmpresaRoute: typeof AuthenticatedDiagnosticoEmpresaRoute
   AuthenticatedDiagnosticoExtracaoRoute: typeof AuthenticatedDiagnosticoExtracaoRoute
   AuthenticatedDiagnosticoSincronizacaoRoute: typeof AuthenticatedDiagnosticoSincronizacaoRoute
   AuthenticatedEstrategiaPrecoRoute: typeof AuthenticatedEstrategiaPrecoRoute
@@ -536,6 +557,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConcorrentesRoute: AuthenticatedConcorrentesRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedConsultaMercadoRoute: AuthenticatedConsultaMercadoRoute,
+  AuthenticatedDiagnosticoEmpresaRoute: AuthenticatedDiagnosticoEmpresaRoute,
   AuthenticatedDiagnosticoExtracaoRoute: AuthenticatedDiagnosticoExtracaoRoute,
   AuthenticatedDiagnosticoSincronizacaoRoute:
     AuthenticatedDiagnosticoSincronizacaoRoute,

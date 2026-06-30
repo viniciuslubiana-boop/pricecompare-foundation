@@ -1,6 +1,15 @@
 // Site Discovery Engine — types
 import type { AcquisitionCompanyType } from "@/features/market-acquisition/types";
 
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [k: string]: JsonValue };
+
+
 export type DetectedTechnology =
   | "RevendaMais"
   | "DealerSites"
@@ -29,9 +38,10 @@ export interface SiteFetchResult {
 export interface DetectionMatch {
   technology: DetectedTechnology;
   confidence: number; // 0–100
-  htmlSignature?: Record<string, unknown>;
-  frameworkSignature?: Record<string, unknown>;
+  htmlSignature?: JsonValue;
+  frameworkSignature?: JsonValue;
 }
+
 
 export interface SiteDiscoveryResult extends DetectionMatch {
   url: string;
@@ -53,10 +63,11 @@ export interface SiteDiscoveryRow {
   url: string;
   technology: DetectedTechnology;
   confidence: number;
-  html_signature: Record<string, unknown> | null;
-  framework_signature: Record<string, unknown> | null;
+  html_signature: JsonValue | null;
+  framework_signature: JsonValue | null;
   discovery_time_ms: number | null;
   detected_at: string;
   created_at: string;
   updated_at: string;
 }
+
