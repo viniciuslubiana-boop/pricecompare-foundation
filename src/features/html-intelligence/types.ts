@@ -15,6 +15,19 @@ export interface HtmlScoreBreakdown {
   score: number;
 }
 
+export interface InventoryScoreSummary {
+  score: number;
+  realCardSignals: number;
+  vehicleLinkHits: number;
+  inventoryTermHits: number;
+  institutionalNoise: number;
+  repeatedStructure: number;
+  pathBonus: number;
+  homePenalty: number;
+  priorityBoost: boolean;
+  reasons: string[];
+}
+
 export interface InventoryRouteCandidate {
   path: string;
   url: string;
@@ -24,6 +37,12 @@ export interface InventoryRouteCandidate {
   breakdown: HtmlScoreBreakdown | null;
   vehiclesEstimated: number;
   error?: string | null;
+  /** Sprint 011 — score específico de "página real de estoque". */
+  inventoryScore?: InventoryScoreSummary | null;
+  /** Sprint 011 — true quando a URL veio do usuário. */
+  priorityBoost?: boolean;
+  /** Sprint 011 — quando a rota foi rejeitada pelo ranking, o motivo. */
+  rejectionReason?: string | null;
 }
 
 export interface RouteDiscoveryResult {
@@ -31,7 +50,10 @@ export interface RouteDiscoveryResult {
   chosen: InventoryRouteCandidate | null;
   candidates: InventoryRouteCandidate[];
   processingMs: number;
+  /** Sprint 011 — explicação textual da escolha final. */
+  chosenReason?: string | null;
 }
+
 
 // ── Mini-Sprint 4B ────────────────────────────────────────────
 export type RawItemSource = "HTML" | "JSON" | "STRUCTURED_DATA";
