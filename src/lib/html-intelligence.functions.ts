@@ -280,7 +280,7 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         company_id: data.companyId ?? null,
         company_type: companyType,
         url: data.url,
-        method_used: recovery.finalMethod,
+        method_used: recovery.finalMethod === "STRUCTURED_DATA" ? "EMBEDDED_JSON" : recovery.finalMethod,
         confidence: score.sourceScore,
         vehicles_found: preview?.rawAfter ?? 0,
         execution_time_ms: preview?.processingMs ?? result.processingMs,
