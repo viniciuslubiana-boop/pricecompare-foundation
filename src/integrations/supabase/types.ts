@@ -627,6 +627,54 @@ export type Database = {
           },
         ]
       }
+      market_acquisition_logs: {
+        Row: {
+          company_id: string | null
+          company_type: Database["public"]["Enums"]["acquisition_company_type"]
+          created_at: string
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["acquisition_method"]
+          started_at: string
+          status: Database["public"]["Enums"]["acquisition_status"]
+          updated_at: string
+          url: string | null
+          vehicles_found: number
+          vehicles_saved: number
+        }
+        Insert: {
+          company_id?: string | null
+          company_type: Database["public"]["Enums"]["acquisition_company_type"]
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          method: Database["public"]["Enums"]["acquisition_method"]
+          started_at?: string
+          status?: Database["public"]["Enums"]["acquisition_status"]
+          updated_at?: string
+          url?: string | null
+          vehicles_found?: number
+          vehicles_saved?: number
+        }
+        Update: {
+          company_id?: string | null
+          company_type?: Database["public"]["Enums"]["acquisition_company_type"]
+          created_at?: string
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["acquisition_method"]
+          started_at?: string
+          status?: Database["public"]["Enums"]["acquisition_status"]
+          updated_at?: string
+          url?: string | null
+          vehicles_found?: number
+          vehicles_saved?: number
+        }
+        Relationships: []
+      }
       market_changes: {
         Row: {
           brand: string | null
@@ -1129,6 +1177,19 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      acquisition_company_type: "base_company" | "competitor"
+      acquisition_method:
+        | "API"
+        | "JSON"
+        | "HTML"
+        | "RENDERED_HTML"
+        | "FILE_IMPORT"
+      acquisition_status:
+        | "pending"
+        | "running"
+        | "success"
+        | "partial"
+        | "failed"
       app_role: "admin" | "gerente"
     }
     CompositeTypes: {
@@ -1257,6 +1318,21 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      acquisition_company_type: ["base_company", "competitor"],
+      acquisition_method: [
+        "API",
+        "JSON",
+        "HTML",
+        "RENDERED_HTML",
+        "FILE_IMPORT",
+      ],
+      acquisition_status: [
+        "pending",
+        "running",
+        "success",
+        "partial",
+        "failed",
+      ],
       app_role: ["admin", "gerente"],
     },
   },
