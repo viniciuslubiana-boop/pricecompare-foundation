@@ -62,7 +62,16 @@ export interface SmartSourceSelection {
   technology: DetectedTechnology | string;
   chosen: SourceCandidate;
   fallbackChain: SourceCandidate[];
+  usedHistory?: boolean;
+  reason?: string;
+  scores?: Array<{
+    method: string;
+    score: number;
+    successRate: number;
+    executions: number;
+  }>;
 }
+
 
 export interface SmartSourceInput {
   companyId?: string | null;
