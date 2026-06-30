@@ -90,8 +90,16 @@ function DiagnosticoHtmlPage() {
     },
   });
 
+  type SaveInput = {
+    items: NormalizationItems;
+    companyType: "base_company" | "competitor";
+    companyId: string;
+    sourceUrl?: string | null;
+    duplicateStrategy: "ignore" | "update" | "new";
+    includeReview: boolean;
+  };
   const save = useMutation({
-    mutationFn: (input: Parameters<typeof saveFn>[0]["data"]) => saveFn({ data: input }),
+    mutationFn: (input: SaveInput) => saveFn({ data: input }),
     onSuccess: (res) => {
       setSaveResult(res);
       queryClient.invalidateQueries({ queryKey: ["my-vehicles"] });
