@@ -7,17 +7,25 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
+  applyPostNormalization,
   computeSourceScore,
   discoverInventoryRoutes,
+  runAiNormalization,
   runTechnicalPreview,
+  type AliasEntry,
+  type CatalogEntry,
 } from "@/features/html-intelligence";
 import type {
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
+  NormalizationStatus,
+  NormalizedVehiclePreview,
+  PostNormalizationResult,
   RouteDiscoveryResult,
   SourceScoreBreakdown,
   TechnicalPreview,
 } from "@/features/html-intelligence";
+
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const SOURCE_METHOD_HTML = "HTML";
