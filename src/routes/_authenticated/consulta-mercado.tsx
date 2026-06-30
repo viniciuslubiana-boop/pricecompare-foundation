@@ -36,7 +36,7 @@ import type {
 } from "@/features/comparison/types/comparison.types";
 import type { GlobalSearchQuery } from "@/features/comparison/services/global-search.service";
 import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
-import { FipeStatusBadge } from "@/features/fipe/components/FipeStatusBadge";
+
 
 
 export const Route = createFileRoute("/_authenticated/consulta-mercado")({
