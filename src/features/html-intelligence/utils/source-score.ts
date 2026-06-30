@@ -15,7 +15,14 @@ export interface SourceScoreInput {
   } | null;
   /** Indica se a execução atual usou método fallback. */
   fallbackUsed?: boolean;
+  /**
+   * Sprint 013 — proporção (0-1) de itens normalizados aprovados pela IA.
+   * Quando alta + sourceScore alto + qualityScore alto, aplica piso ao
+   * HTML Score para evitar subestimação quando a rota claramente entrega.
+   */
+  aiApprovalRate?: number;
 }
+
 
 export interface SourceScoreBreakdown {
   /** 0-100 */
