@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Package } from "lucide-react";
+import { Download, ExternalLink, FileSpreadsheet, Package } from "lucide-react";
 import { competitorVehicleRepository } from "@/features/extraction/repositories/competitor-vehicle.repository";
 import {
   Card,
@@ -22,6 +22,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { downloadVehiclesCsv, downloadVehiclesXlsx, type ExportVehicleRow } from "@/lib/export-vehicles";
 
 const fmtPrice = (v: number | null | undefined) =>
   typeof v === "number"
