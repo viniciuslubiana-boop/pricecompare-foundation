@@ -554,6 +554,48 @@ export type Database = {
           },
         ]
       }
+      html_intelligence_runs: {
+        Row: {
+          base_url: string
+          candidates: Json
+          chosen_route: string | null
+          chosen_score: number
+          created_at: string
+          error_message: string | null
+          executed_by: string | null
+          id: string
+          processing_ms: number
+          updated_at: string
+          vehicles_estimated: number
+        }
+        Insert: {
+          base_url: string
+          candidates?: Json
+          chosen_route?: string | null
+          chosen_score?: number
+          created_at?: string
+          error_message?: string | null
+          executed_by?: string | null
+          id?: string
+          processing_ms?: number
+          updated_at?: string
+          vehicles_estimated?: number
+        }
+        Update: {
+          base_url?: string
+          candidates?: Json
+          chosen_route?: string | null
+          chosen_score?: number
+          created_at?: string
+          error_message?: string | null
+          executed_by?: string | null
+          id?: string
+          processing_ms?: number
+          updated_at?: string
+          vehicles_estimated?: number
+        }
+        Relationships: []
+      }
       import_logs: {
         Row: {
           base_company_id: string | null
