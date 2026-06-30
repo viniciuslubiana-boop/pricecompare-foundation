@@ -569,17 +569,23 @@ export type Database = {
           embedded_json_detected: boolean
           error_message: string | null
           executed_by: string | null
+          fallback_reason: string | null
+          final_method: string | null
           id: string
+          initial_method: string | null
           load_more_clicks: number
           normalization_confidence_avg: number
           normalization_errors: Json
           normalization_status_counts: Json
           normalized_preview: Json
           pagination_detected: boolean
+          prior_avg_vehicles: number | null
           processing_ms: number
           raw_items_found: number
+          recovered: boolean
           scroll_cycles: number
           structured_data_detected: boolean
+          suspected_drop: boolean
           technical_preview: Json
           updated_at: string
           vehicles_estimated: number
@@ -598,17 +604,23 @@ export type Database = {
           embedded_json_detected?: boolean
           error_message?: string | null
           executed_by?: string | null
+          fallback_reason?: string | null
+          final_method?: string | null
           id?: string
+          initial_method?: string | null
           load_more_clicks?: number
           normalization_confidence_avg?: number
           normalization_errors?: Json
           normalization_status_counts?: Json
           normalized_preview?: Json
           pagination_detected?: boolean
+          prior_avg_vehicles?: number | null
           processing_ms?: number
           raw_items_found?: number
+          recovered?: boolean
           scroll_cycles?: number
           structured_data_detected?: boolean
+          suspected_drop?: boolean
           technical_preview?: Json
           updated_at?: string
           vehicles_estimated?: number
@@ -627,17 +639,23 @@ export type Database = {
           embedded_json_detected?: boolean
           error_message?: string | null
           executed_by?: string | null
+          fallback_reason?: string | null
+          final_method?: string | null
           id?: string
+          initial_method?: string | null
           load_more_clicks?: number
           normalization_confidence_avg?: number
           normalization_errors?: Json
           normalization_status_counts?: Json
           normalized_preview?: Json
           pagination_detected?: boolean
+          prior_avg_vehicles?: number | null
           processing_ms?: number
           raw_items_found?: number
+          recovered?: boolean
           scroll_cycles?: number
           structured_data_detected?: boolean
+          suspected_drop?: boolean
           technical_preview?: Json
           updated_at?: string
           vehicles_estimated?: number
