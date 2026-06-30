@@ -197,5 +197,7 @@ export async function runTechnicalPreview(rawUrl: string): Promise<TechnicalPrev
     preview: d.merged.slice(0, 20),
     rawBefore,
     rawAfter,
+    quality: computeExtractorQuality(d.merged),
   };
 }
+
