@@ -13,7 +13,7 @@ import {
   marketStatisticsService,
 } from "@/features/analytics";
 import { computePriceDistribution } from "@/features/analytics/calculators/price-distribution";
-import { computeFipeIndicators } from "@/features/fipe/utils/fipe-indicators";
+
 import { buildInsights, deriveCompetitiveness } from "./dashboard.derive";
 
 export type DashboardData = Awaited<ReturnType<typeof loadDashboard>>;
