@@ -798,26 +798,31 @@ function DiagnosticoHtmlPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Sprint 009 — Checklist de Homologação */}
+      {/* Sprint 010 — Checklist de pós-processamento (dados reais do servidor) */}
       {data && !data.rateLimited && (() => {
+        const post = saveResult ? !saveResult.protected && saveResult.errors.length === 0 : false;
         const checks: Array<{ label: string; ok: boolean }> = [
           { label: "Rota encontrada", ok: !!data.result.chosen },
           { label: "Preview técnico gerado", ok: !!data.preview },
           { label: "Preview normalizado gerado", ok: !!data.normalization },
           { label: "Destino selecionado", ok: !!companyId },
           { label: "Deduplicação validada", ok: !!data.normalization },
-          { label: "Salvamento permitido", ok: !data.suspectedDrop || isAdmin },
-          { label: "Pós-processamento executado", ok: !!saveResult && !saveResult.protected && saveResult.errors.length === 0 },
-          { label: "Dashboard invalidado", ok: !!saveResult && !saveResult.protected },
+          { label: "Override servidor-side validado (admin-only)", ok: !data.suspectedDrop || (!!saveResult && !saveResult.protected) },
+          { label: "Salvamento concluído", ok: !!saveResult && !saveResult.protected && (saveResult.totalSaved + saveResult.totalUpdated) > 0 },
+          { label: "Pós-processamento executado", ok: post },
+          { label: "Comparações atualizadas", ok: post },
+          { label: "Dashboard invalidado", ok: post },
+          { label: "Consulta global invalidada", ok: post },
+          { label: "Histórico/alertas atualizados", ok: post },
           { label: "Proteção aplicada quando necessário", ok: !data.suspectedDrop || !!saveResult?.protected || (!!saveResult && saveResult.totalSaved + saveResult.totalUpdated > 0) },
         ];
         return (
           <Card>
             <CardHeader>
               <CardTitle>Homologação do MAE</CardTitle>
-              <CardDescription>Checklist visual do fluxo de sincronização atual.</CardDescription>
+              <CardDescription>Checklist real do fluxo de sincronização (dados retornados pelo servidor).</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <ul className="grid gap-2 md:grid-cols-2 text-sm">
                 {checks.map((c) => (
                   <li key={c.label} className="flex items-center gap-2">
@@ -828,6 +833,12 @@ function DiagnosticoHtmlPage() {
                   </li>
                 ))}
               </ul>
+              <div className="border-t pt-3 text-xs text-muted-foreground space-y-1">
+                <div className="font-medium text-foreground">Cenários de homologação</div>
+                <div><strong>A.</strong> Concorrente com HTML normal → rota + preview + normalização + salvamento + comparação + dashboard.</div>
+                <div><strong>B.</strong> Site com queda brusca → queda detectada, estoque anterior preservado, override apenas por admin (validado no servidor).</div>
+                <div><strong>C.</strong> Empresa Base → salva em <code>my_vehicles</code>, sem misturar com <code>competitor_vehicles</code>, comparação recalculada.</div>
+              </div>
             </CardContent>
           </Card>
         );
