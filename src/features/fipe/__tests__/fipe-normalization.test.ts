@@ -7,6 +7,7 @@ import {
   normalizeText,
   parseYearModel,
   requiresManualFipeVersion,
+  scoreFipeCandidate,
 } from "../utils/fipe-normalization";
 
 describe("FIPE normalization", () => {
