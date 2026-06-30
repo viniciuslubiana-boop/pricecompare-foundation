@@ -22,7 +22,14 @@ export interface PostProcessResult {
   dashboard_invalidated: boolean;
   status: "success" | "partial" | "failed";
   errors: string[];
+  /**
+   * Sprint 013 — alerta exibido quando o salvamento ocorreu mas
+   * nenhuma equivalência rígida (brand+model+year) foi encontrada
+   * no estoque atual para gerar comparações.
+   */
+  noEquivalenceWarning: string | null;
 }
+
 
 export async function runPostProcessAfterSave(
   input: PostProcessInput,
