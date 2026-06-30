@@ -650,11 +650,15 @@ function DiagnosticoHtmlPage() {
               <Button
                 type="button"
                 disabled={!companyId || save.isPending}
-                onClick={() => setConfirmOpen(true)}
+                onClick={() => {
+                  if (data?.suspectedDrop) setDropDialogOpen(true);
+                  else setConfirmOpen(true);
+                }}
               >
                 {save.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
                 Salvar Estoque Sincronizado
               </Button>
+
               <div className="md:col-span-4 flex items-center gap-2">
                 <Checkbox
                   id="include-review"
