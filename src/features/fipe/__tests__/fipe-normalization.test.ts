@@ -34,6 +34,9 @@ describe("FIPE normalization", () => {
   it("mantém gates rígidos contra falsos positivos", () => {
     expect(isFipeModelCompatible("CB 500X", "CB500")).toBe(false);
     expect(isFipeModelCompatible("HB20S Comfort", "HB20")).toBe(false);
+    expect(isFipeModelCompatible("Onix Plus 1.0", "Onix")).toBe(false);
+    expect(isFipeModelCompatible("Trailblazer LTZ", "Tracker")).toBe(false);
+    expect(isFipeModelCompatible("Commander Overland", "Compass")).toBe(false);
     expect(isFipeModelCompatible("Corolla Cross XRE", "Corolla")).toBe(true);
     expect(requiresManualFipeVersion("Toyota", "Corolla")).toBe(true);
   });
@@ -41,6 +44,21 @@ describe("FIPE normalization", () => {
   it("interpreta ano/modelo com barras mantendo o ano FIPE", () => {
     expect(parseYearModel("2025/2026")).toBe(2026);
     expect(parseYearModel("2022-2023")).toBe(2023);
+  });
+
+  it("pontua candidatos FIPE com critérios determinísticos", () => {
+    const exact = scoreFipeCandidate(
+      "CB 500F Hornet ABS",
+      { brand: "Honda", model: "CB 500F Hornet", year_model: 2024, fuel: "Gasolina" },
+      { brand: "Honda", year_model: 2024, fuel: "Gasolina" },
+    );
+    const partial = scoreFipeCandidate(
+      "CB 500X ABS",
+      { brand: "Honda", model: "CB 500F Hornet", year_model: 2024, fuel: "Gasolina" },
+      { brand: "Honda", year_model: 2024, fuel: "Gasolina" },
+    );
+    expect(exact).toBeGreaterThan(partial);
+    expect(exact).toBeGreaterThanOrEqual(80);
   });
 });
 
