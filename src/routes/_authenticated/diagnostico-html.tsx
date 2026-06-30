@@ -71,13 +71,16 @@ function DiagnosticoHtmlPage() {
   const [duplicateStrategy, setDuplicateStrategy] = useState<"ignore" | "update" | "new">("update");
   const [includeReview, setIncludeReview] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [dropDialogOpen, setDropDialogOpen] = useState(false);
   const [saveResult, setSaveResult] = useState<SaveStockResult | null>(null);
   const queryClient = useQueryClient();
+  const { isAdmin } = useAuth();
   const discoverFn = useServerFn(discoverInventoryRoute);
   const listFn = useServerFn(listHtmlIntelligenceRuns);
   const targetsFn = useServerFn(listSaveTargets);
   const saveFn = useServerFn(saveSynchronizedStock);
   const logPostFn = useServerFn(logPostProcess);
+
 
   const history = useQuery({
     queryKey: ["html-intelligence-runs"],
