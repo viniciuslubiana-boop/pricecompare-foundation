@@ -277,3 +277,31 @@ export const listSaveTargets = createServerFn({ method: "GET" })
 
 export type NormalizedItem = NormalizedVehiclePreview;
 export type SaveStockStatus = NormalizationStatus;
+
+// Sprint 007 — persistir métricas do pós-processamento no log existente.
+const postProcessSchema = z.object({
+  logId: z.string().uuid(),
+  metadata: z.object({
+    post_process_started_at: z.string(),
+    post_process_finished_at: z.string(),
+    base_companies_processed: z.array(z.string()),
+    competitors_processed: z.array(z.string()),
+    comparisons_generated: z.number(),
+    analytics_updated: z.boolean(),
+    dashboard_invalidated: z.boolean(),
+    status: z.enum(["success", "partial", "failed"]),
+    errors: z.array(z.string()),
+  }),
+});
+
+export const logPostProcess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => postProcessSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("market_acquisition_logs")
+      .update({ metadata: data.metadata })
+      .eq("id", data.logId);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  });
