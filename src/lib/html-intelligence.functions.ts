@@ -144,20 +144,6 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
 
     const success = (preview?.rawAfter ?? 0) > 0;
 
-    const score = computeSourceScore({
-      htmlBreakdown: result.chosen?.breakdown ?? null,
-      preview,
-      vehiclesEstimated: result.chosen?.vehiclesEstimated ?? 0,
-      prior: priorRow
-        ? {
-            executionsTotal: priorRow.executions_total,
-            executionsSuccess: priorRow.executions_success,
-            avgVehicles: priorRow.vehicles_estimated,
-          }
-        : null,
-      fallbackUsed: preview?.actionsUsed ?? false,
-    });
-
     // ── Sprint 005: Normalização inteligente com IA ──────────
     let normalization: NormalizationPayload | null = null;
     if (preview && preview.preview.length > 0) {
@@ -192,8 +178,65 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
         errors: ai.errors,
         telemetry: ai.telemetry,
       };
-
     }
+
+    // ── Sprint 013: fieldCoverage por campo (0-100) ──────────
+    if (preview) {
+      const rawItems = preview.preview;
+      const rawTotal = Math.max(rawItems.length, 1);
+      const pct = (n: number) => Math.round((n / rawTotal) * 100);
+      const normItems = normalization?.items ?? [];
+      const nTotal = Math.max(normItems.length, 1);
+      const npct = (n: number) => Math.round((n / nTotal) * 100);
+      preview.fieldCoverage = {
+        brand: normItems.length
+          ? npct(normItems.filter((i) => i.brand && i.brand.trim().length > 0).length)
+          : 0,
+        model: normItems.length
+          ? npct(normItems.filter((i) => i.model && i.model.trim().length > 0).length)
+          : 0,
+        year: normItems.length
+          ? npct(normItems.filter((i) => i.year_model && i.year_model.trim().length > 0).length)
+          : pct(rawItems.filter((i) => i.year).length),
+        price: normItems.length
+          ? npct(normItems.filter((i) => i.price != null && i.price > 0).length)
+          : pct(rawItems.filter((i) => i.price).length),
+        km: normItems.length
+          ? npct(normItems.filter((i) => i.km != null && i.km >= 0).length)
+          : pct(rawItems.filter((i) => i.km).length),
+        link: pct(rawItems.filter((i) => i.link).length),
+        image: pct(rawItems.filter((i) => i.image).length),
+      };
+    }
+
+    // ── Carrega score anterior p/ estabilidade ───────────────
+    const { data: priorRow } = await supabase
+      .from("market_source_scores")
+      .select("executions_total, executions_success, vehicles_estimated")
+      .eq("url", data.url)
+      .eq("source_method", SOURCE_METHOD_HTML)
+      .maybeSingle();
+
+    // Sprint 013 — score recebe taxa de aprovação da IA p/ piso de htmlScore
+    const totalNorm = normalization?.items.length ?? 0;
+    const approved = normalization?.statusCounts.approved ?? 0;
+    const aiApprovalRate = totalNorm > 0 ? approved / totalNorm : 0;
+
+    const score = computeSourceScore({
+      htmlBreakdown: result.chosen?.breakdown ?? null,
+      preview,
+      vehiclesEstimated: result.chosen?.vehiclesEstimated ?? 0,
+      prior: priorRow
+        ? {
+            executionsTotal: priorRow.executions_total,
+            executionsSuccess: priorRow.executions_success,
+            avgVehicles: priorRow.vehicles_estimated,
+          }
+        : null,
+      fallbackUsed: preview?.actionsUsed ?? false,
+      aiApprovalRate,
+    });
+
 
     // ── Sprint 008: aprendizado + recuperação + queda brusca ──
     const recovery = deriveRecoveryInfo(preview, errorMessage);
