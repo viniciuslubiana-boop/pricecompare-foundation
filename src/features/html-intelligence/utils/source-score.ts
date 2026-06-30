@@ -15,7 +15,14 @@ export interface SourceScoreInput {
   } | null;
   /** Indica se a execução atual usou método fallback. */
   fallbackUsed?: boolean;
+  /**
+   * Sprint 013 — proporção (0-1) de itens normalizados aprovados pela IA.
+   * Quando alta + sourceScore alto + qualityScore alto, aplica piso ao
+   * HTML Score para evitar subestimação quando a rota claramente entrega.
+   */
+  aiApprovalRate?: number;
 }
+
 
 export interface SourceScoreBreakdown {
   /** 0-100 */
@@ -108,8 +115,15 @@ export function computeSourceScore(input: SourceScoreInput): SourceScoreBreakdow
     notes.push("estabilidade preliminar");
   }
 
-  // ── HTML score (já calculado em 4A) ──────────────────────────
-  const htmlScore = input.htmlBreakdown?.score ?? 0;
+  // ── HTML Score (calculado em 4A) + piso pós-validação (Sprint 013) ──
+  let htmlScore = input.htmlBreakdown?.score ?? 0;
+  const approvalRate = input.aiApprovalRate ?? 0;
+  const provisionalSource =
+    coverage * 0.35 + quality * 0.3 + performance * 0.15 + stability * 0.15 + htmlScore * 0.05;
+  if (provisionalSource >= 70 && approvalRate >= 0.8 && quality >= 90 && htmlScore < 70) {
+    htmlScore = 70;
+    notes.push("HTML Score ajustado por validação real (IA aprovou)");
+  }
 
   // ── Source Score ─────────────────────────────────────────────
   let sourceScore =
@@ -123,6 +137,7 @@ export function computeSourceScore(input: SourceScoreInput): SourceScoreBreakdow
     sourceScore = Math.max(0, sourceScore - 8);
     notes.push("fallback aplicado");
   }
+
 
   return {
     sourceScore: Math.round(clamp(sourceScore, 0, 100)),

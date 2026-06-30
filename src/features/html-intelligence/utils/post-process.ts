@@ -22,7 +22,14 @@ export interface PostProcessResult {
   dashboard_invalidated: boolean;
   status: "success" | "partial" | "failed";
   errors: string[];
+  /**
+   * Sprint 013 — alerta exibido quando o salvamento ocorreu mas
+   * nenhuma equivalência rígida (brand+model+year) foi encontrada
+   * no estoque atual para gerar comparações.
+   */
+  noEquivalenceWarning: string | null;
 }
+
 
 export async function runPostProcessAfterSave(
   input: PostProcessInput,
@@ -38,7 +45,9 @@ export async function runPostProcessAfterSave(
     dashboard_invalidated: false,
     status: "success",
     errors: [],
+    noEquivalenceWarning: null,
   };
+
 
   try {
     const pairs: Array<{ competitorId: string; baseCompanyId: string | null }> = [];
@@ -88,6 +97,18 @@ export async function runPostProcessAfterSave(
     } else if (result.errors.length > 0) {
       result.status = "partial";
     }
+
+    // Sprint 013 — alerta quando o ciclo rodou sem falhas mas não houve
+    // nenhum par equivalente para comparar.
+    if (
+      result.errors.length === 0 &&
+      result.comparisons_generated === 0 &&
+      pairs.length > 0
+    ) {
+      result.noEquivalenceWarning =
+        "Veículos importados com sucesso, mas sem equivalência rígida encontrada no estoque atual.";
+    }
+
   } catch (e) {
     result.errors.push(e instanceof Error ? e.message : "Falha desconhecida");
     result.status = "failed";

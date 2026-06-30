@@ -150,6 +150,11 @@ function DiagnosticoHtmlPage() {
         } else {
           toast.error("Estoque salvo, mas houve falha ao atualizar as comparações. Verifique o diagnóstico.");
         }
+
+        if (post.noEquivalenceWarning) {
+          toast.warning(post.noEquivalenceWarning);
+        }
+
       } catch (e) {
         toast.error("Estoque salvo, mas houve falha ao atualizar as comparações. Verifique o diagnóstico.", {
           description: e instanceof Error ? e.message : undefined,
