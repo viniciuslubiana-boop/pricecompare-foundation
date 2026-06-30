@@ -557,6 +557,10 @@ export type Database = {
       html_intelligence_runs: {
         Row: {
           actions_used: boolean
+          ai_duration_ms: number
+          ai_model: string | null
+          ai_tokens: number
+          ai_used: boolean
           base_url: string
           candidates: Json
           chosen_route: string | null
@@ -567,6 +571,10 @@ export type Database = {
           executed_by: string | null
           id: string
           load_more_clicks: number
+          normalization_confidence_avg: number
+          normalization_errors: Json
+          normalization_status_counts: Json
+          normalized_preview: Json
           pagination_detected: boolean
           processing_ms: number
           raw_items_found: number
@@ -578,6 +586,10 @@ export type Database = {
         }
         Insert: {
           actions_used?: boolean
+          ai_duration_ms?: number
+          ai_model?: string | null
+          ai_tokens?: number
+          ai_used?: boolean
           base_url: string
           candidates?: Json
           chosen_route?: string | null
@@ -588,6 +600,10 @@ export type Database = {
           executed_by?: string | null
           id?: string
           load_more_clicks?: number
+          normalization_confidence_avg?: number
+          normalization_errors?: Json
+          normalization_status_counts?: Json
+          normalized_preview?: Json
           pagination_detected?: boolean
           processing_ms?: number
           raw_items_found?: number
@@ -599,6 +615,10 @@ export type Database = {
         }
         Update: {
           actions_used?: boolean
+          ai_duration_ms?: number
+          ai_model?: string | null
+          ai_tokens?: number
+          ai_used?: boolean
           base_url?: string
           candidates?: Json
           chosen_route?: string | null
@@ -609,6 +629,10 @@ export type Database = {
           executed_by?: string | null
           id?: string
           load_more_clicks?: number
+          normalization_confidence_avg?: number
+          normalization_errors?: Json
+          normalization_status_counts?: Json
+          normalized_preview?: Json
           pagination_detected?: boolean
           processing_ms?: number
           raw_items_found?: number

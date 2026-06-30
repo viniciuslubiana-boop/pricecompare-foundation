@@ -342,6 +342,133 @@ function DiagnosticoHtmlPage() {
         </Card>
       )}
 
+      {data?.normalization && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Prévia Normalizada</CardTitle>
+            <CardDescription>
+              Veículos interpretados pela IA + normalização PCM + Catálogo Mestre. Nada é salvo.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <Badge variant={data.normalization.aiUsed ? "default" : "destructive"}>
+                {data.normalization.aiUsed ? `IA ${data.normalization.aiModel}` : "IA indisponível"}
+              </Badge>
+              <Badge variant="secondary">Confiança média {data.normalization.confidenceAvg}</Badge>
+              <Badge variant="outline">Aprovados {data.normalization.statusCounts.approved}</Badge>
+              <Badge variant="outline">Revisar {data.normalization.statusCounts.review}</Badge>
+              <Badge variant="outline">Inválidos {data.normalization.statusCounts.invalid}</Badge>
+              <Badge variant="outline">Duplicados {data.normalization.statusCounts.duplicated}</Badge>
+              <span className="text-muted-foreground">
+                {data.normalization.aiTokens} tokens • {data.normalization.aiDurationMs} ms
+              </span>
+            </div>
+
+            {data.normalization.errors.length > 0 && (
+              <p className="text-xs text-destructive">
+                {data.normalization.errors.join(" • ")}
+              </p>
+            )}
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Marca</TableHead>
+                  <TableHead>Modelo</TableHead>
+                  <TableHead>Versão</TableHead>
+                  <TableHead>Ano</TableHead>
+                  <TableHead className="text-right">KM</TableHead>
+                  <TableHead className="text-right">Preço</TableHead>
+                  <TableHead>Link</TableHead>
+                  <TableHead>Imagem</TableHead>
+                  <TableHead className="text-right">Conf.</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Observações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.normalization.items.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={11} className="text-center text-muted-foreground py-6">
+                      Sem veículos normalizados.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  data.normalization.items.map((v, idx) => (
+                    <TableRow key={`${v.source_url ?? "no-link"}-${idx}`}>
+                      <TableCell>{v.brand ?? "—"}</TableCell>
+                      <TableCell>{v.model ?? "—"}</TableCell>
+                      <TableCell className="text-xs">{v.version ?? "—"}</TableCell>
+                      <TableCell className="font-mono text-xs">{v.year_model ?? "—"}</TableCell>
+                      <TableCell className="text-right font-mono text-xs">
+                        {v.km != null ? v.km.toLocaleString("pt-BR") : "—"}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-xs">
+                        {v.price != null
+                          ? v.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                          : "—"}
+                      </TableCell>
+                      <TableCell>
+                        {v.source_url ? (
+                          <a
+                            href={v.source_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary hover:underline text-xs"
+                          >
+                            abrir
+                          </a>
+                        ) : "—"}
+                      </TableCell>
+                      <TableCell>
+                        {v.image_url ? (
+                          <a
+                            href={v.image_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary hover:underline text-xs"
+                          >
+                            ver
+                          </a>
+                        ) : "—"}
+                      </TableCell>
+                      <TableCell className="text-right">{v.confidenceAvg}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            v.status === "approved"
+                              ? "default"
+                              : v.status === "review"
+                              ? "secondary"
+                              : v.status === "duplicated"
+                              ? "outline"
+                              : "destructive"
+                          }
+                        >
+                          {v.status === "approved"
+                            ? "Aprovado"
+                            : v.status === "review"
+                            ? "Revisar"
+                            : v.status === "duplicated"
+                            ? "Duplicado"
+                            : "Inválido"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-[200px]">
+                        {v.observations.length > 0 ? v.observations.join("; ") : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+
+
 
 
       <Card>

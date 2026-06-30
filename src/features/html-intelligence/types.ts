@@ -117,3 +117,51 @@ export interface HtmlIntelligenceRunRow {
   raw_items_found?: number;
   technical_preview?: TechnicalPreview | Record<string, never>;
 }
+
+// ── Sprint 005: AI Normalization ─────────────────────────────
+export type NormalizationStatus = "approved" | "review" | "invalid" | "duplicated";
+
+export interface PerFieldConfidence {
+  brand: number;
+  model: number;
+  version: number;
+  year_model: number;
+  km: number;
+  price: number;
+  source_url: number;
+  image_url: number;
+}
+
+export interface NormalizedVehiclePreview {
+  brand: string | null;
+  model: string | null;
+  version: string | null;
+  year_model: string | null;
+  km: number | null;
+  price: number | null;
+  source_url: string | null;
+  image_url: string | null;
+  store_name: string | null;
+  city: string | null;
+  source: string;
+  confidence: PerFieldConfidence;
+  confidenceAvg: number;
+  status: NormalizationStatus;
+  observations: string[];
+}
+
+export interface AiNormalizationOutcome {
+  items: NormalizedVehiclePreview[];
+  aiUsed: boolean;
+  aiModel: string | null;
+  aiTokens: number;
+  aiDurationMs: number;
+  errors: string[];
+}
+
+export interface PostNormalizationResult {
+  items: NormalizedVehiclePreview[];
+  statusCounts: Record<NormalizationStatus, number>;
+  confidenceAvg: number;
+}
+

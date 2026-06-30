@@ -17,3 +17,7 @@ export {
   detectStructuredData,
   detectEmbeddedJson,
 } from "./detectors";
+export { runAiNormalization } from "./services/ai-normalizer.engine";
+export { applyPostNormalization } from "./utils/post-normalize";
+export type { CatalogEntry, AliasEntry } from "./utils/post-normalize";
+

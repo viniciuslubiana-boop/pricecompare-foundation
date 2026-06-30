@@ -7,17 +7,25 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
+  applyPostNormalization,
   computeSourceScore,
   discoverInventoryRoutes,
+  runAiNormalization,
   runTechnicalPreview,
+  type AliasEntry,
+  type CatalogEntry,
 } from "@/features/html-intelligence";
 import type {
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
+  NormalizationStatus,
+  NormalizedVehiclePreview,
+  PostNormalizationResult,
   RouteDiscoveryResult,
   SourceScoreBreakdown,
   TechnicalPreview,
 } from "@/features/html-intelligence";
+
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const SOURCE_METHOD_HTML = "HTML";
@@ -31,14 +39,27 @@ const inputSchema = z.object({
   force: z.boolean().optional(),
 });
 
+export interface NormalizationPayload {
+  items: NormalizedVehiclePreview[];
+  statusCounts: Record<NormalizationStatus, number>;
+  confidenceAvg: number;
+  aiUsed: boolean;
+  aiModel: string | null;
+  aiTokens: number;
+  aiDurationMs: number;
+  errors: string[];
+}
+
 export interface DiscoverRoutesPayload {
   result: RouteDiscoveryResult;
   preview: TechnicalPreview | null;
   runId: string | null;
   score: SourceScoreBreakdown | null;
+  normalization: NormalizationPayload | null;
   rateLimited: boolean;
   rateLimitMessage: string | null;
 }
+
 
 export const discoverInventoryRoute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -66,11 +87,13 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
           preview: null,
           runId: null,
           score: null,
+          normalization: null,
           rateLimited: true,
           rateLimitMessage:
             "Execução recente detectada para esta URL. Aguarde 60 segundos ou marque 'forçar reexecução'.",
         };
       }
+
     }
 
     let result: RouteDiscoveryResult;
@@ -116,28 +139,75 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
       fallbackUsed: preview?.actionsUsed ?? false,
     });
 
+    // ── Sprint 005: Normalização inteligente com IA ──────────
+    let normalization: NormalizationPayload | null = null;
+    if (preview && preview.preview.length > 0) {
+      const sourceContext = `URL ${data.url} (rota ${result.chosen?.url ?? "?"})`;
+      const ai = await runAiNormalization(preview.preview, sourceContext);
+
+      let post: PostNormalizationResult = {
+        items: [], statusCounts: { approved: 0, review: 0, invalid: 0, duplicated: 0 }, confidenceAvg: 0,
+      };
+      if (ai.items.length > 0) {
+        try {
+          const [catalogRes, aliasesRes] = await Promise.all([
+            supabase.from("vehicle_master_catalog").select("brand, canonical_model").eq("active", true),
+            supabase.from("vehicle_model_aliases").select("brand, alias, canonical"),
+          ]);
+          const catalog = (catalogRes.data ?? []) as CatalogEntry[];
+          const aliases = (aliasesRes.data ?? []) as AliasEntry[];
+          post = applyPostNormalization(ai.items, catalog, aliases);
+        } catch (e) {
+          ai.errors.push(e instanceof Error ? e.message : "Falha no catálogo/alias");
+        }
+      }
+
+      normalization = {
+        items: post.items,
+        statusCounts: post.statusCounts,
+        confidenceAvg: post.confidenceAvg,
+        aiUsed: ai.aiUsed,
+        aiModel: ai.aiModel,
+        aiTokens: ai.aiTokens,
+        aiDurationMs: ai.aiDurationMs,
+        errors: ai.errors,
+      };
+    }
+
     let runId: string | null = null;
     if (persist) {
+      const insertRow: Record<string, unknown> = {
+        base_url: result.baseUrl,
+        chosen_route: result.chosen?.path ?? null,
+        chosen_score: result.chosen?.breakdown?.score ?? 0,
+        candidates: JSON.parse(JSON.stringify(result.candidates)),
+        vehicles_estimated: result.chosen?.vehiclesEstimated ?? 0,
+        processing_ms: result.processingMs + (preview?.processingMs ?? 0),
+        executed_by: userId,
+        error_message: errorMessage,
+        actions_used: preview?.actionsUsed ?? false,
+        scroll_cycles: preview?.scrollCycles ?? 0,
+        load_more_clicks: preview?.loadMoreClicks ?? 0,
+        pagination_detected: preview?.pagination.detected ?? false,
+        embedded_json_detected: (preview?.embeddedJsonSources.length ?? 0) > 0,
+        structured_data_detected: preview?.structuredDataDetected ?? false,
+        raw_items_found: preview?.cardsDetected ?? 0,
+        technical_preview: preview ? JSON.parse(JSON.stringify(preview)) : {},
+        normalized_preview: normalization
+          ? JSON.parse(JSON.stringify(normalization.items))
+          : [],
+        normalization_confidence_avg: normalization?.confidenceAvg ?? 0,
+        normalization_status_counts: normalization?.statusCounts ?? {},
+        ai_used: normalization?.aiUsed ?? false,
+        ai_model: normalization?.aiModel ?? null,
+        ai_tokens: normalization?.aiTokens ?? 0,
+        ai_duration_ms: normalization?.aiDurationMs ?? 0,
+        normalization_errors: normalization?.errors ?? [],
+      };
       const { data: row } = await supabase
         .from("html_intelligence_runs")
-        .insert({
-          base_url: result.baseUrl,
-          chosen_route: result.chosen?.path ?? null,
-          chosen_score: result.chosen?.breakdown?.score ?? 0,
-          candidates: JSON.parse(JSON.stringify(result.candidates)),
-          vehicles_estimated: result.chosen?.vehiclesEstimated ?? 0,
-          processing_ms: result.processingMs + (preview?.processingMs ?? 0),
-          executed_by: userId,
-          error_message: errorMessage,
-          actions_used: preview?.actionsUsed ?? false,
-          scroll_cycles: preview?.scrollCycles ?? 0,
-          load_more_clicks: preview?.loadMoreClicks ?? 0,
-          pagination_detected: preview?.pagination.detected ?? false,
-          embedded_json_detected: (preview?.embeddedJsonSources.length ?? 0) > 0,
-          structured_data_detected: preview?.structuredDataDetected ?? false,
-          raw_items_found: preview?.cardsDetected ?? 0,
-          technical_preview: preview ? JSON.parse(JSON.stringify(preview)) : {},
-        })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .insert(insertRow as any)
         .select("id")
         .single();
       runId = row?.id ?? null;
@@ -192,10 +262,12 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
       preview,
       runId,
       score,
+      normalization,
       rateLimited: false,
       rateLimitMessage: null,
     };
   });
+
 
 export const listHtmlIntelligenceRuns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
