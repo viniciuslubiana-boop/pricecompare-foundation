@@ -134,13 +134,8 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
       }
     }
 
-    // ── Carrega score anterior p/ estabilidade ───────────────
-    const { data: priorRow } = await supabase
-      .from("market_source_scores")
-      .select("executions_total, executions_success, vehicles_estimated")
-      .eq("url", data.url)
-      .eq("source_method", SOURCE_METHOD_HTML)
-      .maybeSingle();
+
+
 
     const success = (preview?.rawAfter ?? 0) > 0;
 
