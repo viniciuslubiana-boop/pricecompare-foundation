@@ -44,7 +44,12 @@ const inputSchema = z.object({
   sourceUrl: z.string().optional().nullable(),
   duplicateStrategy: z.enum(["ignore", "update", "new"]).default("update"),
   includeReview: z.boolean().default(false),
+  /** Sprint 008: bloqueia o save quando a Prévia foi marcada como suspeita. */
+  suspectedDrop: z.boolean().optional().default(false),
+  /** Permite o usuário confirmar e sobrescrever mesmo com suspeita. */
+  confirmSuspectedDrop: z.boolean().optional().default(false),
 });
+
 
 export interface SaveStockResult {
   totalNormalized: number;
@@ -58,7 +63,11 @@ export interface SaveStockResult {
   errors: string[];
   logId: string | null;
   durationMs: number;
+  /** Sprint 008: salvamento bloqueado por proteção de dados. */
+  protected: boolean;
+  protectionReason: string | null;
 }
+
 
 export const saveSynchronizedStock = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
