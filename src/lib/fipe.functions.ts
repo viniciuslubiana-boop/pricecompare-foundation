@@ -88,6 +88,33 @@ function summarizeOutcomeReasons(outcomes: FipeVehicleUpdateOutcome[]) {
   }, {});
 }
 
+function summarizeAuditMetrics(outcomes: FipeVehicleUpdateOutcome[]) {
+  const scores: number[] = [];
+  const durations: number[] = [];
+  const brandReasons = new Map<string, number>();
+  const modelReasons = new Map<string, number>();
+  for (const o of outcomes) {
+    const d = o.diagnostics;
+    if (!d) continue;
+    if (typeof d.score === "number") scores.push(d.score);
+    if (typeof d.query_duration_ms === "number") durations.push(d.query_duration_ms);
+    if (o.status !== "encontrada") {
+      brandReasons.set(d.original_brand, (brandReasons.get(d.original_brand) ?? 0) + 1);
+      const key = `${d.original_brand} ${d.original_model}`;
+      modelReasons.set(key, (modelReasons.get(key) ?? 0) + 1);
+    }
+  }
+  const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+  const top = (m: Map<string, number>) =>
+    [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, v]) => ({ key: k, count: v }));
+  return {
+    avg_score: Math.round(avg(scores) * 100) / 100,
+    avg_query_duration_ms: Math.round(avg(durations)),
+    top_brand_failures: top(brandReasons),
+    top_model_failures: top(modelReasons),
+  };
+}
+
 function invalidYearDiagnostics(v: {
   id: string;
   brand: string;
