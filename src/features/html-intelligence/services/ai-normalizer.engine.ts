@@ -1,18 +1,21 @@
-// HIE — AI Normalizer (Sprint 005)
+// HIE — AI Normalizer (Sprint 005 + Sprint 011 telemetria)
 // Server-only. Recebe itens brutos do Technical Preview e devolve
 // veículos normalizados no padrão PCM com confidence por campo.
+// Sprint 011: instrumentação completa de status/tempo/erro.
 
 import { z } from "zod";
 import type { RawVehicleItem } from "../types";
 import type {
   AiNormalizationOutcome,
+  AiStatus,
+  AiTelemetry,
   NormalizedVehiclePreview,
   PerFieldConfidence,
 } from "../types";
 
 const MAX_ITEMS_TO_AI = 30;
 const MAX_RAW_TEXT_LEN = 600;
-const AI_TIMEOUT_MS = 45_000;
+const AI_TIMEOUT_MS = 30_000; // Sprint 011: reduzido de 45s p/ feedback rápido
 const AI_MODEL = "google/gemini-2.5-flash-lite";
 
 const confidenceSchema = z.object({
@@ -41,9 +44,7 @@ const itemSchema = z.object({
   confidence: confidenceSchema,
 });
 
-const responseSchema = z.object({
-  items: z.array(itemSchema),
-});
+const responseSchema = z.object({ items: z.array(itemSchema) });
 
 function buildPrompt(items: RawVehicleItem[], sourceContext: string): string {
   const compact = items.map((it, idx) => ({
@@ -77,10 +78,10 @@ function buildPrompt(items: RawVehicleItem[], sourceContext: string): string {
   ].join("\n");
 }
 
-interface AiCallStats {
-  durationMs: number;
+interface AiCallResult {
+  items: AiRawItem[];
   tokens: number;
-  model: string;
+  responseBytes: number;
 }
 
 interface AiRawItem {
@@ -98,15 +99,18 @@ interface AiRawItem {
   confidence: PerFieldConfidence;
 }
 
-async function callAiGateway(
-  prompt: string,
-): Promise<{ items: AiRawItem[]; stats: AiCallStats }> {
+type CallOutcome =
+  | { ok: true; data: AiCallResult }
+  | { ok: false; status: AiStatus; detail: string; responseBytes: number };
+
+async function callAiGateway(prompt: string): Promise<CallOutcome> {
   const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY ausente");
+  if (!apiKey) {
+    return { ok: false, status: "missing_key", detail: "LOVABLE_API_KEY ausente", responseBytes: 0 };
+  }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
-  const startedAt = Date.now();
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -118,106 +122,137 @@ async function callAiGateway(
       body: JSON.stringify({
         model: AI_MODEL,
         messages: [
-          {
-            role: "system",
-            content:
-              "Você devolve apenas JSON válido. Sem comentários, sem markdown.",
-          },
+          { role: "system", content: "Você devolve apenas JSON válido. Sem comentários, sem markdown." },
           { role: "user", content: prompt },
         ],
         response_format: { type: "json_object" },
         temperature: 0.1,
       }),
     });
-    const durationMs = Date.now() - startedAt;
+    const text = await res.text();
+    const responseBytes = text.length;
     if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      throw new Error(`AI gateway ${res.status}: ${body.slice(0, 200)}`);
+      return {
+        ok: false,
+        status: "gateway_error",
+        detail: `AI gateway ${res.status}: ${text.slice(0, 200)}`,
+        responseBytes,
+      };
     }
-    const json = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-      usage?: { total_tokens?: number };
-    };
-    const content = json.choices?.[0]?.message?.content ?? "{}";
-    const parsed = responseSchema.safeParse(JSON.parse(content));
+    let json: { choices?: Array<{ message?: { content?: string } }>; usage?: { total_tokens?: number } };
+    try {
+      json = JSON.parse(text);
+    } catch {
+      return { ok: false, status: "invalid_json", detail: "Resposta do gateway não é JSON", responseBytes };
+    }
+    const content = json.choices?.[0]?.message?.content ?? "";
+    if (!content.trim()) {
+      return { ok: false, status: "empty_response", detail: "IA retornou conteúdo vazio", responseBytes };
+    }
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(content);
+    } catch {
+      return { ok: false, status: "invalid_json", detail: "Conteúdo da IA não é JSON válido", responseBytes };
+    }
+    const parsed = responseSchema.safeParse(parsedJson);
     if (!parsed.success) {
-      throw new Error("Resposta da IA não validou no schema");
+      return {
+        ok: false,
+        status: "validation_failed",
+        detail: `Schema Zod falhou: ${parsed.error.issues.slice(0, 3).map((i) => i.path.join(".") + ": " + i.message).join("; ")}`,
+        responseBytes,
+      };
     }
     return {
-      items: parsed.data.items as AiRawItem[],
-      stats: {
-        durationMs,
+      ok: true,
+      data: {
+        items: parsed.data.items as AiRawItem[],
         tokens: json.usage?.total_tokens ?? 0,
-        model: AI_MODEL,
+        responseBytes,
       },
+    };
+  } catch (e) {
+    const isAbort = e instanceof Error && (e.name === "AbortError" || /aborted/i.test(e.message));
+    return {
+      ok: false,
+      status: isAbort ? "timeout" : "gateway_error",
+      detail: isAbort ? `IA não respondeu em ${AI_TIMEOUT_MS}ms` : (e instanceof Error ? e.message : "Falha desconhecida"),
+      responseBytes: 0,
     };
   } finally {
     clearTimeout(timer);
   }
 }
 
+function emptyTelemetry(status: AiStatus, startedAt: number, finishedAt: number, itemsSent: number, payloadBytes: number, responseBytes: number, errorDetail: string | null): AiTelemetry {
+  return { status, itemsSent, payloadBytes, responseBytes, startedAt, finishedAt, errorDetail };
+}
+
 export async function runAiNormalization(
   items: RawVehicleItem[],
   sourceContext: string,
 ): Promise<AiNormalizationOutcome> {
+  const startedAt = Date.now();
   if (!items || items.length === 0) {
+    const t = Date.now();
     return {
-      items: [],
-      aiUsed: false,
-      aiModel: null,
-      aiTokens: 0,
-      aiDurationMs: 0,
-      errors: [],
+      items: [], aiUsed: false, aiModel: null, aiTokens: 0, aiDurationMs: 0, errors: [],
+      telemetry: emptyTelemetry("idle", startedAt, t, 0, 0, 0, null),
     };
   }
   const sliced = items.slice(0, MAX_ITEMS_TO_AI);
   const prompt = buildPrompt(sliced, sourceContext);
+  const payloadBytes = prompt.length;
 
-  try {
-    const { items: aiItems, stats } = await callAiGateway(prompt);
+  const outcome = await callAiGateway(prompt);
+  const finishedAt = Date.now();
+  const durationMs = finishedAt - startedAt;
 
-    const normalized: NormalizedVehiclePreview[] = aiItems.map((raw, idx) => {
-      const orig = sliced[idx] ?? sliced[0];
-      const confidence = raw.confidence ?? {
-        brand: 0, model: 0, version: 0, year_model: 0,
-        km: 0, price: 0, source_url: 0, image_url: 0,
-      };
-      return {
-        brand: raw.brand ?? null,
-        model: raw.model ?? null,
-        version: raw.version ?? null,
-        year_model: raw.year_model ?? null,
-        km: typeof raw.km === "string" ? Number(raw.km.replace(/[^\d]/g, "")) || null : raw.km,
-        price: typeof raw.price === "string" ? Number(raw.price.replace(/[^\d.,]/g, "").replace(/\./g, "").replace(",", ".")) || null : raw.price,
-        source_url: raw.source_url ?? orig?.link ?? null,
-        image_url: raw.image_url ?? orig?.image ?? null,
-        store_name: raw.store_name ?? null,
-        city: raw.city ?? null,
-        source: raw.source ?? orig?.source ?? "HTML",
-        confidence,
-        confidenceAvg: 0,
-        status: "review",
-        observations: [],
-      };
-    });
-
-    return {
-      items: normalized,
-      aiUsed: true,
-      aiModel: stats.model,
-      aiTokens: stats.tokens,
-      aiDurationMs: stats.durationMs,
-      errors: [],
-    };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Falha na IA";
+  if (!outcome.ok) {
     return {
       items: [],
       aiUsed: false,
       aiModel: AI_MODEL,
       aiTokens: 0,
-      aiDurationMs: 0,
-      errors: [msg],
+      aiDurationMs: durationMs,
+      errors: [outcome.detail],
+      telemetry: emptyTelemetry(outcome.status, startedAt, finishedAt, sliced.length, payloadBytes, outcome.responseBytes, outcome.detail),
     };
   }
+
+  const normalized: NormalizedVehiclePreview[] = outcome.data.items.map((raw, idx) => {
+    const orig = sliced[idx] ?? sliced[0];
+    const confidence = raw.confidence ?? {
+      brand: 0, model: 0, version: 0, year_model: 0,
+      km: 0, price: 0, source_url: 0, image_url: 0,
+    };
+    return {
+      brand: raw.brand ?? null,
+      model: raw.model ?? null,
+      version: raw.version ?? null,
+      year_model: raw.year_model ?? null,
+      km: typeof raw.km === "string" ? Number(raw.km.replace(/[^\d]/g, "")) || null : raw.km,
+      price: typeof raw.price === "string" ? Number(raw.price.replace(/[^\d.,]/g, "").replace(/\./g, "").replace(",", ".")) || null : raw.price,
+      source_url: raw.source_url ?? orig?.link ?? null,
+      image_url: raw.image_url ?? orig?.image ?? null,
+      store_name: raw.store_name ?? null,
+      city: raw.city ?? null,
+      source: raw.source ?? orig?.source ?? "HTML",
+      confidence,
+      confidenceAvg: 0,
+      status: "review",
+      observations: [],
+    };
+  });
+
+  return {
+    items: normalized,
+    aiUsed: true,
+    aiModel: AI_MODEL,
+    aiTokens: outcome.data.tokens,
+    aiDurationMs: durationMs,
+    errors: [],
+    telemetry: emptyTelemetry("success", startedAt, finishedAt, sliced.length, payloadBytes, outcome.data.responseBytes, null),
+  };
 }
