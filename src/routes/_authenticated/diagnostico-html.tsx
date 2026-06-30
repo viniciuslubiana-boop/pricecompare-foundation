@@ -535,8 +535,29 @@ function DiagnosticoHtmlPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <Badge variant={data.normalization.aiUsed ? "default" : "destructive"}>
-                {data.normalization.aiUsed ? `IA ${data.normalization.aiModel}` : "IA indisponível"}
+              {(() => {
+                const t = data.normalization.telemetry;
+                const labels: Record<typeof t.status, string> = {
+                  idle: "Aguardando",
+                  sending: "Enviando",
+                  processing: "Processando",
+                  success: "Sucesso",
+                  timeout: "Timeout",
+                  gateway_error: "Erro de gateway",
+                  invalid_json: "JSON inválido",
+                  empty_response: "Resposta vazia",
+                  validation_failed: "Validação falhou",
+                  missing_key: "Sem credencial",
+                };
+                const ok = t.status === "success";
+                return (
+                  <Badge variant={ok ? "default" : "destructive"}>
+                    Status IA: {labels[t.status] ?? t.status}
+                  </Badge>
+                );
+              })()}
+              <Badge variant={data.normalization.aiUsed ? "default" : "outline"}>
+                {data.normalization.aiUsed ? `Modelo ${data.normalization.aiModel}` : "IA não utilizada"}
               </Badge>
               <Badge variant="secondary">Confiança média {data.normalization.confidenceAvg}</Badge>
               <Badge variant="outline">Aprovados {data.normalization.statusCounts.approved}</Badge>
@@ -544,15 +565,19 @@ function DiagnosticoHtmlPage() {
               <Badge variant="outline">Inválidos {data.normalization.statusCounts.invalid}</Badge>
               <Badge variant="outline">Duplicados {data.normalization.statusCounts.duplicated}</Badge>
               <span className="text-muted-foreground">
-                {data.normalization.aiTokens} tokens • {data.normalization.aiDurationMs} ms
+                {data.normalization.aiTokens} tokens • {data.normalization.aiDurationMs} ms •{" "}
+                {data.normalization.telemetry.itemsSent} itens • {Math.round(data.normalization.telemetry.payloadBytes / 1024)} kB enviados
               </span>
             </div>
 
-            {data.normalization.errors.length > 0 && (
+            {(data.normalization.errors.length > 0 || data.normalization.telemetry.errorDetail) && (
               <p className="text-xs text-destructive">
-                {data.normalization.errors.join(" • ")}
+                {[data.normalization.telemetry.errorDetail, ...data.normalization.errors]
+                  .filter(Boolean)
+                  .join(" • ")}
               </p>
             )}
+
 
             <Table>
               <TableHeader>
