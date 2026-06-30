@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Package, Plus, Upload, Pencil, Trash2, Loader2, Link2, Eye } from "lucide-react";
+import { Package, Plus, Upload, Pencil, Trash2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
@@ -40,10 +40,6 @@ import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-format
 import { BaseCompanySelector } from "@/features/base-companies/components/BaseCompanySelector";
 import { useSelectedBaseCompany } from "@/features/base-companies/context/SelectedBaseCompanyContext";
 import { Building2 } from "lucide-react";
-import { FipeUpdateButton } from "@/features/fipe/components/FipeUpdateButton";
-import { FipeStatusBadge } from "@/features/fipe/components/FipeStatusBadge";
-import { FipeManualLinkDialog } from "@/features/fipe/components/FipeManualLinkDialog";
-import { FipeDetailsDialog } from "@/features/fipe/components/FipeDetailsDialog";
 
 const ALL = "__all__";
 
@@ -57,8 +53,6 @@ function MeuEstoquePage() {
   const [toDelete, setToDelete] = useState<Vehicle | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
-  const [fipeLinkTarget, setFipeLinkTarget] = useState<Vehicle | null>(null);
-  const [fipeDetailsTarget, setFipeDetailsTarget] = useState<Vehicle | null>(null);
 
   const filters = useMemo(
     () => ({ search, brand, baseCompanyId: selectedId }),
@@ -115,7 +109,7 @@ function MeuEstoquePage() {
         description="Cadastre, edite e acompanhe os veículos da sua concessionária."
         actions={
           <>
-            <FipeUpdateButton baseCompanyId={selectedId} />
+            
             <Button asChild variant="outline">
               <Link to="/importacoes">
                 <Upload className="h-4 w-4" /> Importar arquivo
@@ -230,9 +224,6 @@ function MeuEstoquePage() {
                   <TableHead>Ano/Modelo</TableHead>
                   <TableHead className="text-right">KM</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
-                  <TableHead className="text-right">FIPE</TableHead>
-                  <TableHead className="text-right">Dif. FIPE</TableHead>
-                  <TableHead>Status FIPE</TableHead>
                   <TableHead>Fornecedor</TableHead>
                   <TableHead>Origem</TableHead>
                   <TableHead className="w-[120px] text-right">Ações</TableHead>
@@ -255,29 +246,6 @@ function MeuEstoquePage() {
                     <TableCell className="text-right">
                       {formatBRL(v.price as unknown as number)}
                     </TableCell>
-                    <TableCell className="text-right">
-                      {(() => {
-                        const fv = (v as unknown as { fipe_value: number | null }).fipe_value;
-                        return fv != null ? formatBRL(fv) : "—";
-                      })()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {(() => {
-                        const fv = (v as unknown as { fipe_value: number | null }).fipe_value;
-                        const price = v.price as unknown as number;
-                        if (fv == null || price == null) return "—";
-                        const diff = price - fv;
-                        const sign = diff > 0 ? "+" : "";
-                        const color =
-                          diff > 0 ? "text-red-600" : diff < 0 ? "text-green-600" : "";
-                        return <span className={color}>{sign}{formatBRL(diff)}</span>;
-                      })()}
-                    </TableCell>
-                    <TableCell>
-                      <FipeStatusBadge
-                        status={(v as unknown as { fipe_status: string | null }).fipe_status}
-                      />
-                    </TableCell>
                     <TableCell>{v.supplier_name ?? "—"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="capitalize">
@@ -286,24 +254,7 @@ function MeuEstoquePage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setFipeDetailsTarget(v)}
-                          aria-label="Ver detalhes FIPE"
-                          title="Ver detalhes FIPE"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setFipeLinkTarget(v)}
-                          aria-label="Vincular FIPE manualmente"
-                          title="Vincular FIPE manualmente"
-                        >
-                          <Link2 className="h-4 w-4" />
-                        </Button>
+
                         <Button
                           size="icon"
                           variant="ghost"
@@ -374,30 +325,6 @@ function MeuEstoquePage() {
         onConfirm={handleBulkDelete}
       />
 
-      <FipeManualLinkDialog
-        open={!!fipeLinkTarget}
-        onOpenChange={(o) => !o && setFipeLinkTarget(null)}
-        vehicle={
-          fipeLinkTarget
-            ? {
-                id: fipeLinkTarget.id,
-                brand: fipeLinkTarget.brand,
-                model: fipeLinkTarget.model,
-                year_model: Number(fipeLinkTarget.year_model),
-              }
-            : null
-        }
-      />
-
-      <FipeDetailsDialog
-        open={!!fipeDetailsTarget}
-        onOpenChange={(o) => !o && setFipeDetailsTarget(null)}
-        vehicle={
-          fipeDetailsTarget
-            ? (fipeDetailsTarget as unknown as Parameters<typeof FipeDetailsDialog>[0]["vehicle"])
-            : null
-        }
-      />
 
       {deleteMut.isPending ? (
         <div className="sr-only">

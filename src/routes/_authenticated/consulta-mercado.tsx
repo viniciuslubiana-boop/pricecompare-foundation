@@ -36,7 +36,7 @@ import type {
 } from "@/features/comparison/types/comparison.types";
 import type { GlobalSearchQuery } from "@/features/comparison/services/global-search.service";
 import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-formatters";
-import { FipeStatusBadge } from "@/features/fipe/components/FipeStatusBadge";
+
 
 
 export const Route = createFileRoute("/_authenticated/consulta-mercado")({
@@ -302,49 +302,6 @@ function GlobalMarketSearchPage() {
                         </div>
                       ))}
                     </div>
-                    {/* FIPE — referência complementar */}
-                    {group.vehicles.some(
-                      (v) =>
-                        (v as unknown as { fipe_value: number | null }).fipe_value != null ||
-                        (v as unknown as { fipe_code: string | null }).fipe_code,
-                    ) && (
-                      <div className="space-y-2 rounded-md border bg-muted/30 p-3">
-                        <div className="text-xs font-semibold uppercase text-muted-foreground">
-                          FIPE
-                        </div>
-                        <div className="grid gap-2 md:grid-cols-2">
-                          {group.vehicles.map((v) => {
-                            const f = v as unknown as {
-                              fipe_code: string | null;
-                              fipe_value: number | null;
-                              fipe_reference_month: string | null;
-                              fipe_status: string | null;
-                              fipe_link_mode: string | null;
-                            };
-                            return (
-                              <div
-                                key={`fipe-${v.id}`}
-                                className="flex flex-wrap items-center justify-between gap-2 text-xs"
-                              >
-                                <span className="truncate font-medium">
-                                  {v.model}
-                                </span>
-                                <span className="text-muted-foreground">
-                                  Código {f.fipe_code ?? "—"} · Ref {f.fipe_reference_month ?? "—"}
-                                </span>
-                                <span className="tabular-nums">
-                                  {f.fipe_value != null ? formatBRL(f.fipe_value) : "—"}
-                                </span>
-                                <span className="text-muted-foreground">
-                                  Origem {f.fipe_link_mode === "manual" ? "Manual" : f.fipe_link_mode === "auto" ? "Automática" : "—"}
-                                </span>
-                                <FipeStatusBadge status={f.fipe_status} />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               ))}

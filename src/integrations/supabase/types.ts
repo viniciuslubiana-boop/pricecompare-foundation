@@ -554,110 +554,6 @@ export type Database = {
           },
         ]
       }
-      fipe_references: {
-        Row: {
-          brand: string
-          created_at: string
-          fipe_code: string | null
-          fipe_value: number
-          fuel: string | null
-          id: string
-          model: string
-          provider: string
-          raw_response: Json | null
-          reference_month: string
-          updated_at: string
-          vehicle_type: string
-          version: string | null
-          year_model: number
-        }
-        Insert: {
-          brand: string
-          created_at?: string
-          fipe_code?: string | null
-          fipe_value: number
-          fuel?: string | null
-          id?: string
-          model: string
-          provider?: string
-          raw_response?: Json | null
-          reference_month: string
-          updated_at?: string
-          vehicle_type?: string
-          version?: string | null
-          year_model: number
-        }
-        Update: {
-          brand?: string
-          created_at?: string
-          fipe_code?: string | null
-          fipe_value?: number
-          fuel?: string | null
-          id?: string
-          model?: string
-          provider?: string
-          raw_response?: Json | null
-          reference_month?: string
-          updated_at?: string
-          vehicle_type?: string
-          version?: string | null
-          year_model?: number
-        }
-        Relationships: []
-      }
-      fipe_update_logs: {
-        Row: {
-          base_company_id: string | null
-          created_at: string
-          details: Json | null
-          errors: number
-          id: string
-          matched: number
-          message: string | null
-          provider: string
-          status: string
-          total_vehicles: number
-          triggered_by: string | null
-          unmatched: number
-        }
-        Insert: {
-          base_company_id?: string | null
-          created_at?: string
-          details?: Json | null
-          errors?: number
-          id?: string
-          matched?: number
-          message?: string | null
-          provider?: string
-          status?: string
-          total_vehicles?: number
-          triggered_by?: string | null
-          unmatched?: number
-        }
-        Update: {
-          base_company_id?: string | null
-          created_at?: string
-          details?: Json | null
-          errors?: number
-          id?: string
-          matched?: number
-          message?: string | null
-          provider?: string
-          status?: string
-          total_vehicles?: number
-          triggered_by?: string | null
-          unmatched?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fipe_update_logs_base_company_id_fkey"
-            columns: ["base_company_id"]
-            isOneToOne: false
-            referencedRelation: "base_companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       import_logs: {
         Row: {
           base_company_id: string | null
@@ -852,12 +748,6 @@ export type Database = {
           brand: string
           created_at: string
           created_by: string | null
-          fipe_code: string | null
-          fipe_link_mode: string | null
-          fipe_linked_at: string | null
-          fipe_reference_month: string | null
-          fipe_status: string
-          fipe_value: number | null
           id: string
           km: number | null
           model: string
@@ -872,12 +762,6 @@ export type Database = {
           brand: string
           created_at?: string
           created_by?: string | null
-          fipe_code?: string | null
-          fipe_link_mode?: string | null
-          fipe_linked_at?: string | null
-          fipe_reference_month?: string | null
-          fipe_status?: string
-          fipe_value?: number | null
           id?: string
           km?: number | null
           model: string
@@ -892,12 +776,6 @@ export type Database = {
           brand?: string
           created_at?: string
           created_by?: string | null
-          fipe_code?: string | null
-          fipe_link_mode?: string | null
-          fipe_linked_at?: string | null
-          fipe_reference_month?: string | null
-          fipe_status?: string
-          fipe_value?: number | null
           id?: string
           km?: number | null
           model?: string

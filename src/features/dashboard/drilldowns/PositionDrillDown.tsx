@@ -27,15 +27,6 @@ const fmtKm = (v: number | null | undefined) =>
 const fmtDate = (v: string | null | undefined) =>
   v ? new Date(v).toLocaleDateString("pt-BR") : "—";
 
-const FIPE_STATUS_LABEL: Record<string, string> = {
-  nao_verificada: "Não verificada",
-  encontrada: "FIPE encontrada",
-  nao_encontrada: "FIPE não encontrada",
-  vinculada_manualmente: "Vinculada manualmente",
-  desatualizada: "FIPE desatualizada",
-};
-const statusLabel = (s: string | null | undefined) =>
-  FIPE_STATUS_LABEL[String(s ?? "nao_verificada")] ?? "—";
 
 interface Props {
   myVehicle: MyVehicle;
@@ -65,16 +56,6 @@ export function PositionDrillDown({ myVehicle, market, equivalents }: Props) {
   // Apenas ordenação (não recalcula métricas)
   items.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
 
-  const fipe = myVehicle as unknown as {
-    fipe_value: number | null;
-    fipe_status: string | null;
-    fipe_reference_month: string | null;
-  };
-  const fipeDiff =
-    typeof fipe.fipe_value === "number" && typeof myPrice === "number"
-      ? myPrice - fipe.fipe_value
-      : null;
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -93,17 +74,6 @@ export function PositionDrillDown({ myVehicle, market, equivalents }: Props) {
         <Stat label="Concorrentes" value={String(market.competitorCount)} />
       </div>
 
-      {/* FIPE — referência complementar */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Valor FIPE" value={fmtMoney(fipe.fipe_value)} />
-        <Stat
-          label="Diferença para FIPE"
-          value={fipeDiff == null ? "—" : fmtMoney(fipeDiff)}
-          tone={fipeDiff == null ? undefined : fipeDiff > 0 ? "text-warning" : "text-success"}
-        />
-        <Stat label="Mês de referência" value={fipe.fipe_reference_month ?? "—"} />
-        <Stat label="Status FIPE" value={statusLabel(fipe.fipe_status)} />
-      </div>
 
       {items.length <= 1 ? (
         <EmptyState

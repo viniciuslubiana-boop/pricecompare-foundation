@@ -17,7 +17,7 @@ import {
   MapPin,
   History,
   Stethoscope,
-  Gauge,
+  
   type LucideIcon,
 } from "lucide-react";
 
@@ -47,7 +47,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Central de Movimentações", url: "/movimentacoes-mercado", icon: Radio },
   
   { title: "Configurações", url: "/configuracoes", icon: Settings },
-  { title: "Qualidade FIPE", url: "/qualidade-fipe", icon: Gauge, adminOnly: true },
+  
   { title: "Administração", url: "/administracao", icon: ShieldCheck, adminOnly: true },
 ];
 
