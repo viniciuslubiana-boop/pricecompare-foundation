@@ -149,17 +149,48 @@ export const saveSynchronizedStock = createServerFn({ method: "POST" })
       existing = (rows ?? []) as ExistingVehicleLike[];
     }
 
-    // ── Sprint 008: Proteção de dados ────────────────────────
+    // ── Sprint 008/010: Proteção de dados ─────────────────────
     // 1) Drop suspeito sinalizado pela Prévia (queda brusca) bloqueia salvamento
     //    a menos que o usuário confirme explicitamente.
     if (data.suspectedDrop && !data.confirmSuspectedDrop) {
       result.protected = true;
       result.protectionReason =
         "Queda brusca de veículos detectada — estoque anterior preservado. Confirme manualmente para sobrescrever.";
+      await writeAudit(userId, "mae_protection_applied", data, {
+        reason: result.protectionReason,
+        existingCount: existing.length,
+        eligibleCount: eligible.length,
+      });
       const log = await insertLog(supabase, userId, data, result, "partial");
       result.logId = log;
       result.durationMs = Date.now() - t0;
       return result;
+    }
+
+    // 1.b) Sprint 010 — validação server-side de override de queda brusca.
+    //     Apenas Administradores podem confirmar substituição.
+    if (data.suspectedDrop && data.confirmSuspectedDrop) {
+      const { data: adminCheck, error: adminErr } = await supabase.rpc("is_admin", {
+        _user_id: userId,
+      });
+      if (adminErr || adminCheck !== true) {
+        result.protected = true;
+        result.protectionReason =
+          "Apenas Administradores podem confirmar substituição em caso de queda brusca.";
+        await writeAudit(userId, "mae_override_blocked", data, {
+          reason: result.protectionReason,
+          existingCount: existing.length,
+          eligibleCount: eligible.length,
+        });
+        const log = await insertLog(supabase, userId, data, result, "failed");
+        result.logId = log;
+        result.durationMs = Date.now() - t0;
+        return result;
+      }
+      await writeAudit(userId, "mae_override_confirmed", data, {
+        existingCount: existing.length,
+        eligibleCount: eligible.length,
+      });
     }
     // 2) Nunca substituir estoque grande (>5) por zero elegíveis.
     if (eligible.length === 0 && existing.length > 5) {
