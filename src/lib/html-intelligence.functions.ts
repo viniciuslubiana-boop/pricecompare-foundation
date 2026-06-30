@@ -100,8 +100,13 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
           rateLimited: true,
           rateLimitMessage:
             "Execução recente detectada para esta URL. Aguarde 60 segundos ou marque 'forçar reexecução'.",
+          recovery: null,
+          suspectedDrop: false,
+          suddenDropReason: null,
+          priorAvgVehicles: 0,
         };
       }
+
 
     }
 
