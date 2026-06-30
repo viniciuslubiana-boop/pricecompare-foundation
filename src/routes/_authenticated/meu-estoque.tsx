@@ -368,30 +368,6 @@ function MeuEstoquePage() {
         onConfirm={handleBulkDelete}
       />
 
-      <FipeManualLinkDialog
-        open={!!fipeLinkTarget}
-        onOpenChange={(o) => !o && setFipeLinkTarget(null)}
-        vehicle={
-          fipeLinkTarget
-            ? {
-                id: fipeLinkTarget.id,
-                brand: fipeLinkTarget.brand,
-                model: fipeLinkTarget.model,
-                year_model: Number(fipeLinkTarget.year_model),
-              }
-            : null
-        }
-      />
-
-      <FipeDetailsDialog
-        open={!!fipeDetailsTarget}
-        onOpenChange={(o) => !o && setFipeDetailsTarget(null)}
-        vehicle={
-          fipeDetailsTarget
-            ? (fipeDetailsTarget as unknown as Parameters<typeof FipeDetailsDialog>[0]["vehicle"])
-            : null
-        }
-      />
 
       {deleteMut.isPending ? (
         <div className="sr-only">
