@@ -8,6 +8,17 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { findDuplicate, type ExistingVehicleLike } from "@/features/html-intelligence/utils/stock-dedup";
 import type { NormalizedVehiclePreview, NormalizationStatus } from "@/features/html-intelligence";
 
+const confidenceSchema = z.object({
+  brand: z.number(),
+  model: z.number(),
+  version: z.number(),
+  year_model: z.number(),
+  km: z.number(),
+  price: z.number(),
+  source_url: z.number(),
+  image_url: z.number(),
+});
+
 const itemSchema = z.object({
   brand: z.string().nullable(),
   model: z.string().nullable(),
@@ -20,7 +31,7 @@ const itemSchema = z.object({
   store_name: z.string().nullable(),
   city: z.string().nullable(),
   source: z.string(),
-  confidence: z.record(z.string(), z.number()),
+  confidence: confidenceSchema,
   confidenceAvg: z.number(),
   status: z.enum(["approved", "review", "invalid", "duplicated"]),
   observations: z.array(z.string()),
