@@ -171,7 +171,9 @@ export interface HtmlIntelligenceRunRow {
   structured_data_detected?: boolean;
   raw_items_found?: number;
   technical_preview?: TechnicalPreview | Record<string, never>;
+  normalized_preview?: NormalizedVehiclePreview[];
 }
+
 
 // ── Sprint 005: AI Normalization ─────────────────────────────
 export type NormalizationStatus = "approved" | "review" | "invalid" | "duplicated";
