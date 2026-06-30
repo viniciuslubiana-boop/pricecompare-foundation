@@ -1,11 +1,7 @@
 // Smart Source Selector — types
-import type {
-  AcquisitionCompanyType,
-  JsonValue as _Json,
-} from "@/features/market-acquisition/types";
+import type { AcquisitionCompanyType } from "@/features/market-acquisition/types";
 import type { DetectedTechnology, JsonValue } from "@/features/site-discovery/types";
 
-void _Json;
 
 export enum SourceMethod {
   PLATFORM_PROFILE = "PLATFORM_PROFILE",

@@ -112,8 +112,9 @@ export const recordSourceExecution = createServerFn({ method: "POST" })
         .from("market_source_profiles")
         .select("id, priority, confidence")
         .eq("technology", technology)
-        .eq("source_method", data.methodUsed)
+        .eq("source_method", data.methodUsed as SourceMethod)
         .maybeSingle();
+
 
       if (profile) {
         const currentPriority = profile.priority as number;
