@@ -339,6 +339,7 @@ export const fipeUpdateRun = createServerFn({ method: "POST" })
           reference_month: refMonth,
           outcomes,
           rejection_summary: summarizeOutcomeReasons(outcomes),
+          audit_summary: summarizeAuditMetrics(outcomes),
         },
       })
       .select("id")
