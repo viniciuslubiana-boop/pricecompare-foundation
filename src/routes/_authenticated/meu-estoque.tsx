@@ -109,7 +109,7 @@ function MeuEstoquePage() {
         description="Cadastre, edite e acompanhe os veículos da sua concessionária."
         actions={
           <>
-            <FipeUpdateButton baseCompanyId={selectedId} />
+            
             <Button asChild variant="outline">
               <Link to="/importacoes">
                 <Upload className="h-4 w-4" /> Importar arquivo
