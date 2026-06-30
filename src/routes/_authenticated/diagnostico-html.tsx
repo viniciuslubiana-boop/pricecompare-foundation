@@ -198,6 +198,111 @@ function DiagnosticoHtmlPage() {
         </Card>
       )}
 
+      {data?.preview && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Prévia Técnica da Extração</CardTitle>
+            <CardDescription>
+              Detectores executados sobre a melhor rota. Sem IA, sem persistência de veículos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <Badge>{data.preview.cardsDetected} cards</Badge>
+              <Badge variant="secondary">JSON {data.preview.jsonItems}</Badge>
+              <Badge variant="secondary">HTML {data.preview.htmlItems}</Badge>
+              <Badge variant="secondary">Schema.org {data.preview.structuredItems}</Badge>
+              <Badge variant={data.preview.actionsUsed ? "default" : "outline"}>
+                {data.preview.actionsUsed ? "Firecrawl actions" : "HTML simples"}
+              </Badge>
+              {data.preview.actionsUsed && (
+                <span className="text-muted-foreground">
+                  scroll x{data.preview.scrollCycles} • load more x{data.preview.loadMoreClicks}
+                </span>
+              )}
+              <span className="text-muted-foreground">
+                antes {data.preview.rawBefore} → depois {data.preview.rawAfter} • {data.preview.processingMs} ms
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span>
+                Paginação:{" "}
+                {data.preview.pagination.detected
+                  ? data.preview.pagination.nextPageUrl ?? "detectada"
+                  : "não"}
+              </span>
+              <span>
+                Load more:{" "}
+                {data.preview.loadMore.detected
+                  ? data.preview.loadMore.label ?? "detectado"
+                  : "não"}
+              </span>
+              <span>Scroll infinito: {data.preview.scroll.detected ? "sim" : "não"}</span>
+              <span>
+                JSON interno:{" "}
+                {data.preview.embeddedJsonSources.length > 0
+                  ? data.preview.embeddedJsonSources.join(", ")
+                  : "não"}
+              </span>
+            </div>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Preço</TableHead>
+                  <TableHead>Ano</TableHead>
+                  <TableHead>KM</TableHead>
+                  <TableHead>Origem</TableHead>
+                  <TableHead className="text-right">Conf.</TableHead>
+                  <TableHead>Link</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.preview.preview.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                      Nenhum item bruto identificado.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  data.preview.preview.map((item, idx) => (
+                    <TableRow key={`${item.link ?? "no-link"}-${idx}`}>
+                      <TableCell className="max-w-[260px] truncate">
+                        {item.title ?? "—"}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">{item.price ?? "—"}</TableCell>
+                      <TableCell className="font-mono text-xs">{item.year ?? "—"}</TableCell>
+                      <TableCell className="font-mono text-xs">{item.km ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{item.source}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{item.confidence}</TableCell>
+                      <TableCell className="max-w-[160px] truncate">
+                        {item.link ? (
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            abrir
+                          </a>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+
+
       <Card>
         <CardHeader>
           <CardTitle>Histórico recente</CardTitle>

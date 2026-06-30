@@ -556,41 +556,65 @@ export type Database = {
       }
       html_intelligence_runs: {
         Row: {
+          actions_used: boolean
           base_url: string
           candidates: Json
           chosen_route: string | null
           chosen_score: number
           created_at: string
+          embedded_json_detected: boolean
           error_message: string | null
           executed_by: string | null
           id: string
+          load_more_clicks: number
+          pagination_detected: boolean
           processing_ms: number
+          raw_items_found: number
+          scroll_cycles: number
+          structured_data_detected: boolean
+          technical_preview: Json
           updated_at: string
           vehicles_estimated: number
         }
         Insert: {
+          actions_used?: boolean
           base_url: string
           candidates?: Json
           chosen_route?: string | null
           chosen_score?: number
           created_at?: string
+          embedded_json_detected?: boolean
           error_message?: string | null
           executed_by?: string | null
           id?: string
+          load_more_clicks?: number
+          pagination_detected?: boolean
           processing_ms?: number
+          raw_items_found?: number
+          scroll_cycles?: number
+          structured_data_detected?: boolean
+          technical_preview?: Json
           updated_at?: string
           vehicles_estimated?: number
         }
         Update: {
+          actions_used?: boolean
           base_url?: string
           candidates?: Json
           chosen_route?: string | null
           chosen_score?: number
           created_at?: string
+          embedded_json_detected?: boolean
           error_message?: string | null
           executed_by?: string | null
           id?: string
+          load_more_clicks?: number
+          pagination_detected?: boolean
           processing_ms?: number
+          raw_items_found?: number
+          scroll_cycles?: number
+          structured_data_detected?: boolean
+          technical_preview?: Json
           updated_at?: string
           vehicles_estimated?: number
         }

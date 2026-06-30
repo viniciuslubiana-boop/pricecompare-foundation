@@ -6,3 +6,12 @@ export {
   discoverInventoryRoutes,
   assertSafeUrl,
 } from "./services/html-intelligence.engine";
+export { runTechnicalPreview } from "./services/technical-preview.engine";
+export {
+  detectVehicleCards,
+  detectPagination,
+  detectLoadMore,
+  detectInfiniteScroll,
+  detectStructuredData,
+  detectEmbeddedJson,
+} from "./detectors";
