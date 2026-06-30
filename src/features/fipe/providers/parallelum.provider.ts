@@ -115,18 +115,22 @@ export class ParallelumProvider implements FipeProvider {
   }
 
   async quoteWithDiagnostics(query: FipeQuoteQuery): Promise<FipeQuoteWithDiagnostics> {
+    const startedAt = Date.now();
     const normalizedQuery = normalizeFipeQuery(query);
     const segments = preferredSegmentOrder(normalizedQuery.brand, normalizedQuery.model);
     const diagnostics = this.createDiagnostics(query, normalizedQuery, segments);
+    diagnostics.canonical_model = normalizedQuery.model;
 
     if (!Number.isFinite(query.year_model)) {
       diagnostics.rejection_reason = "ano_nao_encontrado";
+      diagnostics.query_duration_ms = Date.now() - startedAt;
       return { result: null, diagnostics };
     }
 
     if (requiresManualFipeVersion(normalizedQuery.brand, normalizedQuery.model)) {
       diagnostics.final_status = "nao_encontrada";
       diagnostics.rejection_reason = "modelo_nao_encontrado";
+      diagnostics.query_duration_ms = Date.now() - startedAt;
       return { result: null, diagnostics };
     }
 
@@ -138,6 +142,8 @@ export class ParallelumProvider implements FipeProvider {
         diagnostics.fipe_value_returned = result.fipe_value;
         diagnostics.final_status = "encontrada";
         diagnostics.rejection_reason = "aprovado";
+        diagnostics.score = scoreFipeCandidate(result.model, query, result);
+        diagnostics.query_duration_ms = Date.now() - startedAt;
         return { result, diagnostics };
       }
     }
@@ -147,6 +153,7 @@ export class ParallelumProvider implements FipeProvider {
         ? "ano_nao_encontrado"
         : "modelo_nao_encontrado";
     }
+    diagnostics.query_duration_ms = Date.now() - startedAt;
     return { result: null, diagnostics };
   }
 
