@@ -196,6 +196,11 @@ export const saveSynchronizedStock = createServerFn({ method: "POST" })
     if (eligible.length === 0 && existing.length > 5) {
       result.protected = true;
       result.protectionReason = `Sincronização retornou 0 itens elegíveis, mas há ${existing.length} veículos no estoque atual. Estoque preservado.`;
+      await writeAudit(userId, "mae_protection_applied", data, {
+        reason: result.protectionReason,
+        existingCount: existing.length,
+        eligibleCount: 0,
+      });
       const log = await insertLog(supabase, userId, data, result, "partial");
       result.logId = log;
       result.durationMs = Date.now() - t0;
