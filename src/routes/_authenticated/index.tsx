@@ -113,9 +113,9 @@ function DashboardPage() {
     );
   }
 
-  const { summary, comparison, market: _market, distribution, competitiveness, insights, competitors } =
+  const { summary, comparison, market, distribution, competitiveness, insights, competitors } =
     data;
-  void _market;
+  void market;
   const ctone = competitivenessTone(competitiveness.level);
 
   return (
