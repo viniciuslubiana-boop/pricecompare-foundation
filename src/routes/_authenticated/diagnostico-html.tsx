@@ -516,8 +516,129 @@ function DiagnosticoHtmlPage() {
                 )}
               </TableBody>
             </Table>
+
+            <div className="grid gap-3 md:grid-cols-[180px_1fr_180px_auto] md:items-end pt-2 border-t">
+              <div className="space-y-1">
+                <Label>Destino</Label>
+                <Select
+                  value={companyType}
+                  onValueChange={(v) => { setCompanyType(v as "base_company" | "competitor"); setCompanyId(""); }}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="base_company">Empresa Base</SelectItem>
+                    <SelectItem value="competitor">Concorrente</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>{companyType === "base_company" ? "Empresa Base" : "Concorrente"}</Label>
+                <Select value={companyId} onValueChange={setCompanyId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(companyType === "base_company"
+                      ? targets.data?.baseCompanies ?? []
+                      : targets.data?.competitors ?? []
+                    ).map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Duplicados</Label>
+                <Select value={duplicateStrategy} onValueChange={(v) => setDuplicateStrategy(v as "ignore" | "update" | "new")}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="update">Atualizar existente</SelectItem>
+                    <SelectItem value="ignore">Ignorar</SelectItem>
+                    <SelectItem value="new">Salvar como novo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                type="button"
+                disabled={!companyId || save.isPending}
+                onClick={() => setConfirmOpen(true)}
+              >
+                {save.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
+                Salvar Estoque Sincronizado
+              </Button>
+              <div className="md:col-span-4 flex items-center gap-2">
+                <Checkbox
+                  id="include-review"
+                  checked={includeReview}
+                  onCheckedChange={(v) => setIncludeReview(v === true)}
+                />
+                <Label htmlFor="include-review" className="text-sm font-normal cursor-pointer">
+                  Incluir itens em revisão (confirmação manual)
+                </Label>
+              </div>
+              {saveResult && (
+                <div className="md:col-span-4 text-xs text-muted-foreground border rounded p-2">
+                  Último salvamento: {saveResult.totalSaved} novos · {saveResult.totalUpdated} atualizados ·
+                  {" "}{saveResult.totalSkipped} ignorados · {saveResult.totalInvalid} inválidos ·
+                  {" "}{saveResult.totalReviewed} em revisão · {saveResult.durationMs} ms
+                  {saveResult.errors.length > 0 && (
+                    <div className="text-destructive mt-1">{saveResult.errors.join(" • ")}</div>
+                  )}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
+      )}
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar salvamento</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <div>Destino: <strong>{companyType === "base_company" ? "Empresa Base" : "Concorrente"}</strong></div>
+                <div>
+                  {(() => {
+                    const list = companyType === "base_company"
+                      ? targets.data?.baseCompanies ?? []
+                      : targets.data?.competitors ?? [];
+                    const found = list.find((c) => c.id === companyId);
+                    return <>Selecionado: <strong>{found?.name ?? "—"}</strong></>;
+                  })()}
+                </div>
+                {data?.normalization && (
+                  <ul className="text-xs space-y-1 pt-1">
+                    <li>Total detectado: {data.normalization.items.length}</li>
+                    <li>Aprovados: {data.normalization.statusCounts.approved}</li>
+                    <li>Revisar: {data.normalization.statusCounts.review} {includeReview ? "(serão salvos)" : "(serão ignorados)"}</li>
+                    <li>Inválidos: {data.normalization.statusCounts.invalid} (nunca salvos)</li>
+                    <li>Duplicados: estratégia <strong>{duplicateStrategy}</strong></li>
+                  </ul>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!data?.normalization || !companyId) return;
+                save.mutate({
+                  items: data.normalization.items,
+                  companyType,
+                  companyId,
+                  sourceUrl: url || data.result.baseUrl,
+                  duplicateStrategy,
+                  includeReview,
+                });
+              }}
+            >
+              Confirmar e salvar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       )}
 
 
