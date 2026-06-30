@@ -27,15 +27,6 @@ const fmtKm = (v: number | null | undefined) =>
 const fmtDate = (v: string | null | undefined) =>
   v ? new Date(v).toLocaleDateString("pt-BR") : "—";
 
-const FIPE_STATUS_LABEL: Record<string, string> = {
-  nao_verificada: "Não verificada",
-  encontrada: "FIPE encontrada",
-  nao_encontrada: "FIPE não encontrada",
-  vinculada_manualmente: "Vinculada manualmente",
-  desatualizada: "FIPE desatualizada",
-};
-const statusLabel = (s: string | null | undefined) =>
-  FIPE_STATUS_LABEL[String(s ?? "nao_verificada")] ?? "—";
 
 interface Props {
   myVehicle: MyVehicle;
