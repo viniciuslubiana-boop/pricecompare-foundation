@@ -168,11 +168,49 @@ function DiagnosticoFontePage() {
         </CardContent>
       </Card>
 
+      {(() => {
+        const rows = history as SourceHistoryRow[];
+        const lastWinner = rows.find((r) => r.success) ?? null;
+        const lastFallback = rows.find((r) => r.fallback_used) ?? null;
+        const lastDrop = rows.find(
+          (r) => r.success === false && (r.vehicles_found ?? 0) === 0,
+        );
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Último Método Vencedor</CardTitle>
+              <CardDescription>
+                Reflete o método que efetivamente trouxe estoque na última execução bem-sucedida.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-wrap items-center gap-2 text-sm">
+              {lastWinner ? (
+                <>
+                  <Badge>{lastWinner.method_used}</Badge>
+                  <span className="text-muted-foreground">
+                    {lastWinner.vehicles_found} veículos • confiança {Math.round(lastWinner.confidence)}% •{" "}
+                    {new Date(lastWinner.created_at).toLocaleString("pt-BR")}
+                  </span>
+                </>
+              ) : (
+                <span className="text-muted-foreground">Nenhuma execução vencedora registrada ainda.</span>
+              )}
+              {lastFallback && (
+                <Badge variant="outline">Último fallback: {lastFallback.method_used}</Badge>
+              )}
+              {lastDrop && (
+                <Badge variant="destructive">Queda registrada em {new Date(lastDrop.created_at).toLocaleDateString("pt-BR")}</Badge>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       <Card>
         <CardHeader>
           <CardTitle>Histórico de sincronizações</CardTitle>
           <CardDescription>
-            Registrado em <code>market_source_history</code>.
+            Registrado em <code>market_source_history</code>. Mostra o método final usado (após fallback).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -181,11 +219,11 @@ function DiagnosticoFontePage() {
               <TableRow>
                 <TableHead>URL</TableHead>
                 <TableHead>Tipo</TableHead>
-                <TableHead>Método</TableHead>
+                <TableHead>Inicial → Final</TableHead>
                 <TableHead className="text-right">Confiança</TableHead>
                 <TableHead className="text-right">Veículos</TableHead>
                 <TableHead className="text-right">Tempo</TableHead>
-                <TableHead>Fallback</TableHead>
+                <TableHead>Motivo fallback</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Quando</TableHead>
               </TableRow>
@@ -208,33 +246,51 @@ function DiagnosticoFontePage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                (history as SourceHistoryRow[]).map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell className="max-w-[240px] truncate">{r.url}</TableCell>
-                    <TableCell>
-                      {r.company_type === "base_company" ? "Empresa Base" : "Concorrente"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{r.method_used}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {Number(r.confidence).toFixed(0)}%
-                    </TableCell>
-                    <TableCell className="text-right">{r.vehicles_found}</TableCell>
-                    <TableCell className="text-right">
-                      {r.execution_time_ms ?? "—"} ms
-                    </TableCell>
-                    <TableCell>{r.fallback_used ? "Sim" : "Não"}</TableCell>
-                    <TableCell>
-                      <Badge variant={r.success ? "default" : "destructive"}>
-                        {r.success ? "Sucesso" : "Falha"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(r.created_at).toLocaleString("pt-BR")}
-                    </TableCell>
-                  </TableRow>
-                ))
+                (history as SourceHistoryRow[]).map((r) => {
+                  const chain = Array.isArray(r.fallback_chain)
+                    ? (r.fallback_chain as Array<{ initial?: string; final?: string; reason?: string }>)
+                    : [];
+                  const initial = chain[0]?.initial ?? r.method_used;
+                  const final = chain[0]?.final ?? r.method_used;
+                  const reason = chain[0]?.reason ?? null;
+                  return (
+                    <TableRow key={r.id}>
+                      <TableCell className="max-w-[240px] truncate">{r.url}</TableCell>
+                      <TableCell>
+                        {r.company_type === "base_company" ? "Empresa Base" : "Concorrente"}
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {r.fallback_used ? (
+                          <>
+                            <Badge variant="outline">{initial}</Badge>
+                            <span className="mx-1">→</span>
+                            <Badge variant="secondary">{final}</Badge>
+                          </>
+                        ) : (
+                          <Badge variant="secondary">{r.method_used}</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {Number(r.confidence).toFixed(0)}%
+                      </TableCell>
+                      <TableCell className="text-right">{r.vehicles_found}</TableCell>
+                      <TableCell className="text-right">
+                        {r.execution_time_ms ?? "—"} ms
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">
+                        {reason ?? (r.fallback_used ? "—" : "—")}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={r.success ? "default" : "destructive"}>
+                          {r.success ? "Sucesso" : "Falha"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(r.created_at).toLocaleString("pt-BR")}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
@@ -243,3 +299,4 @@ function DiagnosticoFontePage() {
     </div>
   );
 }
+

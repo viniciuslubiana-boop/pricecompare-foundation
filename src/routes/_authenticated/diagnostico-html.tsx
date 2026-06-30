@@ -47,6 +47,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import type {
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
@@ -71,13 +72,16 @@ function DiagnosticoHtmlPage() {
   const [duplicateStrategy, setDuplicateStrategy] = useState<"ignore" | "update" | "new">("update");
   const [includeReview, setIncludeReview] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [dropDialogOpen, setDropDialogOpen] = useState(false);
   const [saveResult, setSaveResult] = useState<SaveStockResult | null>(null);
   const queryClient = useQueryClient();
+  const { isAdmin } = useAuth();
   const discoverFn = useServerFn(discoverInventoryRoute);
   const listFn = useServerFn(listHtmlIntelligenceRuns);
   const targetsFn = useServerFn(listSaveTargets);
   const saveFn = useServerFn(saveSynchronizedStock);
   const logPostFn = useServerFn(logPostProcess);
+
 
   const history = useQuery({
     queryKey: ["html-intelligence-runs"],
@@ -646,11 +650,15 @@ function DiagnosticoHtmlPage() {
               <Button
                 type="button"
                 disabled={!companyId || save.isPending}
-                onClick={() => setConfirmOpen(true)}
+                onClick={() => {
+                  if (data?.suspectedDrop) setDropDialogOpen(true);
+                  else setConfirmOpen(true);
+                }}
               >
                 {save.isPending ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
                 Salvar Estoque Sincronizado
               </Button>
+
               <div className="md:col-span-4 flex items-center gap-2">
                 <Checkbox
                   id="include-review"
@@ -716,10 +724,11 @@ function DiagnosticoHtmlPage() {
                   sourceUrl: url || data.result.baseUrl,
                   duplicateStrategy,
                   includeReview,
-                  suspectedDrop: data.suspectedDrop ?? false,
-                  confirmSuspectedDrop: data.suspectedDrop ?? false,
+                  suspectedDrop: false,
+                  confirmSuspectedDrop: false,
                 });
               }}
+
             >
 
               Confirmar e salvar
@@ -727,6 +736,202 @@ function DiagnosticoHtmlPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Sprint 009 — Dialog dedicado para queda brusca suspeita */}
+      <AlertDialog open={dropDialogOpen} onOpenChange={setDropDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Queda brusca detectada</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p>
+                  A sincronização encontrou uma queda brusca no estoque desta empresa.
+                  Para proteger os dados, o PCM <strong>não substituirá o estoque anterior automaticamente</strong>.
+                </p>
+                {data && (
+                  <ul className="text-xs space-y-1 border rounded p-2 bg-muted/30">
+                    <li>Média histórica: <strong>{Math.round(data.priorAvgVehicles)}</strong> veículos</li>
+                    <li>Encontrados agora: <strong>{data.preview?.rawAfter ?? 0}</strong></li>
+                    <li>Método utilizado: <strong>{data.recovery?.finalMethod ?? "—"}</strong></li>
+                    <li>Motivo da suspeita: <em>{data.suddenDropReason ?? "—"}</em></li>
+                  </ul>
+                )}
+                {!isAdmin && (
+                  <p className="text-destructive text-xs">
+                    Apenas administradores podem confirmar a substituição.
+                  </p>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => {
+                setDropDialogOpen(false);
+                toast.info("Estoque anterior mantido. Nenhuma alteração foi feita.");
+              }}
+            >
+              Manter estoque anterior
+            </Button>
+            <AlertDialogAction
+              disabled={!isAdmin}
+              onClick={() => {
+                if (!data?.normalization || !companyId || !isAdmin) return;
+                save.mutate({
+                  items: data.normalization.items,
+                  companyType,
+                  companyId,
+                  sourceUrl: url || data.result.baseUrl,
+                  duplicateStrategy,
+                  includeReview,
+                  suspectedDrop: true,
+                  confirmSuspectedDrop: true,
+                });
+              }}
+            >
+              Confirmar substituição mesmo assim
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Sprint 009 — Checklist de Homologação */}
+      {data && !data.rateLimited && (() => {
+        const checks: Array<{ label: string; ok: boolean }> = [
+          { label: "Rota encontrada", ok: !!data.result.chosen },
+          { label: "Preview técnico gerado", ok: !!data.preview },
+          { label: "Preview normalizado gerado", ok: !!data.normalization },
+          { label: "Destino selecionado", ok: !!companyId },
+          { label: "Deduplicação validada", ok: !!data.normalization },
+          { label: "Salvamento permitido", ok: !data.suspectedDrop || isAdmin },
+          { label: "Pós-processamento executado", ok: !!saveResult && !saveResult.protected && saveResult.errors.length === 0 },
+          { label: "Dashboard invalidado", ok: !!saveResult && !saveResult.protected },
+          { label: "Proteção aplicada quando necessário", ok: !data.suspectedDrop || !!saveResult?.protected || (!!saveResult && saveResult.totalSaved + saveResult.totalUpdated > 0) },
+        ];
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Homologação do MAE</CardTitle>
+              <CardDescription>Checklist visual do fluxo de sincronização atual.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="grid gap-2 md:grid-cols-2 text-sm">
+                {checks.map((c) => (
+                  <li key={c.label} className="flex items-center gap-2">
+                    <span aria-hidden className={c.ok ? "text-green-600" : "text-muted-foreground"}>
+                      {c.ok ? "✓" : "○"}
+                    </span>
+                    <span className={c.ok ? "" : "text-muted-foreground"}>{c.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
+      {/* Sprint 009 — Relatório da Sincronização */}
+      {saveResult && data && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Relatório da Sincronização</CardTitle>
+            <CardDescription>Resumo consolidado do último ciclo MAE.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {saveResult.protected && (
+              <div className="rounded border border-amber-500/50 bg-amber-500/10 p-2 text-xs text-amber-700">
+                <strong>Proteção aplicada:</strong> {saveResult.protectionReason}
+              </div>
+            )}
+            <dl className="grid gap-x-6 gap-y-1 text-sm md:grid-cols-2">
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Empresa</dt>
+                <dd className="font-medium">
+                  {(() => {
+                    const list = companyType === "base_company"
+                      ? targets.data?.baseCompanies ?? []
+                      : targets.data?.competitors ?? [];
+                    return list.find((c) => c.id === companyId)?.name ?? "—";
+                  })()}
+                </dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">URL</dt>
+                <dd className="font-mono text-xs truncate max-w-[60%]">{url || data.result.baseUrl}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Método inicial</dt>
+                <dd>{data.recovery?.initialMethod ?? "—"}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Método final</dt>
+                <dd>{data.recovery?.finalMethod ?? "—"}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Source Score</dt>
+                <dd>{data.score?.sourceScore ?? "—"}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">HTML Score</dt>
+                <dd>{data.score?.htmlScore ?? "—"}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Veículos brutos</dt>
+                <dd>{data.preview?.rawAfter ?? 0}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Normalizados</dt>
+                <dd>{data.normalization?.items.length ?? 0}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Aprovados</dt>
+                <dd>{data.normalization?.statusCounts.approved ?? 0}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Em revisão</dt>
+                <dd>{data.normalization?.statusCounts.review ?? 0}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Inválidos</dt>
+                <dd>{data.normalization?.statusCounts.invalid ?? 0}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Salvos (novos)</dt>
+                <dd>{saveResult.totalSaved}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Atualizados</dt>
+                <dd>{saveResult.totalUpdated}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Duplicados</dt>
+                <dd>{saveResult.totalDuplicated}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Pós-processamento</dt>
+                <dd>{saveResult.protected ? "bloqueado (proteção)" : saveResult.errors.length === 0 ? "concluído" : "com avisos"}</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Duração total</dt>
+                <dd>{saveResult.durationMs} ms</dd>
+              </div>
+              <div className="flex justify-between border-b py-1">
+                <dt className="text-muted-foreground">Status final</dt>
+                <dd>
+                  <Badge variant={saveResult.protected ? "outline" : saveResult.errors.length > 0 ? "secondary" : "default"}>
+                    {saveResult.protected ? "Protegido" : saveResult.errors.length > 0 ? "Parcial" : "Sucesso"}
+                  </Badge>
+                </dd>
+              </div>
+            </dl>
+          </CardContent>
+        </Card>
+      )}
+
+
 
 
 
