@@ -14,6 +14,7 @@ import {
   normalizeFuel,
   normalizeText,
   requiresManualFipeVersion,
+  scoreFipeCandidate,
   tokenCoverage,
   tokens,
 } from "../utils/fipe-normalization";
@@ -53,11 +54,18 @@ type ValueResp = {
   SiglaCombustivel: string;
 };
 
+/** Cache em memória por instância — reduz chamadas durante o batch. */
+const fipeCache = new Map<string, unknown>();
+
 async function safeJson<T>(url: string): Promise<T | null> {
+  const cached = fipeCache.get(url);
+  if (cached !== undefined) return cached as T;
   try {
     const res = await fetch(url, { headers: { accept: "application/json" } });
     if (!res.ok) return null;
-    return (await res.json()) as T;
+    const data = (await res.json()) as T;
+    fipeCache.set(url, data);
+    return data;
   } catch {
     return null;
   }
@@ -107,18 +115,22 @@ export class ParallelumProvider implements FipeProvider {
   }
 
   async quoteWithDiagnostics(query: FipeQuoteQuery): Promise<FipeQuoteWithDiagnostics> {
+    const startedAt = Date.now();
     const normalizedQuery = normalizeFipeQuery(query);
     const segments = preferredSegmentOrder(normalizedQuery.brand, normalizedQuery.model);
     const diagnostics = this.createDiagnostics(query, normalizedQuery, segments);
+    diagnostics.canonical_model = normalizedQuery.model;
 
     if (!Number.isFinite(query.year_model)) {
       diagnostics.rejection_reason = "ano_nao_encontrado";
+      diagnostics.query_duration_ms = Date.now() - startedAt;
       return { result: null, diagnostics };
     }
 
     if (requiresManualFipeVersion(normalizedQuery.brand, normalizedQuery.model)) {
       diagnostics.final_status = "nao_encontrada";
       diagnostics.rejection_reason = "modelo_nao_encontrado";
+      diagnostics.query_duration_ms = Date.now() - startedAt;
       return { result: null, diagnostics };
     }
 
@@ -130,6 +142,8 @@ export class ParallelumProvider implements FipeProvider {
         diagnostics.fipe_value_returned = result.fipe_value;
         diagnostics.final_status = "encontrada";
         diagnostics.rejection_reason = "aprovado";
+        diagnostics.score = scoreFipeCandidate(result.model, query, result);
+        diagnostics.query_duration_ms = Date.now() - startedAt;
         return { result, diagnostics };
       }
     }
@@ -139,6 +153,7 @@ export class ParallelumProvider implements FipeProvider {
         ? "ano_nao_encontrado"
         : "modelo_nao_encontrado";
     }
+    diagnostics.query_duration_ms = Date.now() - startedAt;
     return { result: null, diagnostics };
   }
 
@@ -209,13 +224,18 @@ export class ParallelumProvider implements FipeProvider {
         ...m,
         coverage: tokenCoverage(m.nome, query.model),
         compatibleVersion: containsCompatibleVersionOrDisplacement(m.nome, query.model),
+        score: scoreFipeCandidate(m.nome, query, {
+          brand: brand.nome,
+          year_model: query.year_model,
+          fuel: query.fuel,
+        }),
       }))
       .filter((m) => m.coverage === 1 && m.compatibleVersion && isFipeModelCompatible(m.nome, query.model))
-      // Prefere maior cobertura de tokens, depois mais curto, depois compatibilidade versão/cilindrada.
+      // Maior score, depois maior cobertura, depois modelo mais curto.
       .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
         if (b.coverage !== a.coverage) return b.coverage - a.coverage;
-        if (a.nome.length !== b.nome.length) return a.nome.length - b.nome.length;
-        return Number(b.compatibleVersion) - Number(a.compatibleVersion);
+        return a.nome.length - b.nome.length;
       });
 
     diagnostics.fipe_candidates_found = candidateModels.slice(0, 20).map((m) => m.nome);

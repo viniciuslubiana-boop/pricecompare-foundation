@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedQualidadeFipeRouteImport } from './routes/_authenticated/qualidade-fipe'
 import { Route as AuthenticatedOperacoesRouteImport } from './routes/_authenticated/operacoes'
 import { Route as AuthenticatedMovimentacoesMercadoRouteImport } from './routes/_authenticated/movimentacoes-mercado'
 import { Route as AuthenticatedMonitorMercadoRouteImport } from './routes/_authenticated/monitor-mercado'
@@ -57,6 +58,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedQualidadeFipeRoute =
+  AuthenticatedQualidadeFipeRouteImport.update({
+    id: '/qualidade-fipe',
+    path: '/qualidade-fipe',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOperacoesRoute = AuthenticatedOperacoesRouteImport.update({
   id: '/operacoes',
   path: '/operacoes',
@@ -183,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
+  '/qualidade-fipe': typeof AuthenticatedQualidadeFipeRoute
   '/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
 }
@@ -206,6 +214,7 @@ export interface FileRoutesByTo {
   '/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/operacoes': typeof AuthenticatedOperacoesRoute
+  '/qualidade-fipe': typeof AuthenticatedQualidadeFipeRoute
   '/': typeof AuthenticatedIndexRoute
   '/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/_authenticated/monitor-mercado': typeof AuthenticatedMonitorMercadoRoute
   '/_authenticated/movimentacoes-mercado': typeof AuthenticatedMovimentacoesMercadoRoute
   '/_authenticated/operacoes': typeof AuthenticatedOperacoesRoute
+  '/_authenticated/qualidade-fipe': typeof AuthenticatedQualidadeFipeRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/concorrente/$id': typeof AuthenticatedConcorrenteIdRoute
   '/_authenticated/veiculo/$id': typeof AuthenticatedVeiculoIdRoute
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/monitor-mercado'
     | '/movimentacoes-mercado'
     | '/operacoes'
+    | '/qualidade-fipe'
     | '/concorrente/$id'
     | '/veiculo/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/monitor-mercado'
     | '/movimentacoes-mercado'
     | '/operacoes'
+    | '/qualidade-fipe'
     | '/'
     | '/concorrente/$id'
     | '/veiculo/$id'
@@ -307,6 +319,7 @@ export interface FileRouteTypes {
     | '/_authenticated/monitor-mercado'
     | '/_authenticated/movimentacoes-mercado'
     | '/_authenticated/operacoes'
+    | '/_authenticated/qualidade-fipe'
     | '/_authenticated/'
     | '/_authenticated/concorrente/$id'
     | '/_authenticated/veiculo/$id'
@@ -354,6 +367,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/qualidade-fipe': {
+      id: '/_authenticated/qualidade-fipe'
+      path: '/qualidade-fipe'
+      fullPath: '/qualidade-fipe'
+      preLoaderRoute: typeof AuthenticatedQualidadeFipeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/operacoes': {
@@ -502,6 +522,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMonitorMercadoRoute: typeof AuthenticatedMonitorMercadoRoute
   AuthenticatedMovimentacoesMercadoRoute: typeof AuthenticatedMovimentacoesMercadoRoute
   AuthenticatedOperacoesRoute: typeof AuthenticatedOperacoesRoute
+  AuthenticatedQualidadeFipeRoute: typeof AuthenticatedQualidadeFipeRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedConcorrenteIdRoute: typeof AuthenticatedConcorrenteIdRoute
   AuthenticatedVeiculoIdRoute: typeof AuthenticatedVeiculoIdRoute
@@ -526,6 +547,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMovimentacoesMercadoRoute:
     AuthenticatedMovimentacoesMercadoRoute,
   AuthenticatedOperacoesRoute: AuthenticatedOperacoesRoute,
+  AuthenticatedQualidadeFipeRoute: AuthenticatedQualidadeFipeRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedConcorrenteIdRoute: AuthenticatedConcorrenteIdRoute,
   AuthenticatedVeiculoIdRoute: AuthenticatedVeiculoIdRoute,
@@ -543,13 +565,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

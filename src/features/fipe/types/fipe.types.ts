@@ -69,6 +69,9 @@ export interface FipeMatchDiagnostics {
   provider: FipeProviderId;
   brand_alias_applied?: string | null;
   model_alias_applied?: string | null;
+  canonical_model?: string | null;
+  score?: number | null;
+  query_duration_ms?: number | null;
 }
 
 export interface FipeQuoteWithDiagnostics {
