@@ -165,7 +165,7 @@ export function isQualifiedVehicleCardCandidate(candidate: VehicleCardCandidate)
 }
 
 export function countQualifiedVehicleCardCandidates(html: string): number {
-  return discoverVehicleCardCandidates(html).filter(isQualifiedVehicleCardCandidate).length;
+  return inspectVehicleCardCandidates(html, "https://pcm.local").items.length;
 }
 
 function attrPattern(names: string[]): RegExp {
@@ -337,6 +337,10 @@ export function inspectVehicleCardCandidates(html: string, baseUrl: string): Veh
     }
     if (isInvalidVehicleTitle(title)) {
       rejectedReasons.push("título ausente ou inválido");
+      continue;
+    }
+    if (!priceRaw && !linkRaw) {
+      rejectedReasons.push("sem preço ou link de veículo");
       continue;
     }
     if (!priceRaw && !yearMatch) {
