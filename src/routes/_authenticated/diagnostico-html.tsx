@@ -438,6 +438,38 @@ function DiagnosticoHtmlPage() {
               </span>
             </div>
 
+            {data.preview.quality && (
+              <div className="rounded-md border bg-muted/30 p-3 space-y-2">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <Badge variant={scoreBadgeVariant(data.preview.quality.qualityScore)}>
+                    Extractor Quality {data.preview.quality.qualityScore}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {data.preview.quality.total} itens avaliados
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-2 text-xs">
+                  <div>Preço: <b>{data.preview.quality.pctPrice}%</b></div>
+                  <div>Ano: <b>{data.preview.quality.pctYear}%</b></div>
+                  <div>KM: <b>{data.preview.quality.pctKm}%</b></div>
+                  <div>Título: <b>{data.preview.quality.pctTitle}%</b></div>
+                  <div>Link: <b>{data.preview.quality.pctLink}%</b></div>
+                  <div>Imagem: <b>{data.preview.quality.pctImage}%</b></div>
+                </div>
+                {data.preview.quality.missingFields.length > 0 && (
+                  <p className="text-xs text-destructive">
+                    Campos críticos ausentes: {data.preview.quality.missingFields.join(", ")}
+                  </p>
+                )}
+                {data.preview.quality.recommendations.length > 0 && (
+                  <ul className="text-xs text-muted-foreground list-disc pl-4">
+                    {data.preview.quality.recommendations.map((r, i) => <li key={i}>{r}</li>)}
+                  </ul>
+                )}
+              </div>
+            )}
+
+
             <Table>
               <TableHeader>
                 <TableRow>
