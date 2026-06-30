@@ -46,6 +46,7 @@ import { toast } from "sonner";
 import type {
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
+  NormalizedVehiclePreview,
 } from "@/features/html-intelligence";
 
 export const Route = createFileRoute("/_authenticated/diagnostico-html")({
