@@ -14,6 +14,7 @@ import {
   normalizeFuel,
   normalizeText,
   requiresManualFipeVersion,
+  scoreFipeCandidate,
   tokenCoverage,
   tokens,
 } from "../utils/fipe-normalization";
