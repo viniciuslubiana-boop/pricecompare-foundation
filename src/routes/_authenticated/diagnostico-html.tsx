@@ -639,7 +639,8 @@ function DiagnosticoHtmlPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      )}
+
+
 
 
 
