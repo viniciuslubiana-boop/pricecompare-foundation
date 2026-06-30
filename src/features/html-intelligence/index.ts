@@ -2,6 +2,8 @@
 export * from "./types";
 export { INVENTORY_ROUTE_CANDIDATES, buildCandidateUrls } from "./utils/route-candidates";
 export { scoreHtml, estimateVehiclesFromBreakdown } from "./utils/html-score";
+export { computeSourceScore } from "./utils/source-score";
+export type { SourceScoreBreakdown, SourceScoreInput } from "./utils/source-score";
 export {
   discoverInventoryRoutes,
   assertSafeUrl,
