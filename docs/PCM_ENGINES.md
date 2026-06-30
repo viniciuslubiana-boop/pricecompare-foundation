@@ -1,10 +1,13 @@
 # PCM — Engines
 
-Toda regra de negócio do PCM vive nos **5 Engines oficiais**. Componentes React **apenas apresentam** dados.
+Toda regra de negócio do PCM vive nos **Engines oficiais**. Componentes React **apenas apresentam** dados.
 
 Não criar novos Engines sem alteração explícita da Constituição.
 
+> **PRD 001 — concluído em 2026-06-30:** o **Market Acquisition Engine (MAE)** é o fluxo oficial de sincronização de estoques (Empresas Base e Concorrentes). Ver seção 6.
+
 ---
+
 
 ## 1. Inventory Engine
 Pasta: `src/features/inventory/`
@@ -80,7 +83,36 @@ Pasta: `src/features/analytics/`
 
 ---
 
+## 6. Market Acquisition Engine (MAE)
+Pasta: `src/features/html-intelligence/` · server: `src/lib/html-intelligence.functions.ts`
+
+**Responsabilidade:** sincronização oficial de estoques (Empresas Base e Concorrentes) a partir de sites públicos. Substitui o uso de scraping ad-hoc do Extraction Engine para sincronização periódica.
+
+Funcionalidades entregues (PRD 001, sprints 001–013):
+
+- **Descoberta de rota** — Site Discovery + `route-candidates`.
+- **Inventory Score** — estimativa heurística de veículos por rota.
+- **HTML Score** — qualidade técnica do HTML (com piso pós-validação real quando IA aprova).
+- **Source Score** (0–100) — combina cobertura, qualidade, performance, estabilidade e HTML.
+- **Smart Source Selector (SSS)** — prioriza o melhor método de sync por fonte.
+- **HTML Intelligence Engine (HIE)** — detectores de cards, paginação, load-more, infinite scroll, structured data e embedded JSON.
+- **Firecrawl Actions** — scroll/click/wait para sites dinâmicos.
+- **IA Normalizadora** — Lovable AI Gateway (Gemini) com schema rígido + catálogo/aliases.
+- **Confidence por campo** e **fieldCoverage** (brand, model, year, price, km, link, image).
+- **Deduplicação** contra estoque vigente (via Inventory Engine).
+- **Salvamento por destino:** Empresa Base → Inventory Engine; Concorrente → `competitor_vehicles`.
+- **Pós-processamento** automático (Comparison + Analytics + invalidação de cache do Dashboard) com alerta de "sem equivalência rígida".
+- **Proteção contra queda brusca** (Data Protection Guard, threshold >5 itens).
+- **Override admin** (server-side, autorizado por `has_role`).
+- **Diagnóstico ao vivo** em `/diagnostico-html` com telemetria de IA.
+- **Aprendizado por fonte** — `market_source_scores` registra execuções, success rate e média de veículos por URL/método.
+
+Tabelas: `market_acquisition_logs`, `market_source_scores`, `html_intelligence_runs`, `vehicle_master_catalog`, `vehicle_model_aliases`.
+
+---
+
 ## Fluxo Geral
+
 
 ```text
 Importação / API externa / Scraping
