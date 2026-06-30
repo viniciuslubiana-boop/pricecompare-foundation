@@ -55,9 +55,14 @@ const FIPE_MODEL_ALIASES: Record<string, string> = {
   "honda|cb 300 f twister abs": "CB 300F TWISTER",
   "honda|cb 300 f twister cbs": "CB 300F TWISTER",
   "honda|cg 160 start": "CG 160 START",
+  "honda|cg 160 start ks": "CG 160 START",
   "honda|cg 160 titan": "CG 160 TITAN",
+  "honda|cg 160 titan s": "CG 160 TITAN",
   "honda|cb 500 x": "CB 500X",
+  "honda|cb 500 x abs": "CB 500X",
   "honda|cb 1000 r": "CB 1000R ABS",
+  "honda|cb 1000 r abs": "CB 1000R ABS",
+  "honda|cb 1000 rabs": "CB 1000R ABS",
   "chevrolet|onix 10 mt lt 1": "ONIX HATCH LT 1.0 12V Flex 5p Mec.",
   "gm chevrolet|onix 10 mt lt 1": "ONIX HATCH LT 1.0 12V Flex 5p Mec.",
   "caoa chery|tiggo 8 1.6 tgdi": "TIGGO 8 1.6 TGDI",
@@ -78,6 +83,18 @@ const FIPE_MODEL_PREFIX_ALIASES: Array<{
 }> = [
   { brand: "citroen", prefix: "c 3 aircross 7", replacement: "AIRCROSS7" },
 ];
+/**
+ * Pré-normaliza padrões específicos por marca antes da tokenização genérica.
+ * Honda: separa "<digitos>R<letras>" (ex.: CB1000RABS → CB 1000R ABS) e
+ * letras grudadas após números (CG160START → CG160 START).
+ */
+function preNormalizeBrandModel(brandKey: string, model: string): string {
+  if (brandKey !== "honda") return model;
+  return model
+    .replace(/(\d+)R([A-Z]{2,})/gi, "$1R $2")
+    .replace(/(\d+)([A-Z]{3,})/g, "$1 $2");
+}
+
 
 export function applyFipeBrandAlias(brand: string): string {
   return FIPE_BRAND_ALIASES[normalizeText(brand)] ?? brand;
@@ -86,7 +103,8 @@ export function applyFipeBrandAlias(brand: string): string {
 export function applyFipeModelAlias(brand: string, model: string): string {
   const brandKey = normalizeText(applyFipeBrandAlias(brand));
   const originalBrandKey = normalizeText(brand);
-  const modelKey = normalizeText(model);
+  const preNormalizedModel = preNormalizeBrandModel(originalBrandKey, model);
+  const modelKey = normalizeText(preNormalizedModel);
   const exact =
     FIPE_MODEL_ALIASES[`${originalBrandKey}|${modelKey}`] ??
     FIPE_MODEL_ALIASES[`${brandKey}|${modelKey}`];

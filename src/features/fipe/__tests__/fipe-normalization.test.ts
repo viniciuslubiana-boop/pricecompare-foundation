@@ -25,6 +25,11 @@ describe("FIPE normalization", () => {
     expect(applyFipeBrandAlias("Chevrolet")).toBe("GM - Chevrolet");
     expect(applyFipeBrandAlias("Bmw Motorrad")).toBe("BMW MOTORRAD");
     expect(applyFipeModelAlias("Honda", "BIZ EX")).toBe("BIZ 125 EX");
+    expect(applyFipeModelAlias("Honda", "CG160START")).toBe("CG 160 START");
+    expect(applyFipeModelAlias("Honda", "CG 160 START KS")).toBe("CG 160 START");
+    expect(applyFipeModelAlias("Honda", "CB500X")).toBe("CB 500X");
+    expect(applyFipeModelAlias("Honda", "CB1000RABS")).toBe("CB 1000R ABS");
+    expect(applyFipeModelAlias("Honda", "CB 1000R ABS")).toBe("CB 1000R ABS");
     expect(applyFipeModelAlias("Honda", "CB300F TWISTER ABS")).toBe("CB 300F TWISTER");
     expect(applyFipeModelAlias("Honda", "CB 500 HORNET")).toBe("CB 500 HORNET");
     expect(applyFipeModelAlias("Chevrolet", "ONIX 10MT LT1")).toBe("ONIX HATCH LT 1.0 12V Flex 5p Mec.");
