@@ -83,6 +83,18 @@ const FIPE_MODEL_PREFIX_ALIASES: Array<{
 }> = [
   { brand: "citroen", prefix: "c 3 aircross 7", replacement: "AIRCROSS7" },
 ];
+/**
+ * Pré-normaliza padrões específicos por marca antes da tokenização genérica.
+ * Honda: separa "<digitos>R<letras>" (ex.: CB1000RABS → CB 1000R ABS) e
+ * letras grudadas após números (CG160START → CG160 START).
+ */
+function preNormalizeBrandModel(brandKey: string, model: string): string {
+  if (brandKey !== "honda") return model;
+  return model
+    .replace(/(\d+)R([A-Z]{2,})/gi, "$1R $2")
+    .replace(/(\d+)([A-Z]{3,})/g, "$1 $2");
+}
+
 
 export function applyFipeBrandAlias(brand: string): string {
   return FIPE_BRAND_ALIASES[normalizeText(brand)] ?? brand;
