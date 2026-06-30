@@ -19,6 +19,7 @@ import {
   type RecoveryInfo,
 } from "@/features/html-intelligence";
 import type {
+  AiTelemetry,
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
   NormalizationStatus,
@@ -28,6 +29,7 @@ import type {
   SourceScoreBreakdown,
   TechnicalPreview,
 } from "@/features/html-intelligence";
+
 
 
 
