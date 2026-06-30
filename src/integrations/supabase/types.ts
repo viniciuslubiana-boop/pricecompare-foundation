@@ -899,6 +899,84 @@ export type Database = {
         }
         Relationships: []
       }
+      market_source_scores: {
+        Row: {
+          actions_used: boolean
+          company_id: string | null
+          company_type: string
+          coverage_score: number
+          created_at: string
+          executions_success: number
+          executions_total: number
+          fallback_used: boolean
+          html_score: number
+          id: string
+          last_failure_at: string | null
+          last_success_at: string | null
+          performance_score: number
+          quality_score: number
+          raw_items_found: number
+          route_url: string | null
+          source_method: string
+          source_score: number
+          stability_score: number
+          success_rate: number
+          updated_at: string
+          url: string
+          vehicles_estimated: number
+        }
+        Insert: {
+          actions_used?: boolean
+          company_id?: string | null
+          company_type: string
+          coverage_score?: number
+          created_at?: string
+          executions_success?: number
+          executions_total?: number
+          fallback_used?: boolean
+          html_score?: number
+          id?: string
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          performance_score?: number
+          quality_score?: number
+          raw_items_found?: number
+          route_url?: string | null
+          source_method: string
+          source_score?: number
+          stability_score?: number
+          success_rate?: number
+          updated_at?: string
+          url: string
+          vehicles_estimated?: number
+        }
+        Update: {
+          actions_used?: boolean
+          company_id?: string | null
+          company_type?: string
+          coverage_score?: number
+          created_at?: string
+          executions_success?: number
+          executions_total?: number
+          fallback_used?: boolean
+          html_score?: number
+          id?: string
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          performance_score?: number
+          quality_score?: number
+          raw_items_found?: number
+          route_url?: string | null
+          source_method?: string
+          source_score?: number
+          stability_score?: number
+          success_rate?: number
+          updated_at?: string
+          url?: string
+          vehicles_estimated?: number
+        }
+        Relationships: []
+      }
       market_update_runs: {
         Row: {
           created_at: string
