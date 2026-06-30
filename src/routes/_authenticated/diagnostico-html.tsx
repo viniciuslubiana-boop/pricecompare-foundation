@@ -32,8 +32,12 @@ import {
 import {
   saveSynchronizedStock,
   listSaveTargets,
+  logPostProcess,
   type SaveStockResult,
 } from "@/lib/save-stock.functions";
+import { runPostProcessAfterSave } from "@/features/html-intelligence/utils/post-process";
+import { analyticsKeys } from "@/features/analytics";
+import { dashboardKeys } from "@/features/dashboard/hooks/useDashboardData";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
