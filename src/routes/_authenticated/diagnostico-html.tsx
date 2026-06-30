@@ -124,7 +124,48 @@ function DiagnosticoHtmlPage() {
         </CardContent>
       </Card>
 
-      {data && (
+      {data?.rateLimited && (
+        <Card className="border-amber-500/40">
+          <CardHeader>
+            <CardTitle className="text-amber-600">Execução bloqueada</CardTitle>
+            <CardDescription>{data.rateLimitMessage}</CardDescription>
+          </CardHeader>
+        </Card>
+      )}
+
+      {data?.score && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Qualidade da Fonte</CardTitle>
+            <CardDescription>
+              Source Score consolidado da execução atual. Sem IA, sem persistência de veículos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={scoreBadgeVariant(data.score.sourceScore)}>
+                Source Score {data.score.sourceScore}
+              </Badge>
+              <Badge variant="outline">HTML {data.score.htmlScore}</Badge>
+              <Badge variant="outline">Cobertura {data.score.coverageScore}</Badge>
+              <Badge variant="outline">Qualidade {data.score.qualityScore}</Badge>
+              <Badge variant="outline">Performance {data.score.performanceScore}</Badge>
+              <Badge variant="outline">Estabilidade {data.score.stabilityScore}</Badge>
+              <Badge variant="secondary">
+                Sucesso {Math.round(data.score.successRate * 100)}%
+              </Badge>
+            </div>
+            {data.score.notes.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {data.score.notes.join(" • ")}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {data && !data.rateLimited && (
+
         <Card>
           <CardHeader>
             <CardTitle>Resultado</CardTitle>
