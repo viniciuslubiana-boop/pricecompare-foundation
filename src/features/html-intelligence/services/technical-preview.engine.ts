@@ -11,7 +11,9 @@ import {
   detectVehicleCards,
 } from "../detectors";
 import { assertSafeUrl } from "./html-intelligence.engine";
+import { computeExtractorQuality } from "../utils/extractor-quality";
 import type { RawVehicleItem, TechnicalPreview } from "../types";
+
 
 const FETCH_TIMEOUT_MS = 12_000;
 const MIN_RAW_ITEMS_FOR_SKIP_ACTIONS = 6;
