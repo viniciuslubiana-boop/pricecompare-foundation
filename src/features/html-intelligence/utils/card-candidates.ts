@@ -4,14 +4,18 @@
 
 import type { RawVehicleItem } from "../types";
 
-const START_TAG_RE = /<(article|li|div|section)\b([^>]*)>/gi;
+const START_TAG_RE = /<(article|li|div|section|a)\b([^>]*)>/gi;
 const CARD_TOKEN_RE =
   /\b(card|card-car|card-est|box-carro|box-veiculo|veiculo|veículo|vehicle|product|produto|item|list-item|tile|anuncio|anúncio|vitrine|oferta|estoque|seminovo|usado|resultado|result)\b/i;
 const PRICE_RE = /R\$\s?(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d{4,}(?:,\d{2})?)/i;
 const PRICE_ATTR_RE =
   /\b(?:data-price|data-valor|data-preco|data-preço|content|price|valor)\s*=\s*["']?\s*R?\$?\s?(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d{4,}(?:,\d{2})?)/i;
+const PRICE_LABEL_RE =
+  /\b(?:pre[cç]o|valor)\s*:?\s*(?:R\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d{5,}(?:,\d{2})?)/i;
 const YEAR_RE = /\b(19[89]\d|20[0-3]\d)(?:\s*\/\s*(19[89]\d|20[0-3]\d))?\b/;
+const YEAR_LABEL_RE = /\b(?:ano|modelo)\s*:?\s*(19[89]\d|20[0-3]\d)\b/gi;
 const KM_RE = /\b(\d{1,3}(?:\.\d{3})+|\d{2,6})\s*(?:km|quil[oô]metros?)\b/i;
+const KM_LABEL_RE = /\b(?:km|quilometragem)\s*:?\s*(\d{1,3}(?:\.\d{3})+|\d{2,6})\b/i;
 const VEHICLE_LINK_RE =
   /\/(?:carros?|motos?|ve[ií]culos?|vehicle|veiculo|an[uú]ncios?|seminovos?|usados?|ofertas?|detalhes?|comprar)\//i;
 const BAD_LINK_RE = /^(#|javascript:|tel:|mailto:)|(?:wa\.me|whatsapp|api\.whatsapp)/i;
@@ -31,6 +35,7 @@ export interface VehicleCardCandidate {
   kmHits: number;
   vehicleLinkHits: number;
   imageHits: number;
+  ancestorHref: string | null;
 }
 
 export interface VehicleCardInspection {
@@ -119,7 +124,8 @@ function buildCandidate(html: string, startIndex: number, tagName: string, attrs
   if (!fragment || fragment.length < 80 || fragment.length > 40_000) return null;
   const text = stripHtmlToText(fragment);
   if (text.length < 12) return null;
-  const vehicleLinkHits = extractCandidateUrls(fragment).filter(isVehicleLikeLink).length;
+  const ancestorHref = extractOpenAncestorHref(html, startIndex);
+  const vehicleLinkHits = [...extractCandidateUrls(fragment), ancestorHref ?? ""].filter(isVehicleLikeLink).length;
   return {
     html: fragment,
     text,
@@ -127,11 +133,14 @@ function buildCandidate(html: string, startIndex: number, tagName: string, attrs
     attrs,
     startIndex,
     endIndex: startIndex + fragment.length,
-    priceHits: countMatches(text, /R\$\s?\d/gi) + (PRICE_ATTR_RE.test(fragment) ? 1 : 0),
+    priceHits: countMatches(text, /R\$\s?\d/gi) + (PRICE_ATTR_RE.test(fragment) || PRICE_LABEL_RE.test(text) ? 1 : 0),
     yearHits: countMatches(text, /\b(?:19[89]\d|20[0-3]\d)(?:\s*\/\s*(?:19[89]\d|20[0-3]\d))?\b/g),
-    kmHits: countMatches(text, /\b(?:\d{1,3}(?:\.\d{3})+|\d{2,6})\s*(?:km|quil[oô]metros?)\b/gi),
+    kmHits:
+      countMatches(text, /\b(?:\d{1,3}(?:\.\d{3})+|\d{2,6})\s*(?:km|quil[oô]metros?)\b/gi) +
+      (KM_LABEL_RE.test(text) ? 1 : 0),
     vehicleLinkHits,
     imageHits: extractImageCandidates(fragment).length,
+    ancestorHref,
   };
 }
 
@@ -262,8 +271,25 @@ function extractTitle(candidate: VehicleCardCandidate, linkRaw: string | null): 
 function extractPrice(candidate: VehicleCardCandidate): string | null {
   const fromText = candidate.text.match(PRICE_RE);
   if (fromText) return fromText[0];
+  const fromLabel = candidate.text.match(PRICE_LABEL_RE);
+  if (fromLabel) return `R$ ${fromLabel[1]}`;
   const fromAttr = candidate.html.match(PRICE_ATTR_RE);
   return fromAttr ? `R$ ${fromAttr[1]}` : null;
+}
+
+function extractYear(text: string): string | null {
+  const pair = text.match(YEAR_RE);
+  if (pair?.[0]) return pair[0];
+  const labelled = [...text.matchAll(YEAR_LABEL_RE)].map((match) => match[1]);
+  if (labelled.length >= 2) return `${labelled[0]}/${labelled[labelled.length - 1]}`;
+  return labelled[0] ?? null;
+}
+
+function extractKm(text: string): string | null {
+  const direct = text.match(KM_RE);
+  if (direct?.[0]) return direct[0];
+  const labelled = text.match(KM_LABEL_RE);
+  return labelled ? `${labelled[1]} km` : null;
 }
 
 function isVehicleLikeLink(url: string): boolean {
@@ -281,13 +307,25 @@ function extractCandidateUrls(html: string): string[] {
     if (url) values.push(url);
   }
   for (const slug of getAttributeValues(html, ["data-slug", "slug"])) {
-    if (slug.startsWith("/")) values.push(slug);
+    values.push(slug);
   }
   return values.filter((value, index, arr) => value && arr.indexOf(value) === index);
 }
 
+function extractOpenAncestorHref(html: string, startIndex: number): string | null {
+  const before = html.slice(Math.max(0, startIndex - 20_000), startIndex);
+  const lastOpen = before.lastIndexOf("<a");
+  if (lastOpen === -1) return null;
+  const lastClose = before.lastIndexOf("</a>");
+  if (lastClose > lastOpen) return null;
+  const tag = before.slice(lastOpen).match(/^<a\b[^>]*>/i)?.[0] ?? "";
+  return getAttributeValues(tag, ["href", "data-href", "data-url", "to", "router-link"])[0] ?? null;
+}
+
 function extractLink(candidate: VehicleCardCandidate): string | null {
-  const urls = extractCandidateUrls(candidate.html).filter((url) => !BAD_LINK_RE.test(url));
+  const urls = [candidate.ancestorHref, ...extractCandidateUrls(candidate.html)].filter(
+    (url): url is string => !!url && !BAD_LINK_RE.test(url),
+  );
   return urls.find(isVehicleLikeLink) ?? urls[0] ?? null;
 }
 
@@ -325,13 +363,13 @@ export function inspectVehicleCardCandidates(html: string, baseUrl: string): Veh
 
   for (const candidate of candidates) {
     const priceRaw = extractPrice(candidate);
-    const yearMatch = candidate.text.match(YEAR_RE);
-    const kmMatch = candidate.text.match(KM_RE);
+    const year = extractYear(candidate.text);
+    const km = extractKm(candidate.text);
     const linkRaw = extractLink(candidate);
     const imageRaw = extractImage(candidate);
     const title = extractTitle(candidate, linkRaw);
 
-    if (!priceRaw && !yearMatch && !linkRaw) {
+    if (!priceRaw && !year && !linkRaw) {
       rejectedReasons.push("sem preço, ano ou link de veículo");
       continue;
     }
@@ -343,7 +381,7 @@ export function inspectVehicleCardCandidates(html: string, baseUrl: string): Veh
       rejectedReasons.push("sem preço ou link de veículo");
       continue;
     }
-    if (!priceRaw && !yearMatch) {
+    if (!priceRaw && !year) {
       rejectedReasons.push("sem preço ou ano no card");
       continue;
     }
@@ -351,8 +389,8 @@ export function inspectVehicleCardCandidates(html: string, baseUrl: string): Veh
     items.push({
       title,
       price: priceRaw,
-      year: yearMatch ? yearMatch[0] : null,
-      km: kmMatch ? kmMatch[0] : null,
+      year,
+      km,
       link: absolutizeUrl(linkRaw, baseUrl),
       image: absolutizeUrl(imageRaw, baseUrl),
       rawText: candidate.text.slice(0, 500),
@@ -362,8 +400,8 @@ export function inspectVehicleCardCandidates(html: string, baseUrl: string): Veh
         100,
         (title ? 15 : 0) +
           (priceRaw ? 35 : 0) +
-          (yearMatch ? 20 : 0) +
-          (kmMatch ? 15 : 0) +
+          (year ? 20 : 0) +
+          (km ? 15 : 0) +
           (linkRaw ? 15 : 0) +
           (imageRaw ? 10 : 0),
       ),
