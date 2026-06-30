@@ -1,13 +1,15 @@
 // HTML Intelligence Engine — orquestrador puro (sem I/O Supabase).
 // Mini-Sprint 4A: descoberta de rotas + HTML Score.
-// A persistência é responsabilidade do server function que chama este motor.
+// Sprint 011: Inventory Score + ranking corrigido + URL informada priorizada.
 
 import { buildCandidateUrls } from "../utils/route-candidates";
 import { estimateVehiclesFromBreakdown, scoreHtml } from "../utils/html-score";
+import { scoreInventory } from "../utils/inventory-score";
 import type { InventoryRouteCandidate, RouteDiscoveryResult } from "../types";
 
 const FETCH_TIMEOUT_MS = 10_000;
 const MAX_PARALLEL = 4;
+
 
 function isPrivateOrBlockedHost(hostname: string): boolean {
   const h = hostname.toLowerCase();
