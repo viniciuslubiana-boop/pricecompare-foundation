@@ -113,11 +113,10 @@ function DashboardPage() {
     );
   }
 
-  const { summary, comparison, market, distribution, competitiveness, insights, competitors, fipe } =
+  const { summary, comparison, market: _market, distribution, competitiveness, insights, competitors } =
     data;
+  void _market;
   const ctone = competitivenessTone(competitiveness.level);
-  const fipeDiffPct =
-    fipe.avgDiffPercent === null ? "—" : `${fipe.avgDiffPercent > 0 ? "+" : ""}${fipe.avgDiffPercent.toFixed(1)}%`;
 
   return (
     <div>
