@@ -39,14 +39,27 @@ const inputSchema = z.object({
   force: z.boolean().optional(),
 });
 
+export interface NormalizationPayload {
+  items: NormalizedVehiclePreview[];
+  statusCounts: Record<NormalizationStatus, number>;
+  confidenceAvg: number;
+  aiUsed: boolean;
+  aiModel: string | null;
+  aiTokens: number;
+  aiDurationMs: number;
+  errors: string[];
+}
+
 export interface DiscoverRoutesPayload {
   result: RouteDiscoveryResult;
   preview: TechnicalPreview | null;
   runId: string | null;
   score: SourceScoreBreakdown | null;
+  normalization: NormalizationPayload | null;
   rateLimited: boolean;
   rateLimitMessage: string | null;
 }
+
 
 export const discoverInventoryRoute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
