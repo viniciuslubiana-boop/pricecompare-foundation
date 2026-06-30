@@ -50,7 +50,7 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
           base_url: result.baseUrl,
           chosen_route: result.chosen?.path ?? null,
           chosen_score: result.chosen?.breakdown?.score ?? 0,
-          candidates: result.candidates as unknown as object,
+          candidates: JSON.parse(JSON.stringify(result.candidates)),
           vehicles_estimated: result.chosen?.vehiclesEstimated ?? 0,
           processing_ms: result.processingMs,
           executed_by: userId,
