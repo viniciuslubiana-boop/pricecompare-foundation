@@ -77,6 +77,7 @@ function DiagnosticoHtmlPage() {
   const listFn = useServerFn(listHtmlIntelligenceRuns);
   const targetsFn = useServerFn(listSaveTargets);
   const saveFn = useServerFn(saveSynchronizedStock);
+  const logPostFn = useServerFn(logPostProcess);
 
   const history = useQuery({
     queryKey: ["html-intelligence-runs"],
