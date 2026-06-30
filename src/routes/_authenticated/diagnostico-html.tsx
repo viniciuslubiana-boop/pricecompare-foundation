@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
-import { FileSearch, Loader2, Save } from "lucide-react";
+import { Download, ExternalLink, FileSearch, FileSpreadsheet, Loader2, Save } from "lucide-react";
 import {
   discoverInventoryRoute,
   listHtmlIntelligenceRuns,
