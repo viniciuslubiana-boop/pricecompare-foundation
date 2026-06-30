@@ -24,10 +24,6 @@ import {
   Users,
   Sparkles,
   Wallet,
-  Gauge,
-  ArrowUpRight,
-  ArrowDownRight,
-  HelpCircle,
 } from "lucide-react";
 import {
   useDashboard,
