@@ -248,3 +248,40 @@ export function currentReferenceMonth(date: Date = new Date()): string {
   const m = String(date.getUTCMonth() + 1).padStart(2, "0");
   return `${y}-${m}`;
 }
+
+/**
+ * Calcula um score 0-100 para um candidato FIPE. Critérios determinísticos
+ * baseados nas regras do PCM. Maior score = melhor candidato.
+ */
+export function scoreFipeCandidate(
+  fipeModel: string,
+  query: { brand: string; model: string; year_model: number; fuel?: string | null },
+  fipe: { brand: string; year_model: number; fuel?: string | null },
+): number {
+  const normalizedQuery = normalizeFipeQuery(query);
+  const fipeTokens = tokens(fipeModel);
+  const queryTokens = tokens(normalizedQuery.model);
+  if (!fipeTokens.length || !queryTokens.length) return 0;
+
+  let score = 0;
+  // Marca exata (25)
+  if (normalizeText(fipe.brand) === normalizeText(normalizedQuery.brand)) score += 25;
+  // Modelo compatível por tokens (25)
+  if (isFipeModelCompatible(fipeModel, normalizedQuery.model)) score += 25;
+  // Versão/cilindrada compatível (20)
+  if (containsCompatibleVersionOrDisplacement(fipeModel, normalizedQuery.model)) score += 20;
+  // Ano exato (15)
+  if (fipe.year_model === query.year_model) score += 15;
+  // Combustível compatível (10)
+  const fa = normalizeFuel(fipe.fuel);
+  const fb = normalizeFuel(query.fuel);
+  if (!fa || !fb || fa === fb) score += 10;
+  // Cobertura de tokens — bônus proporcional (5)
+  const coverage = tokenCoverage(fipeModel, normalizedQuery.model);
+  score += Math.round(coverage * 5);
+  // Penalidade leve por modelo FIPE excessivamente longo (ruído)
+  const excess = Math.max(0, fipeTokens.length - queryTokens.length - 3);
+  score -= Math.min(excess, 5);
+
+  return Math.max(0, Math.min(100, score));
+}
