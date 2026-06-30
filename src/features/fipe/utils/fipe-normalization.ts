@@ -91,7 +91,8 @@ export function applyFipeBrandAlias(brand: string): string {
 export function applyFipeModelAlias(brand: string, model: string): string {
   const brandKey = normalizeText(applyFipeBrandAlias(brand));
   const originalBrandKey = normalizeText(brand);
-  const modelKey = normalizeText(model);
+  const preNormalizedModel = preNormalizeBrandModel(originalBrandKey, model);
+  const modelKey = normalizeText(preNormalizedModel);
   const exact =
     FIPE_MODEL_ALIASES[`${originalBrandKey}|${modelKey}`] ??
     FIPE_MODEL_ALIASES[`${brandKey}|${modelKey}`];
