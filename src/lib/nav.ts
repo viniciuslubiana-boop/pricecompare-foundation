@@ -40,6 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Diagnóstico de Sincronização", url: "/diagnostico-sincronizacao", icon: Activity },
   { title: "Diagnóstico da Empresa", url: "/diagnostico-empresa", icon: Stethoscope },
   { title: "Diagnóstico da Fonte", url: "/diagnostico-fonte", icon: Radar },
+  { title: "Diagnóstico HTML", url: "/diagnostico-html", icon: Stethoscope },
   { title: "Consulta Global", url: "/consulta-mercado", icon: Search },
   { title: "Central de Consulta", url: "/central-consulta", icon: Search },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
