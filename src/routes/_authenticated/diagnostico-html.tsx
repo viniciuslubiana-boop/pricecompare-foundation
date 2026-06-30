@@ -1093,18 +1093,19 @@ function DiagnosticoHtmlPage() {
                 <TableHead className="text-right">Veículos</TableHead>
                 <TableHead className="text-right">Tempo</TableHead>
                 <TableHead>Quando</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {history.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                     Carregando…
                   </TableCell>
                 </TableRow>
               ) : (history.data ?? []).length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6}>
+                  <TableCell colSpan={7}>
                     <EmptyState
                       icon={FileSearch}
                       title="Sem execuções ainda"
@@ -1113,26 +1114,78 @@ function DiagnosticoHtmlPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                (history.data ?? []).map((r: HtmlIntelligenceRunRow) => (
-                  <TableRow key={r.id}>
-                    <TableCell className="max-w-[260px] truncate">{r.base_url}</TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {r.chosen_route ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Badge variant={scoreBadgeVariant(r.chosen_score)}>
-                        {r.chosen_score}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">{r.vehicles_estimated}</TableCell>
-                    <TableCell className="text-right">{r.processing_ms} ms</TableCell>
-                    <TableCell>
-                      {new Date(r.created_at).toLocaleString("pt-BR")}
-                    </TableCell>
-                  </TableRow>
-                ))
+                (history.data ?? []).map((r: HtmlIntelligenceRunRow) => {
+                  const items = (r.normalized_preview ?? []) as NormalizedVehiclePreview[];
+                  const exportRows: ExportVehicleRow[] = items.map((v) => ({
+                    loja: v.store_name ?? null,
+                    tipo: null,
+                    marca: v.brand,
+                    modelo: v.model,
+                    versao: v.version,
+                    ano: v.year_model,
+                    km: v.km,
+                    preco: v.price,
+                    link: v.source_url,
+                    imagem: v.image_url,
+                    fonte: v.source,
+                    status: v.status,
+                    confianca: v.confidenceAvg,
+                    data_coleta: r.created_at,
+                  }));
+                  const host = (() => {
+                    try { return new URL(r.base_url).hostname.replace(/^www\./, ""); }
+                    catch { return "varredura"; }
+                  })();
+                  const base = `historico-${host}`;
+                  const hasItems = exportRows.length > 0;
+                  return (
+                    <TableRow key={r.id}>
+                      <TableCell className="max-w-[260px] truncate">{r.base_url}</TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {r.chosen_route ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge variant={scoreBadgeVariant(r.chosen_score)}>
+                          {r.chosen_score}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{r.vehicles_estimated}</TableCell>
+                      <TableCell className="text-right">{r.processing_ms} ms</TableCell>
+                      <TableCell>
+                        {new Date(r.created_at).toLocaleString("pt-BR")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={!hasItems}
+                            title={hasItems ? "Baixar CSV" : "Sem itens normalizados nesta execução"}
+                            onClick={() => downloadVehiclesCsv(exportRows, base)}
+                          >
+                            <Download className="size-4" />
+                            <span className="ml-1 hidden md:inline">CSV</span>
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={!hasItems}
+                            title={hasItems ? "Baixar Excel" : "Sem itens normalizados nesta execução"}
+                            onClick={() => downloadVehiclesXlsx(exportRows, base)}
+                          >
+                            <FileSpreadsheet className="size-4" />
+                            <span className="ml-1 hidden md:inline">Excel</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
+
           </Table>
         </CardContent>
       </Card>
