@@ -2,6 +2,7 @@
 // Conta sinais que tipicamente aparecem em páginas de estoque automotivo.
 
 import type { HtmlScoreBreakdown } from "../types";
+import { countQualifiedVehicleCardCandidates } from "./card-candidates";
 
 const PRICE_REGEX = /R\$\s?\d{1,3}(?:\.\d{3})+(?:,\d{2})?|R\$\s?\d{4,}/gi;
 const YEAR_REGEX = /\b(19[89]\d|20[0-3]\d)(?:\s*\/\s*(19[89]\d|20[0-3]\d))?\b/g;
@@ -36,9 +37,7 @@ function countCaseInsensitiveTokens(haystack: string, tokens: readonly string[])
 }
 
 function countCardLikeContainers(html: string): number {
-  // Classes/atributos heurísticos comuns em listas de cards.
-  const re = /class\s*=\s*"[^"]*\b(card|veiculo|vehicle|product|item|list-item|tile)\b[^"]*"/gi;
-  return countMatches(html, re);
+  return countQualifiedVehicleCardCandidates(html);
 }
 
 function countStructuredData(html: string): number {

@@ -11,37 +11,23 @@ import type {
   RawVehicleItem,
   RawItemSource,
 } from "../types";
+import {
+  absolutizeUrl,
+  extractVehicleCardItems,
+  stripHtmlToText,
+  unescapeHtml,
+} from "../utils/card-candidates";
 
 const PRICE_RE = /R\$\s?(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d{4,})/i;
 const YEAR_RE = /\b(19[89]\d|20[0-3]\d)(?:\s*\/\s*(19[89]\d|20[0-3]\d))?\b/;
 const KM_RE = /\b(\d{1,3}(?:\.\d{3})+|\d{2,6})\s*km\b/i;
 
 function absolutize(href: string | null, baseUrl: string): string | null {
-  if (!href) return null;
-  try {
-    return new URL(href, baseUrl).toString();
-  } catch {
-    return null;
-  }
+  return absolutizeUrl(href, baseUrl);
 }
 
 function stripTags(html: string): string {
-  return html
-    .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function unescapeHtml(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+  return stripHtmlToText(html);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -252,97 +238,8 @@ function walkForVehicles(
   for (const v of Object.values(obj)) walkForVehicles(v, out, baseUrl, depth + 1);
 }
 
-// ─────────────────────────────────────────────────────────────
-// Vehicle Card Detector (HTML) — Sprint 011: melhor captura
-// ─────────────────────────────────────────────────────────────
-const CARD_RE =
-  /<(?:article|li|div|section)\b[^>]*class\s*=\s*"[^"]*\b(?:card|veiculo|vehicle|product|produto|item|list-item|tile|anuncio|vitrine|oferta|estoque|seminovo|usado)\b[^"]*"[^>]*>([\s\S]*?)<\/(?:article|li|div|section)>/gi;
-
-// Preço em texto OU em atributos (data-price, data-valor, content="...").
-const PRICE_ATTR_RE = /\b(?:data-price|data-valor|data-preco|content)\s*=\s*["']?\s*R?\$?\s?(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d{4,})/i;
-
-// Imagem lazy-load: data-src, data-original, data-lazy, srcset.
-const IMG_LAZY_RE = /<img\b[^>]*(?:data-src|data-original|data-lazy)\s*=\s*["']([^"']+)["']/i;
-const IMG_SRCSET_RE = /<img\b[^>]*srcset\s*=\s*["']([^"',]+)/i;
-const IMG_SRC_RE = /<img\b[^>]*src\s*=\s*["']([^"']+)["']/i;
-
-// Link "de veículo": preferir hrefs que indiquem detalhe de anúncio.
-const VEHICLE_HREF_RE = /<a\b[^>]+href\s*=\s*["']([^"']*\/(?:veiculo|ve[íi]culo|anuncio|an[úu]ncio|carro|moto|seminovo|usado|oferta|detalhe|comprar)\/[^"']*)["']/i;
-const ANY_HREF_RE = /<a\b[^>]+href\s*=\s*["']([^"']+)["']/i;
-
-// Título — ordem: <h1-4>, aria-label, alt de imagem, title=, primeiros 80 chars.
-function extractTitle(inner: string, text: string): string {
-  const h = inner.match(/<h[1-4][^>]*>([\s\S]*?)<\/h[1-4]>/i)?.[1];
-  if (h) return stripTags(h);
-  const aria = inner.match(/aria-label\s*=\s*["']([^"']{4,200})["']/i)?.[1];
-  if (aria) return aria;
-  const alt = inner.match(/<img\b[^>]*\balt\s*=\s*["']([^"']{4,200})["']/i)?.[1];
-  if (alt) return alt;
-  const titleAttr = inner.match(/\btitle\s*=\s*["']([^"']{4,200})["']/i)?.[1];
-  if (titleAttr) return titleAttr;
-  return text.slice(0, 80);
-}
-
-function extractPrice(inner: string, text: string): string | null {
-  const fromText = text.match(PRICE_RE);
-  if (fromText) return fromText[0];
-  const fromAttr = inner.match(PRICE_ATTR_RE);
-  if (fromAttr) return `R$ ${fromAttr[1]}`;
-  return null;
-}
-
-function extractImage(inner: string): string | null {
-  const lazy = inner.match(IMG_LAZY_RE)?.[1];
-  if (lazy) return lazy;
-  const srcset = inner.match(IMG_SRCSET_RE)?.[1];
-  if (srcset) return srcset.trim();
-  const src = inner.match(IMG_SRC_RE)?.[1];
-  if (src && !/^data:/.test(src)) return src;
-  return null;
-}
-
-function extractLink(inner: string): string | null {
-  const v = inner.match(VEHICLE_HREF_RE)?.[1];
-  if (v) return v;
-  return inner.match(ANY_HREF_RE)?.[1] ?? null;
-}
-
 export function detectVehicleCards(html: string, baseUrl: string): RawVehicleItem[] {
-  const out: RawVehicleItem[] = [];
-  let m: RegExpExecArray | null;
-  let safety = 0;
-  while ((m = CARD_RE.exec(html)) !== null && safety++ < 500) {
-    const inner = m[1];
-    const text = stripTags(inner);
-    const priceRaw = extractPrice(inner, text);
-    const yearMatch = text.match(YEAR_RE);
-    const kmMatch = text.match(KM_RE);
-    if (!priceRaw && !yearMatch) continue;
-    const linkRaw = extractLink(inner);
-    const imgRaw = extractImage(inner);
-    const titleStr = extractTitle(inner, text);
-    out.push({
-      title: stripTags(String(titleStr)).slice(0, 160) || null,
-      price: priceRaw,
-      year: yearMatch ? yearMatch[0] : null,
-      km: kmMatch ? kmMatch[0] : null,
-      link: absolutize(linkRaw, baseUrl),
-      image: absolutize(imgRaw, baseUrl),
-      rawText: text.slice(0, 400),
-      source: "HTML",
-      sourcePage: baseUrl,
-      confidence:
-        (priceRaw ? 35 : 0) + (yearMatch ? 25 : 0) + (kmMatch ? 15 : 0) + (linkRaw ? 15 : 0),
-    });
-  }
-  // dedup por link+price
-  const seen = new Set<string>();
-  return out.filter((i) => {
-    const k = `${i.link ?? i.title ?? ""}|${i.price ?? ""}`;
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
+  return extractVehicleCardItems(html, baseUrl);
 }
 
 
