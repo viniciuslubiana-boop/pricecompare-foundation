@@ -331,6 +331,38 @@ async function insertLog(
   }
 }
 
+// Sprint 010 — Auditoria de proteção/override de estoque.
+// Usa supabaseAdmin para garantir gravação (audit_logs não tem policy de INSERT para authenticated).
+async function writeAudit(
+  userId: string,
+  action: "mae_protection_applied" | "mae_override_blocked" | "mae_override_confirmed",
+  data: z.infer<typeof inputSchema>,
+  extra: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("audit_logs").insert({
+      user_id: userId,
+      action,
+      module: "market_acquisition",
+      record_id: data.companyId,
+      new_data: {
+        companyType: data.companyType,
+        companyId: data.companyId,
+        url: data.sourceUrl ?? null,
+        suspectedDrop: data.suspectedDrop ?? false,
+        confirmSuspectedDrop: data.confirmSuspectedDrop ?? false,
+        duplicateStrategy: data.duplicateStrategy,
+        includeReview: data.includeReview,
+        at: new Date().toISOString(),
+        ...extra,
+      } as never,
+    });
+  } catch {
+    /* auditoria best-effort */
+  }
+}
+
 // Listas auxiliares para o seletor de destino
 export const listSaveTargets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
