@@ -224,13 +224,18 @@ export class ParallelumProvider implements FipeProvider {
         ...m,
         coverage: tokenCoverage(m.nome, query.model),
         compatibleVersion: containsCompatibleVersionOrDisplacement(m.nome, query.model),
+        score: scoreFipeCandidate(m.nome, query, {
+          brand: brand.nome,
+          year_model: query.year_model,
+          fuel: query.fuel,
+        }),
       }))
       .filter((m) => m.coverage === 1 && m.compatibleVersion && isFipeModelCompatible(m.nome, query.model))
-      // Prefere maior cobertura de tokens, depois mais curto, depois compatibilidade versão/cilindrada.
+      // Maior score, depois maior cobertura, depois modelo mais curto.
       .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
         if (b.coverage !== a.coverage) return b.coverage - a.coverage;
-        if (a.nome.length !== b.nome.length) return a.nome.length - b.nome.length;
-        return Number(b.compatibleVersion) - Number(a.compatibleVersion);
+        return a.nome.length - b.nome.length;
       });
 
     diagnostics.fipe_candidates_found = candidateModels.slice(0, 20).map((m) => m.nome);
