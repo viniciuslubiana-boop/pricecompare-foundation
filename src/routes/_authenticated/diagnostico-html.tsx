@@ -47,6 +47,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import type {
   HtmlIntelligenceRunRow,
   InventoryRouteCandidate,
