@@ -87,11 +87,13 @@ export const discoverInventoryRoute = createServerFn({ method: "POST" })
           preview: null,
           runId: null,
           score: null,
+          normalization: null,
           rateLimited: true,
           rateLimitMessage:
             "Execução recente detectada para esta URL. Aguarde 60 segundos ou marque 'forçar reexecução'.",
         };
       }
+
     }
 
     let result: RouteDiscoveryResult;
