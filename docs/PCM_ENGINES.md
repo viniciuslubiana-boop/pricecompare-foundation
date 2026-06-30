@@ -1,10 +1,13 @@
 # PCM — Engines
 
-Toda regra de negócio do PCM vive nos **5 Engines oficiais**. Componentes React **apenas apresentam** dados.
+Toda regra de negócio do PCM vive nos **Engines oficiais**. Componentes React **apenas apresentam** dados.
 
 Não criar novos Engines sem alteração explícita da Constituição.
 
+> **PRD 001 — concluído em 2026-06-30:** o **Market Acquisition Engine (MAE)** é o fluxo oficial de sincronização de estoques (Empresas Base e Concorrentes). Ver seção 6.
+
 ---
+
 
 ## 1. Inventory Engine
 Pasta: `src/features/inventory/`
