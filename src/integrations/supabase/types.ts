@@ -880,6 +880,51 @@ export type Database = {
         }
         Relationships: []
       }
+      site_discovery: {
+        Row: {
+          company_id: string | null
+          company_type: Database["public"]["Enums"]["acquisition_company_type"]
+          confidence: number
+          created_at: string
+          detected_at: string
+          discovery_time_ms: number | null
+          framework_signature: Json | null
+          html_signature: Json | null
+          id: string
+          technology: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          company_id?: string | null
+          company_type: Database["public"]["Enums"]["acquisition_company_type"]
+          confidence?: number
+          created_at?: string
+          detected_at?: string
+          discovery_time_ms?: number | null
+          framework_signature?: Json | null
+          html_signature?: Json | null
+          id?: string
+          technology: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          company_id?: string | null
+          company_type?: Database["public"]["Enums"]["acquisition_company_type"]
+          confidence?: number
+          created_at?: string
+          detected_at?: string
+          discovery_time_ms?: number | null
+          framework_signature?: Json | null
+          html_signature?: Json | null
+          id?: string
+          technology?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       user_dashboard_preferences: {
         Row: {
           base_company_id: string | null
