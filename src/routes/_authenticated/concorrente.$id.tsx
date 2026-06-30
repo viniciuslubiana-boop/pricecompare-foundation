@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CompetitorStatusBadge } from "@/features/competitors/components/CompetitorStatusBadge";
 import { CompetitorImportCard } from "@/features/competitors/components/CompetitorImportCard";
+import { CompetitorStockSection } from "@/features/competitors/components/CompetitorStockSection";
 import {
   useCompetitor,
   useCompetitorImports,
@@ -99,6 +100,8 @@ function CompetitorDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      <CompetitorStockSection competitorId={c.id} />
 
       <CompetitorImportCard logs={importsQ.data ?? []} />
     </div>
