@@ -2,6 +2,15 @@
 export * from "./types";
 export { INVENTORY_ROUTE_CANDIDATES, buildCandidateUrls } from "./utils/route-candidates";
 export { scoreHtml, estimateVehiclesFromBreakdown } from "./utils/html-score";
+export {
+  countQualifiedVehicleCardCandidates,
+  discoverVehicleCardCandidates,
+  extractVehicleCardItems,
+  inspectVehicleCardCandidates,
+  isInvalidVehicleTitle,
+  isQualifiedVehicleCardCandidate,
+} from "./utils/card-candidates";
+export type { VehicleCardCandidate, VehicleCardInspection } from "./utils/card-candidates";
 export { computeSourceScore } from "./utils/source-score";
 export type { SourceScoreBreakdown, SourceScoreInput } from "./utils/source-score";
 export {
