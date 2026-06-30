@@ -131,7 +131,24 @@ export interface TechnicalPreview {
   rawAfter: number;
   /** Sprint 011 — qualidade dos itens brutos por campo. */
   quality?: ExtractorQualitySummary | null;
+  /**
+   * Sprint 013 — cobertura por campo (0-100) considerando itens brutos
+   * e, quando disponível, itens normalizados pela IA. Chaves: brand,
+   * model, year, price, km, link, image.
+   */
+  fieldCoverage?: FieldCoverage | null;
 }
+
+export interface FieldCoverage {
+  brand: number;
+  model: number;
+  year: number;
+  price: number;
+  km: number;
+  link: number;
+  image: number;
+}
+
 
 
 export interface HtmlIntelligenceRunRow {
