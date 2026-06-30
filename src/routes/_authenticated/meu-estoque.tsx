@@ -40,10 +40,6 @@ import { formatBRL, formatKm } from "@/features/inventory/utils/inventory-format
 import { BaseCompanySelector } from "@/features/base-companies/components/BaseCompanySelector";
 import { useSelectedBaseCompany } from "@/features/base-companies/context/SelectedBaseCompanyContext";
 import { Building2 } from "lucide-react";
-import { FipeUpdateButton } from "@/features/fipe/components/FipeUpdateButton";
-import { FipeStatusBadge } from "@/features/fipe/components/FipeStatusBadge";
-import { FipeManualLinkDialog } from "@/features/fipe/components/FipeManualLinkDialog";
-import { FipeDetailsDialog } from "@/features/fipe/components/FipeDetailsDialog";
 
 const ALL = "__all__";
 
