@@ -6,16 +6,40 @@
 
 const collapseSpaces = (s: string) => s.replace(/\s+/g, " ").trim();
 
-/** "  toyota  " -> "Toyota" */
+/**
+ * Mapa de aliases canônicos de marca. Sprint 013 — equivalências seguras
+ * para evitar que comparações deixem de casar por divergência de grafia.
+ * Chaves devem estar em lowercase, sem espaços extras.
+ */
+const BRAND_ALIASES: Record<string, string> = {
+  "citroen": "Citroën",
+  "citroën": "Citroën",
+  "kia": "Kia",
+  "kia motors": "Kia",
+  "vw": "Volkswagen",
+  "volkswagen": "Volkswagen",
+  "chevrolet": "Chevrolet",
+  "gm": "Chevrolet",
+  "gm chevrolet": "Chevrolet",
+  "chevrolet gm": "Chevrolet",
+  "chery": "Chery",
+  "caoa chery": "Chery",
+  "caoachery": "Chery",
+};
+
+/** "  toyota  " -> "Toyota"; aplica aliases canônicos quando reconhecidos. */
 export function normalizeBrand(input: string | null | undefined): string {
   if (!input) return "";
   const cleaned = collapseSpaces(String(input)).toLowerCase();
   if (!cleaned) return "";
+  const alias = BRAND_ALIASES[cleaned];
+  if (alias) return alias;
   return cleaned
     .split(" ")
     .map((w) => (w.length <= 2 ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
     .join(" ");
 }
+
 
 /** "Corolla   XEi  2.0" -> "Corolla XEi 2.0" */
 export function normalizeModel(input: string | null | undefined): string {
