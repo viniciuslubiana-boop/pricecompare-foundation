@@ -746,6 +746,93 @@ export type Database = {
           },
         ]
       }
+      market_source_history: {
+        Row: {
+          company_id: string | null
+          company_type: Database["public"]["Enums"]["acquisition_company_type"]
+          confidence: number
+          created_at: string
+          execution_time_ms: number | null
+          fallback_chain: Json | null
+          fallback_used: boolean
+          id: string
+          method_used: Database["public"]["Enums"]["source_method"]
+          success: boolean
+          url: string
+          vehicles_found: number
+        }
+        Insert: {
+          company_id?: string | null
+          company_type: Database["public"]["Enums"]["acquisition_company_type"]
+          confidence?: number
+          created_at?: string
+          execution_time_ms?: number | null
+          fallback_chain?: Json | null
+          fallback_used?: boolean
+          id?: string
+          method_used: Database["public"]["Enums"]["source_method"]
+          success?: boolean
+          url: string
+          vehicles_found?: number
+        }
+        Update: {
+          company_id?: string | null
+          company_type?: Database["public"]["Enums"]["acquisition_company_type"]
+          confidence?: number
+          created_at?: string
+          execution_time_ms?: number | null
+          fallback_chain?: Json | null
+          fallback_used?: boolean
+          id?: string
+          method_used?: Database["public"]["Enums"]["source_method"]
+          success?: boolean
+          url?: string
+          vehicles_found?: number
+        }
+        Relationships: []
+      }
+      market_source_profiles: {
+        Row: {
+          active: boolean
+          confidence: number
+          created_at: string
+          id: string
+          pagination_strategy: Json | null
+          priority: number
+          selector_strategy: Json | null
+          source_method: Database["public"]["Enums"]["source_method"]
+          technology: string
+          updated_at: string
+          vehicle_card_strategy: Json | null
+        }
+        Insert: {
+          active?: boolean
+          confidence?: number
+          created_at?: string
+          id?: string
+          pagination_strategy?: Json | null
+          priority?: number
+          selector_strategy?: Json | null
+          source_method: Database["public"]["Enums"]["source_method"]
+          technology: string
+          updated_at?: string
+          vehicle_card_strategy?: Json | null
+        }
+        Update: {
+          active?: boolean
+          confidence?: number
+          created_at?: string
+          id?: string
+          pagination_strategy?: Json | null
+          priority?: number
+          selector_strategy?: Json | null
+          source_method?: Database["public"]["Enums"]["source_method"]
+          technology?: string
+          updated_at?: string
+          vehicle_card_strategy?: Json | null
+        }
+        Relationships: []
+      }
       market_update_runs: {
         Row: {
           created_at: string
@@ -1236,6 +1323,19 @@ export type Database = {
         | "partial"
         | "failed"
       app_role: "admin" | "gerente"
+      source_method:
+        | "PLATFORM_PROFILE"
+        | "OFFICIAL_API"
+        | "PUBLIC_API"
+        | "GRAPHQL"
+        | "JSON"
+        | "EMBEDDED_JSON"
+        | "XML"
+        | "SITEMAP"
+        | "HTML"
+        | "RENDERED_HTML"
+        | "FILE_IMPORT"
+        | "UNKNOWN"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1379,6 +1479,20 @@ export const Constants = {
         "failed",
       ],
       app_role: ["admin", "gerente"],
+      source_method: [
+        "PLATFORM_PROFILE",
+        "OFFICIAL_API",
+        "PUBLIC_API",
+        "GRAPHQL",
+        "JSON",
+        "EMBEDDED_JSON",
+        "XML",
+        "SITEMAP",
+        "HTML",
+        "RENDERED_HTML",
+        "FILE_IMPORT",
+        "UNKNOWN",
+      ],
     },
   },
 } as const
