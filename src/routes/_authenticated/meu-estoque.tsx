@@ -53,8 +53,6 @@ function MeuEstoquePage() {
   const [toDelete, setToDelete] = useState<Vehicle | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
-  const [fipeLinkTarget, setFipeLinkTarget] = useState<Vehicle | null>(null);
-  const [fipeDetailsTarget, setFipeDetailsTarget] = useState<Vehicle | null>(null);
 
   const filters = useMemo(
     () => ({ search, brand, baseCompanyId: selectedId }),
