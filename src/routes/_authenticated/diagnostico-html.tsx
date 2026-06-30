@@ -788,6 +788,21 @@ function DiagnosticoHtmlPage() {
                   {saveResult.errors.length > 0 && (
                     <div className="text-destructive mt-1">{saveResult.errors.join(" • ")}</div>
                   )}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {companyType === "base_company" ? (
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/meu-estoque">
+                          <ExternalLink className="mr-2 size-4" /> Ver no Meu Estoque
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/concorrente/$id" params={{ id: companyId }}>
+                          <ExternalLink className="mr-2 size-4" /> Ver Estoque do Concorrente
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
