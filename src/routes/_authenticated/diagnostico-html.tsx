@@ -667,9 +667,12 @@ function DiagnosticoHtmlPage() {
                   sourceUrl: url || data.result.baseUrl,
                   duplicateStrategy,
                   includeReview,
+                  suspectedDrop: data.suspectedDrop ?? false,
+                  confirmSuspectedDrop: data.suspectedDrop ?? false,
                 });
               }}
             >
+
               Confirmar e salvar
             </AlertDialogAction>
           </AlertDialogFooter>
