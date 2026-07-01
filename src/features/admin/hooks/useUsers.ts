@@ -58,3 +58,13 @@ export function useSetUserStatus() {
     onError: (e: Error) => toast.error(e.message),
   });
 }
+
+export function useSendPasswordReset() {
+  const fn = useServerFn(sendPasswordResetFn);
+  return useMutation({
+    mutationFn: (data: { userId: string }) => fn({ data }),
+    onSuccess: (res) =>
+      toast.success(`Link de redefinição enviado para ${res.email}.`),
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
