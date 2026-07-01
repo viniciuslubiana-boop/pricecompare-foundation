@@ -143,10 +143,7 @@ export const sendPasswordReset = createServerFn({ method: "POST" })
     const email = userRes.user?.email;
     if (!email) throw new Error("Usuário sem e-mail cadastrado.");
 
-    const siteUrl = process.env.SUPABASE_URL ? undefined : undefined;
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-      redirectTo: siteUrl,
-    });
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email);
     if (error) throw new Error(error.message);
 
     await supabaseAdmin.from("audit_logs").insert({
