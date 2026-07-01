@@ -47,18 +47,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [status, setStatus] = useState<"active" | "inactive">("active");
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     async function loadProfile(userId: string) {
-      const [{ data: rolesData }, { data: profile }] = await Promise.all([
-        supabase.from("user_roles").select("role").eq("user_id", userId),
-        supabase.from("profiles").select("status").eq("id", userId).maybeSingle(),
-      ]);
-      setRoles((rolesData ?? []).map((r) => r.role as AppRole));
-      const s = (profile?.status as "active" | "inactive" | null) ?? "active";
-      setStatus(s);
-      if (s === "inactive") {
-        await supabase.auth.signOut();
+      setProfileLoading(true);
+      try {
+        const [{ data: rolesData }, { data: profile }] = await Promise.all([
+          supabase.from("user_roles").select("role").eq("user_id", userId),
+          supabase.from("profiles").select("status").eq("id", userId).maybeSingle(),
+        ]);
+        setRoles((rolesData ?? []).map((r) => r.role as AppRole));
+        const s = (profile?.status as "active" | "inactive" | null) ?? "active";
+        setStatus(s);
+        if (s === "inactive") {
+          await supabase.auth.signOut();
+        }
+      } finally {
+        setProfileLoading(false);
       }
     }
 
@@ -66,10 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(newSession);
       setUser(mapUser(newSession?.user));
       if (newSession?.user) {
+        setProfileLoading(true);
         setTimeout(() => void loadProfile(newSession.user.id), 0);
       } else {
         setRoles([]);
         setStatus("active");
+        setProfileLoading(false);
       }
     });
 
