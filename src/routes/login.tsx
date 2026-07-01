@@ -115,6 +115,9 @@ function LoginPage() {
               Esqueci a senha
             </Link>
           </div>
+          <p className="text-[11px] text-muted-foreground">
+            Acesso restrito. Novas contas são criadas apenas pelo administrador.
+          </p>
           <Input
             id="password"
             type="password"
