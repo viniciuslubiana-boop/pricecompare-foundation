@@ -15,9 +15,11 @@ interface AuthContextValue {
   user: AuthUser | null;
   roles: AppRole[];
   loading: boolean;
+  profileLoading: boolean;
   isAdmin: boolean;
   isGerente: boolean;
   isInactive: boolean;
+  isAuthorized: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
