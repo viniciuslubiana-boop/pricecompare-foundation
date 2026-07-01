@@ -3,9 +3,7 @@ import {
   Package,
   Upload,
   Users,
-  
   GitCompareArrows,
-  
   Settings,
   ShieldCheck,
   Activity,
@@ -17,7 +15,6 @@ import {
   MapPin,
   History,
   Stethoscope,
-  
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,19 +25,37 @@ export type NavItem = {
   adminOnly?: boolean;
 };
 
-export const NAV_ITEMS: NavItem[] = [
+export type NavGroup = {
+  title: string;
+  icon: LucideIcon;
+  items: NavItem[];
+  adminOnly?: boolean;
+};
+
+export type NavEntry = NavItem | NavGroup;
+
+export function isNavGroup(entry: NavEntry): entry is NavGroup {
+  return (entry as NavGroup).items !== undefined;
+}
+
+export const NAV_ITEMS: NavEntry[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Centro de Operações", url: "/operacoes", icon: Activity },
   { title: "Meu Estoque", url: "/meu-estoque", icon: Package },
   { title: "Importações", url: "/importacoes", icon: Upload },
   { title: "Concorrentes", url: "/concorrentes", icon: Users },
   { title: "Localizar Concorrentes", url: "/localizar-concorrentes", icon: MapPin },
-  
-  { title: "Diagnóstico de Extração", url: "/diagnostico-extracao", icon: Stethoscope },
-  { title: "Diagnóstico de Sincronização", url: "/diagnostico-sincronizacao", icon: Activity },
-  { title: "Diagnóstico da Empresa", url: "/diagnostico-empresa", icon: Stethoscope },
-  { title: "Diagnóstico da Fonte", url: "/diagnostico-fonte", icon: Radar },
-  { title: "Diagnóstico HTML", url: "/diagnostico-html", icon: Stethoscope },
+  {
+    title: "Diagnóstico",
+    icon: Stethoscope,
+    items: [
+      { title: "Diagnóstico de Extração", url: "/diagnostico-extracao", icon: Stethoscope },
+      { title: "Diagnóstico de Sincronização", url: "/diagnostico-sincronizacao", icon: Activity },
+      { title: "Diagnóstico da Empresa", url: "/diagnostico-empresa", icon: Stethoscope },
+      { title: "Diagnóstico da Fonte", url: "/diagnostico-fonte", icon: Radar },
+      { title: "Diagnóstico HTML", url: "/diagnostico-html", icon: Stethoscope },
+    ],
+  },
   { title: "Consulta Global", url: "/consulta-mercado", icon: Search },
   { title: "Central de Consulta", url: "/central-consulta", icon: Search },
   { title: "Comparar", url: "/comparar", icon: GitCompareArrows },
@@ -49,9 +64,6 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Monitor de Mercado", url: "/monitor-mercado", icon: Radar },
   { title: "Histórico de Mercado", url: "/historico-mercado", icon: History },
   { title: "Central de Movimentações", url: "/movimentacoes-mercado", icon: Radio },
-  
   { title: "Configurações", url: "/configuracoes", icon: Settings },
-  
   { title: "Administração", url: "/administracao", icon: ShieldCheck, adminOnly: true },
 ];
-
