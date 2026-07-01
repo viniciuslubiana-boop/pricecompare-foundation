@@ -100,19 +100,29 @@ export function UsersTable({ users, currentUserId }: Props) {
                     {busy ? (
                       <Loader2 className="ml-auto h-4 w-4 animate-spin text-muted-foreground" />
                     ) : (
-                      <Button
-                        size="sm"
-                        variant={u.status === "active" ? "outline" : "default"}
-                        disabled={isSelf}
-                        onClick={() =>
-                          setStatus.mutate({
-                            userId: u.id,
-                            status: u.status === "active" ? "inactive" : "active",
-                          })
-                        }
-                      >
-                        {u.status === "active" ? "Inativar" : "Ativar"}
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={resetPwd.isPending && resetPwd.variables?.userId === u.id}
+                          onClick={() => resetPwd.mutate({ userId: u.id })}
+                        >
+                          <KeyRound className="h-4 w-4" /> Redefinir senha
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={u.status === "active" ? "outline" : "default"}
+                          disabled={isSelf}
+                          onClick={() =>
+                            setStatus.mutate({
+                              userId: u.id,
+                              status: u.status === "active" ? "inactive" : "active",
+                            })
+                          }
+                        >
+                          {u.status === "active" ? "Inativar" : "Ativar"}
+                        </Button>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
