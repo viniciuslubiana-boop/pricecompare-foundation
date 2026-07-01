@@ -6,6 +6,7 @@ import {
   inviteUser as inviteUserFn,
   setUserRole as setUserRoleFn,
   setUserStatus as setUserStatusFn,
+  sendPasswordReset as sendPasswordResetFn,
 } from "../services/users.functions";
 
 const KEY = ["admin", "users"] as const;
@@ -54,6 +55,16 @@ export function useSetUserStatus() {
       toast.success(vars.status === "inactive" ? "Usuário inativado." : "Usuário ativado.");
       qc.invalidateQueries({ queryKey: KEY });
     },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useSendPasswordReset() {
+  const fn = useServerFn(sendPasswordResetFn);
+  return useMutation({
+    mutationFn: (data: { userId: string }) => fn({ data }),
+    onSuccess: (res) =>
+      toast.success(`Link de redefinição enviado para ${res.email}.`),
     onError: (e: Error) => toast.error(e.message),
   });
 }
