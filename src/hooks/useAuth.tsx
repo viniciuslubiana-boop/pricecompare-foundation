@@ -15,9 +15,11 @@ interface AuthContextValue {
   user: AuthUser | null;
   roles: AppRole[];
   loading: boolean;
+  profileLoading: boolean;
   isAdmin: boolean;
   isGerente: boolean;
   isInactive: boolean;
+  isAuthorized: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
@@ -45,18 +47,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [status, setStatus] = useState<"active" | "inactive">("active");
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     async function loadProfile(userId: string) {
-      const [{ data: rolesData }, { data: profile }] = await Promise.all([
-        supabase.from("user_roles").select("role").eq("user_id", userId),
-        supabase.from("profiles").select("status").eq("id", userId).maybeSingle(),
-      ]);
-      setRoles((rolesData ?? []).map((r) => r.role as AppRole));
-      const s = (profile?.status as "active" | "inactive" | null) ?? "active";
-      setStatus(s);
-      if (s === "inactive") {
-        await supabase.auth.signOut();
+      setProfileLoading(true);
+      try {
+        const [{ data: rolesData }, { data: profile }] = await Promise.all([
+          supabase.from("user_roles").select("role").eq("user_id", userId),
+          supabase.from("profiles").select("status").eq("id", userId).maybeSingle(),
+        ]);
+        setRoles((rolesData ?? []).map((r) => r.role as AppRole));
+        const s = (profile?.status as "active" | "inactive" | null) ?? "active";
+        setStatus(s);
+        if (s === "inactive") {
+          await supabase.auth.signOut();
+        }
+      } finally {
+        setProfileLoading(false);
       }
     }
 
@@ -64,10 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(newSession);
       setUser(mapUser(newSession?.user));
       if (newSession?.user) {
+        setProfileLoading(true);
         setTimeout(() => void loadProfile(newSession.user.id), 0);
       } else {
         setRoles([]);
         setStatus("active");
+        setProfileLoading(false);
       }
     });
 
@@ -86,29 +96,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({
-      session,
-      user,
-      roles,
-      loading,
-      isAdmin: roles.includes("admin"),
-      isGerente: roles.includes("gerente"),
-      isInactive: status === "inactive",
-      async signIn(email, password) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      },
-      async signOut() {
-        await supabase.auth.signOut();
-      },
-      async sendPasswordReset(email) {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        if (error) throw error;
-      },
-    }),
-    [session, user, roles, status, loading],
+    () => {
+      const active = status !== "inactive";
+      const hasRole = roles.includes("admin") || roles.includes("gerente");
+      return {
+        session,
+        user,
+        roles,
+        loading,
+        profileLoading,
+        isAdmin: roles.includes("admin"),
+        isGerente: roles.includes("gerente"),
+        isInactive: status === "inactive",
+        isAuthorized: !!session && active && hasRole,
+        async signIn(email, password) {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+        },
+        async signOut() {
+          await supabase.auth.signOut();
+        },
+        async sendPasswordReset(email) {
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/reset-password`,
+          });
+          if (error) throw error;
+        },
+      };
+    },
+    [session, user, roles, status, loading, profileLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
