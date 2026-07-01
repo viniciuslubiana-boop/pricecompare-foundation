@@ -16,9 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2, KeyRound } from "lucide-react";
 import type { AdminUserRow } from "../services/users.service";
-import { useSetUserRole, useSetUserStatus } from "../hooks/useUsers";
+import { useSetUserRole, useSetUserStatus, useSendPasswordReset } from "../hooks/useUsers";
 
 interface Props {
   users: AdminUserRow[];
