@@ -124,3 +124,38 @@ export const setUserStatus = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+const resetPasswordSchema = z.object({
+  userId: z.string().uuid(),
+});
+
+export const sendPasswordReset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => resetPasswordSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: userRes, error: userErr } = await supabaseAdmin.auth.admin.getUserById(
+      data.userId,
+    );
+    if (userErr) throw new Error(userErr.message);
+    const email = userRes.user?.email;
+    if (!email) throw new Error("Usuário sem e-mail cadastrado.");
+
+    const siteUrl = process.env.SUPABASE_URL ? undefined : undefined;
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+      redirectTo: siteUrl,
+    });
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("audit_logs").insert({
+      user_id: context.userId,
+      action: "user_password_reset_sent",
+      module: "admin",
+      record_id: data.userId,
+      new_data: { email },
+    });
+    return { ok: true, email };
+  });
+
