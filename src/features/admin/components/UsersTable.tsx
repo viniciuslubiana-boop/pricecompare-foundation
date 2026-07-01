@@ -36,6 +36,7 @@ function fmtDate(iso: string) {
 export function UsersTable({ users, currentUserId }: Props) {
   const setRole = useSetUserRole();
   const setStatus = useSetUserStatus();
+  const resetPwd = useSendPasswordReset();
 
   return (
     <div className="rounded-md border">
