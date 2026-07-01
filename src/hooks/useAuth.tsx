@@ -96,29 +96,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({
-      session,
-      user,
-      roles,
-      loading,
-      isAdmin: roles.includes("admin"),
-      isGerente: roles.includes("gerente"),
-      isInactive: status === "inactive",
-      async signIn(email, password) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      },
-      async signOut() {
-        await supabase.auth.signOut();
-      },
-      async sendPasswordReset(email) {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        if (error) throw error;
-      },
-    }),
-    [session, user, roles, status, loading],
+    () => {
+      const active = status !== "inactive";
+      const hasRole = roles.includes("admin") || roles.includes("gerente");
+      return {
+        session,
+        user,
+        roles,
+        loading,
+        profileLoading,
+        isAdmin: roles.includes("admin"),
+        isGerente: roles.includes("gerente"),
+        isInactive: status === "inactive",
+        isAuthorized: !!session && active && hasRole,
+        async signIn(email, password) {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+        },
+        async signOut() {
+          await supabase.auth.signOut();
+        },
+        async sendPasswordReset(email) {
+          const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/reset-password`,
+          });
+          if (error) throw error;
+        },
+      };
+    },
+    [session, user, roles, status, loading, profileLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
