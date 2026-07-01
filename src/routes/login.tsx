@@ -38,7 +38,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { signIn, session, loading } = useAuth();
+  const { signIn, session, loading, profileLoading, isAuthorized } = useAuth();
   const navigate = useNavigate();
   const { redirect } = useSearch({ from: "/login" });
 
@@ -48,10 +48,10 @@ function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && session) {
+    if (!loading && !profileLoading && session && isAuthorized) {
       navigate({ to: redirect ?? "/", replace: true });
     }
-  }, [loading, session, navigate, redirect]);
+  }, [loading, profileLoading, session, isAuthorized, navigate, redirect]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
