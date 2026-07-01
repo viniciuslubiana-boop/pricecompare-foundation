@@ -6,6 +6,7 @@ import {
   inviteUser as inviteUserFn,
   setUserRole as setUserRoleFn,
   setUserStatus as setUserStatusFn,
+  sendPasswordReset as sendPasswordResetFn,
 } from "../services/users.functions";
 
 const KEY = ["admin", "users"] as const;
